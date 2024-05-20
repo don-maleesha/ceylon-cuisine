@@ -1,0 +1,82 @@
+* {
+  box-sizing: border-box;
+  
+}
+
+body {
+  background-color: #FAFAFA;
+  background-image: url(./images/coconut-sambol.webp), url(./images/Pittu.jpg);
+  background-repeat: no-repeat, no-repeat;
+  background-size: auto, cover;
+}
+
+header {
+  background-color: #eb3f3f;
+  padding: 1px 0;
+  margin: 2px;
+  border-radius: 15px;
+  height: auto;
+  border: 1px solid #795548;
+}
+
+.logo-img {
+  height: 100%;
+  max-height: 72px;
+  margin: 5px 15px 5px 5px;
+  border-radius: 15px;
+  border: 1px solid #795548;
+}
+
+.josefin-sans {
+  font-family: "Josefin Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  color: #FAFAFA;
+  margin-right: 15px;
+}
+
+.tagline {
+  font-size: 1.2rem; 
+  font-style: italic;
+  margin-top: 0.5rem; 
+  color: #f8f9fa; 
+}
+
+.navbar-nav .nav-link {
+  margin-right: 15px;
+}
+
+.navbar-nav {
+  margin-left: 180px;
+}
+
+.nav-link {
+  color: #FFC107;
+  font-size: 1.1rem;
+  padding: 10px 15px;
+  border-radius: 5px; 
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.ubuntu-light-italic {
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.navbar-brand {
+  margin-right: 20px;
+}
+
+@media only screen and (max-width: 768px) {
+  .navbar-nav {
+    margin-left: 50px;
+  }
+}
+
+@media only screen and (max-width: 576px) {
+  .navbar-nav {
+    margin-left: 20px;
+  }
+}
