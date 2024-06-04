@@ -25,10 +25,10 @@ include "dbconn.php";
     <div class="container-fluid">
       <div class="row align-items-center">
         <div class="col-3 d-flex align-items-center">
-          <img src="./images/logo.png" alt="logo" class="logo-img img-fluid">
+          <img src="./images/logo.png" alt="logo" class="logo-img img-fluid rounded-circle">
         </div>
         <div class="col-6 d-flex flex-column justify-content-center align-items-center">
-          <h1 class="display-4 m-0 josefin-sans">Ceylon Cuisine</h1>
+          <h1 class="display-4 m-0 josefin-sans mt-2">Ceylon Cuisine</h1>
           <p class="tagline text-center">Experience the Taste of Tradition</p>
         </div>
         <div class="col-3 text-end">
@@ -55,10 +55,11 @@ include "dbconn.php";
     </div>
   </header>
 
-  <div class="container border p-4">
+  <div class="container rounded-3 mt-3 col-6 d-flex flex-column justify-content-center align-items-center" id="welcome">
     <div class="row">
       <div class="col">
-        <h2 id="welcomeMessage" class="text-body-secondary"></h2>
+        <h2 id="welcomeMessage" class="h4 mt-2"></h2>
+        <p class="h6">We are the largest Sri Lankan traditional food recipe collection.</p>
       </div>
     </div>
   </div>
