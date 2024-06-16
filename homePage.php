@@ -39,7 +39,7 @@ include "dbconn.php";
             <div class="collapse navbar-collapse" id="navbarNav">
               <ul class="navbar-nav ml-5">
                 <li class="nav-item ubuntu-light-italic">
-                  <a href="homePage.php" class="nav-link" target="_blank">Home</a>
+                  <a href="homePage.php" class="nav-link" target="_top">Home</a>
                 </li>
                 <li class="nav-item ubuntu-light-italic">
                   <a href="#" class="nav-link">About Us</a>
@@ -58,30 +58,35 @@ include "dbconn.php";
     </div>
   </header>
 
-  <div class="container rounded-3 mt-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5" id="welcome">
+  <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5 vh-100" id="welcome">
     <div class="row">
       <div class="col">
         <h2 id="welcomeMessage" class="h4 mt-2"></h2>
         <p class="h6">We are the largest Sri Lankan traditional food recipes collection.</p>
       </div>
-      <div class="row mt-5 mb-5">
-        <div class="col-6">
-          <a href="#" class="link-offset-2 link-offset-3-hover">sign-in</a>
-        </div>
-        <div class="col-6">
-          <a href="#" class="link-offset-2 link-offset-3-hover">sign-up</a>
-        </div>
+    </div>
+    <div class="row mt-5 mb-5">
+      <div class="col">
+        <button><a href="#">Sign-up</a></button>
+        <button><a href="#">Sign-in</a></button>
       </div>
     </div>
   </div>
 
   <footer>
-    <div class="container-fluid mt-5 d-inline">
+    <div class="container-fluid justify-content-center align-items-center mt-1">
       <div class="row">
-        <div class="col">
-            <p class="text-center">&copy; Ceylon Cuisine 2024</p>
-            <p class="text-center"><a href="#">Privacy Policy</a></p>
-            <p class="text-center"><a href="#">Terms of Conditions</a></p>
+          <div class="col">
+            <div class="">
+              <a href="#">Privacy Policy</a>
+              <a href="#">Terms of Conditions</a>
+            </div>
+            <div class="col">
+              <div class="mt-2">
+                <p>&copy; ceylon-cuisine 2024</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
