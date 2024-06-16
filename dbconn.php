@@ -8,7 +8,7 @@
     // Establish a connection to the MySQL database using the defined variables.
     $conn = mysqli_connect($servername, $username, $password, $dbname);
 
-    // Check if the connection was successful.
+    // Check if the connection was successful.git
     if (!$conn) {
         
         die ("Connection Failed" . mysqli_connect_error());

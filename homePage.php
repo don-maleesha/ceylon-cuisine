@@ -37,7 +37,10 @@ include "dbconn.php";
               <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-              <ul class="navbar-nav">
+              <ul class="navbar-nav ml-5">
+                <li class="nav-item ubuntu-light-italic">
+                  <a href="homePage.php" class="nav-link" target="_blank">Home</a>
+                </li>
                 <li class="nav-item ubuntu-light-italic">
                   <a href="#" class="nav-link">About Us</a>
                 </li>
@@ -45,7 +48,7 @@ include "dbconn.php";
                   <a href="#" class="nav-link">Contact</a>
                 </li>
                 <li class="nav-item">
-                  <a href="#" class="nav-link ubuntu-light-italic">Recipe Categories</a>
+                  <a href="#" class="nav-link ubuntu-light-italic">Recipes</a>
                 </li>
               </ul>
             </div>
@@ -55,15 +58,35 @@ include "dbconn.php";
     </div>
   </header>
 
-  <div class="container rounded-3 mt-3 col-6 d-flex flex-column justify-content-center align-items-center" id="welcome">
+  <div class="container rounded-3 mt-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5" id="welcome">
     <div class="row">
       <div class="col">
         <h2 id="welcomeMessage" class="h4 mt-2"></h2>
-        <p class="h6">We are the largest Sri Lankan traditional food recipe collection.</p>
+        <p class="h6">We are the largest Sri Lankan traditional food recipes collection.</p>
+      </div>
+      <div class="row mt-5 mb-5">
+        <div class="col-6">
+          <a href="#" class="link-offset-2 link-offset-3-hover">sign-in</a>
+        </div>
+        <div class="col-6">
+          <a href="#" class="link-offset-2 link-offset-3-hover">sign-up</a>
+        </div>
       </div>
     </div>
   </div>
 
-  </body>
+  <footer>
+    <div class="container-fluid mt-5 d-inline">
+      <div class="row">
+        <div class="col">
+            <p class="text-center">&copy; Ceylon Cuisine 2024</p>
+            <p class="text-center"><a href="#">Privacy Policy</a></p>
+            <p class="text-center"><a href="#">Terms of Conditions</a></p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
 
 </html>

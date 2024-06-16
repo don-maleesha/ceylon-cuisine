@@ -62,6 +62,16 @@ header {
   color: #000;
 }
 
+#welcome:hover {
+  transform: translate(50px);
+}
+
+footer {
+  background-color: #eb3f3f;
+  border: 1px solid #795548;
+}
+
+
 /* Media Queries */
 @media (max-width: 1200px) {
   .josefin-sans {
