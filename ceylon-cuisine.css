@@ -15,6 +15,7 @@ header {
   padding: 1px 0;
   height: auto;
   border: 1px solid #795548;
+  margin-bottom: 20px;
 }
 
 .logo-img {
@@ -66,13 +67,31 @@ header {
   transform: translate(50px);
 }
 
+button {
+  background-color: #eb3f3f;
+  border: 1px solid #795548;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 500;
+  padding: 10px 20px;
+  transition: background-color 0.3s, color 0.3s;
+  cursor: pointer;
+}
+
 footer {
   background-color: #eb3f3f;
   border: 1px solid #795548;
+  position: relative;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
 }
 
 
 /* Media Queries */
+
 @media (max-width: 1200px) {
   .josefin-sans {
     font-size: 40px;
@@ -111,6 +130,11 @@ footer {
     display: block;
     margin: 0.5rem 0;
   }
+
+  footer {
+    padding: 8px 0;
+    font-size: 0.9rem;
+  }
 }
 
 @media (max-width: 576px) {
@@ -125,4 +149,10 @@ footer {
   .nav-link {
     font-size: 0.9rem;
   }
+
+  footer {
+    padding: 6px 0;
+    font-size: 0.8rem;
+  }
+
 }
