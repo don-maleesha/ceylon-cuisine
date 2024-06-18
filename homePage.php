@@ -21,7 +21,7 @@ include "dbconn.php";
 <body>
   <script src="./bootstrap-5.3.3-dist/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
 
-  <header class="text-white align-items-center">
+  <header class="text-white align-items-center fixed-top">
     <div class="container-fluid">
       <div class="row align-items-center">
         <div class="col-3 d-flex align-items-center">
