@@ -42,7 +42,7 @@ include "dbconn.php";
                   <a href="homePage.php" class="nav-link" target="_top">Home</a>
                 </li>
                 <li class="nav-item ubuntu-light-italic">
-                  <a href="#" class="nav-link">About Us</a>
+                  <a href="aboutus.php" class="nav-link" target="_top">About Us</a>
                 </li>
                 <li class="nav-item ubuntu-light-italic">
                   <a href="#" class="nav-link">Contact</a>
