@@ -8,6 +8,7 @@ body {
   background-image: url('./images/coconut-sambol.webp'), url('./images/Pittu.jpg');
   background-size: auto, cover;
   background-repeat: no-repeat, no-repeat;
+  padding-top: 75px;
 }
 
 header {
@@ -16,6 +17,7 @@ header {
   height: auto;
   border: 1px solid #795548;
   margin-bottom: 20px;
+  z-index: 1030;
 }
 
 .logo-img {
