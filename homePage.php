@@ -45,7 +45,7 @@ include "dbconn.php";
                   <a href="aboutus.php" class="nav-link" target="_top">About Us</a>
                 </li>
                 <li class="nav-item ubuntu-light-italic">
-                  <a href="#" class="nav-link">Contact</a>
+                  <a href="contacts.php" class="nav-link">Contacts</a>
                 </li>
                 <li class="nav-item">
                   <a href="#" class="nav-link ubuntu-light-italic">Recipes</a>
