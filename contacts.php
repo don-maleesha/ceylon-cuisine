@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Satisfy&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="ceylon-cuisine.js"></script>
 </head>
 <body>
@@ -53,32 +54,41 @@
 
   <section>
     <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5 vh-100 contact-selection" id="about">
-        <div class="row">
-            <div class="col">
-                <h2>Contact Us</h2>
-                <p>If you have any questions, feel free to reach out to us.</p>
-                <ul class="list-unstyled">
-                    <li class="contact-button">
-                        <a href="tel:+94 81 234 5678" class="btn btn-primary fw-medium">Call Us: +94 812345678</a>  
-                    </li>
-                    <li class="contact-button">
-                        <a href="mailto:info.@ceylon-cuisine.com" class="btn btn-primary fw-medium">Email Us: info@ceylon-cuisine.com</a>
-                    </li>
-                    <li class="mt-4">
-                        <h5>Our Address: </h5>
-                        <p class="fw-medium">47, Medagammedda, Walala, Menikhinna, 20170.</p>
-                    </li>
-                </ul>
-            </div>
+      <div class="left-side">
+        <div class="address details mb-4">
+          <i class="fas fa-map-marker-alt"></i>
+          <div class="topic">Address</div>
+          <div class="text-one">47, Medagammedda, Walala,</div>
+          <div class="text-two">Menikhinna, Kandy. 20170</div>
         </div>
-        <div class="row">
-            <div class="col">
-                <h5 class="mt-4">Find Us Here</h5>
-                <div id="map-container" class="mb-4">
-                <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15829.013225234494!2d80.6868241!3d7.3254202!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae367004524764b%3A0x50ba5d328f3044c5!2sCeylon%20Cuisine!5e0!3m2!1sen!2slk!4v1718807400414!5m2!1sen!2slk" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                </div>
-            </div>
-          </div>
+        <div class="phone details mb-4">
+          <i class="fas fa-phone-alt"></i>
+          <div class="topic">Phone</div>
+          <div class="text-one">+94 71 349 8849</div>
+        </div>
+        <div class="email details mb-4">
+          <i class="fas fa-envelope"></i>
+          <div class="topic">Email</div>
+          <div class="text-one">lochanamt@gmail.com</div>
+        </div>
+      </div>
+      <div class="righ-side">
+        <div class="topic-text">Leave us a message</div>
+        <form action="#">
+        <div class="input-box">
+          <input type="text" placeholder="Enter your name" />
+        </div>
+        <div class="input-box">
+          <input type="text" placeholder="Enter your email" />
+        </div>
+        <div class="input-box message-box">
+          <textarea placeholder="Enter your message"></textarea>
+        </div>
+        <div class="button">
+          <input type="button" value="Send Now" />
+        </div>
+        </form>
+      </div>
     </div>
   </section>
 
