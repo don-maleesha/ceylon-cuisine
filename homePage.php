@@ -68,7 +68,7 @@ include "dbconn.php";
     <div class="row mt-5 mb-5">
       <div class="col">
         <button type="submit"><a href="signup.php">Sign-up</a></button>
-        <button><a href="#">Sign-in</a></button>
+        <button><a href="signin.php">Sign-in</a></button>
       </div>
     </div>
   </div>

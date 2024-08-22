@@ -16,107 +16,49 @@
 </head>
 
 <body>
-    <h1>Signup</h1>
+    <h1>Signin</h1>
     <?php
 
-if (isset($_POST['submit'])) {
+    if(isset($_POST["login"])){
 
-  //retrieves form data
-  $name = $_POST['name'];
-  $email = $_POST['email_address'];
-  $password = $_POST['password'];
-  $confirm_pwd = $_POST['password_confirm'];
-  
-  //hashes the password for security
-  $password_hash = password_hash($password, PASSWORD_DEFAULT);
-  
-  //array to store the error messages
-  $errors = array();
+        $email = $_POST['email_address'];
+        $password = $_POST['password'];
 
-  //validates that all fields are filled
-  if (empty($name) || empty($email) || empty($password)) {
+        require_once "dbconn.php";
 
-      array_push($errors, 'All fields must be provided');
+        $sql = "SELECT * FROM users WHERE email_address = '$email'";
+        $result = mysqli_query($conn, $sql);
 
-  }
+        $user = mysqli_fetch_array($result, MYSQLI_ASSOC);
 
-  //validates email format
-  if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        if($user) {
 
-      array_push($errors, 'Email must be a valid email address');
+            if(password_verify($password, $user['password'])) {
 
-  }
+                header("Location: recipes.php");
+                die();
 
-  //validates password length
-  if (strlen($password) < 8) {
+            } else {
 
-      array_push($errors, 'Password must be at least 8 characters long');
+                echo "<div class='alert alert-danger'>Invalid password</div>";
 
-  }
+            }
 
-  //validates that the password and confirmation match
-  if ($password !== $confirm_pwd) {
+        } else {
 
-      array_push($errors, 'password does not match');
+            echo "<div class='alert alert-danger'>User not found</div>";
+        }
+    }
 
-  }
 
-  //include he database connection file
-  include "dbconn.php";
-
-  //checks if the email address already exists in the database
-  $sql = "SELECT * FROM users WHERE email_address = '$email'";
-
-  $result = mysqli_query($conn, $sql);
-  $row_count = mysqli_num_rows($result);
-
-  if($row_count > 0) {
-
-      array_push($errors, "Email address already exists");
-
-  }
-
-  //if there are any errors, display them
-  if (count($errors) > 0) {
-
-      foreach ($errors as $error) {
-
-          echo "<div class='alert alert-danger'>$error</div>";
-
-      } 
-
-  } else {
-
-      //prepares the sql statement for inserting a new user
-      $sql = "INSERT INTO users (name, email_address, password) VALUES (?, ?, ?)";
-
-      $statement = mysqli_stmt_init($conn);
-      $prepare_statement = mysqli_stmt_prepare($statement, $sql);
-
-      if ($prepare_statement) {
-
-          //binds the parameters and executes the statement
-          mysqli_stmt_bind_param($statement, "sss", $name, $email, $password_hash);
-
-          mysqli_stmt_execute($statement);
-
-          echo "<div class='alert alert-success'>You are registered successfully.</div>";
-
-      } else {
-
-          die("Something went wrong with your registration. Please try again later.");
-
-      }
-
-  }
-}
+ 
 
 ?>
 
 
                 
 
-<body>
+
   <script src="./bootstrap-5.3.3-dist/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
 
   <header class="text-white align-items-center fixed-top">
@@ -182,7 +124,7 @@ if (isset($_POST['submit'])) {
       <input type="password" class="form-control" id="password_confirm" name="password_confirm">
     </div>
   </div>
-  <button type="submit" name="submit" class="btn btn-primary">Sign in</button>
+  <button type="submit" name="login" class="btn btn-primary">Sign in</button>
   </form>
   </div>
 
