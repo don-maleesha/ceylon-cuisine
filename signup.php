@@ -16,10 +16,11 @@
 </head>
 
 <body>
-    <h1>Signup</h1>
-    <?php
+    <br>
+    <br>
+  <?php
 
-if (isset($_POST['submit'])) {
+  if (isset($_POST['submit'])) {
 
   //retrieves form data
   $name = $_POST['name'];
@@ -157,33 +158,33 @@ if (isset($_POST['submit'])) {
   </header>
 
   <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5 vh-100" id="welcome">
-  <form method="post">
-  <div class="row mb-3">
-    <label for="name" class="col-sm-2 col-form-label">Name</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" id="name" name="name">
-    </div>
-  </div>
-  <div class="row mb-3">
-    <label for="email" class="col-sm-2 col-form-label">Email</label>
-    <div class="col-sm-10">
-      <input type="email" class="form-control" id="email" name="email_address">
-    </div>
-  </div>
-  <div class="row mb-3">
-    <label for="password" class="col-sm-2 col-form-label">Password</label>
-    <div class="col-sm-10">
-      <input type="password" class="form-control" id="password" name="password">
-    </div>
-  </div>
-  <div class="row mb-3">
-    <label for="password_confirm" class="col-sm-2 col-form-label">Re Enter</label>
-    <div class="col-sm-10">
-      <input type="password" class="form-control" id="password_confirm" name="password_confirm">
-    </div>
-  </div>
-  <button type="submit" name="submit" class="btn btn-primary">Sign in</button>
-  </form>
+    <form method="post">
+      <div class="row mb-3">
+        <label for="name" class="col-sm-2 col-form-label">Name</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="name" name="name">
+        </div>
+      </div>
+      <div class="row mb-3">
+        <label for="email" class="col-sm-2 col-form-label">Email</label>
+        <div class="col-sm-10">
+          <input type="email" class="form-control" id="email" name="email_address">
+        </div>
+      </div>
+      <div class="row mb-3">
+        <label for="password" class="col-sm-2 col-form-label">Password</label>
+        <div class="col-sm-10">
+          <input type="password" class="form-control" id="password" name="password">
+        </div>
+      </div>
+      <div class="row mb-3">
+        <label for="password_confirm" class="col-sm-2 col-form-label">Re Enter</label>
+        <div class="col-sm-10">
+          <input type="password" class="form-control" id="password_confirm" name="password_confirm">
+        </div>
+      </div>
+      <button type="submit" name="submit" class="btn btn-primary">Sign in</button>
+    </form>
   </div>
 
   <footer>
@@ -206,5 +207,4 @@ if (isset($_POST['submit'])) {
   </footer>
 
 </body>
-
 </html>
