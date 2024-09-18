@@ -29,7 +29,7 @@
   $confirm_pwd = $_POST['password_confirm'];
   
   //hashes the password for security
-  $password_hash = password_hash($password, PASSWORD_DEFAULT);
+  $password_hash = password_hash($password, PASSWORD_BCRYPT);
   
   //array to store the error messages
   $errors = array();

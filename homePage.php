@@ -1,6 +1,3 @@
-<?php
-  include "dbconn.php";
-?>
 
 <!doctype html>
 <html lang="en">
@@ -93,5 +90,4 @@
   </footer>
 
 </body>
-
 </html>

@@ -1,7 +1,7 @@
 <?php
     session_start();
     if (isset($_SESSION["user"])) {
-        header("Location: homePage.php");
+        header("Location: signin.php");
     }
 ?>
 <!DOCTYPE html>
@@ -26,39 +26,30 @@
     <?php
         if(isset($_POST["login"])){
 
-            $email = $_POST['email_address'];
-            $password = $_POST['password'];
+            $email = $_POST["email_address"];
+            $password = $_POST["password"];
 
             require_once "dbconn.php";  // Include the database connection file
 
-            // Check if the connection was established
-            if(!$conn) {
-                die("Connection failed: " . mysqli_connect_error());
-            }
-
             // Query to find the user by their email
             $sql = "SELECT * FROM users WHERE email_address = '$email'";
-            $result = mysqli_query($conn, $sql);
+            $result = mysqli_query( $conn, $sql);
 
-            // Check if the query executed successfully
-            if(!$result) {
-                die("Error executing query: " . mysqli_error($conn));
-            }
 
             $user = mysqli_fetch_array($result, MYSQLI_ASSOC);
 
-            if($user) {
-                // Verify the password entered against the hashed password stored in the database
-                if(password_verify($password, $user["password"])) {
-                    session_start();
-                    $_SESSION["user"] = "yes";
-                    header("Location: recipes.php");  // Redirect upon successful login
-                    die();
+            if ($user) {
+                // checks if the password is correct
+                if (password_verify($password, $user["password"])) {
+                        session_start();
+                        $_SESSION["user"] = "yes";
+                        header("Location: homePage.php");
+                        die();
                 } else {
-                    echo "<div class='alert alert-danger'>Invalid password</div>";  // Invalid password message
+                    echo "<div class='alert alert-danger'>Invalid password</div>";
                 }
             } else {
-                echo "<div class='alert alert-danger'>User not found</div>";  // User not found message
+                echo "<div class='alert alert-danger'>User not found</div>";
             }
         }
     ?>
