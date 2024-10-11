@@ -42,7 +42,7 @@
                   <a href="contacts.php" class="nav-link" target="_top">Contacts</a>
                 </li>
                 <li class="nav-item">
-                  <a href="#" class="nav-link ubuntu-light-italic">Recipes</a>
+                  <a href="recipes.php" class="nav-link ubuntu-light-italic">Recipes</a>
                 </li>
               </ul>
             </div>
