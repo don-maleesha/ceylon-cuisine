@@ -4,8 +4,7 @@
   
   body {
     height: 100%;
-    background-color: #FAFAFA;
-    background-image: url('./images/coconut-sambol.webp'), url('./images/Pittu.jpg');
+    background-color: #ebcdcd;
     background-size: auto, cover;
     background-repeat: no-repeat, no-repeat;
     padding-top: 75px;
@@ -57,39 +56,71 @@
     font-weight: 300;
     font-style: normal;
   }
-  
-  #welcome {
-    background-color: #eb3f3f;
-    opacity: .75;
-    border: 1px solid #795548;
-    color: #000;
+
+  .noto-sans {
+    font-family: "Noto Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings:
+      "wdth" 100;
   }
-  
-  #welcome:hover {
-    transform: translate(50px);
+
+  .slider-container{
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
-  
-  button {
-    background-color: #eb3f3f;
-    border: 1px solid #795548;
-    border-radius: 5px;
-    color: #fff;
-    font-size: 1.1rem;
-    font-weight: 500;
-    padding: 10px 20px;
-    transition: background-color 0.3s, color 0.3s;
-    cursor: pointer;
+
+  .card {
+    background-color: #fff;
+    border-radius: 10px;
+    margin: 10px;
+  }
+
+  .card .image-box{
+    height: 200px;
+  }
+
+  .card .image-box img{
+    height: 100%;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .card .description{
+    display: flex;
+    align-items: center;
+    column-gap: 12px;
+    padding: 15px;
+  }
+
+  .card .description img{
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+  }
+
+  .description .recipe-name{
+    font-size: 15px;
+    font-weight: 500; 
+  }
+
+  .description .ingredients{
+    font-size: 12px;
+    font-weight: 300;
+    color: #777;
   }
   
   footer {
     background-color: #eb3f3f;
     border: 1px solid #795548;
-    position: relative;
+    position: fixed;
     left: 0;
     bottom: 0;
     width: 100%;
     text-align: center;
-  }
+}
   
   
   /* Media Queries */
@@ -132,11 +163,7 @@
       display: block;
       margin: 0.5rem 0;
     }
-  
-    footer {
-      padding: 8px 0;
-      font-size: 0.9rem;
-    }
+
   }
   
   @media (max-width: 576px) {
