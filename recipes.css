@@ -71,12 +71,16 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    max-width: 1200px;
   }
 
   .card {
+    width: 512px;
     background-color: #fff;
     border-radius: 10px;
     margin: 10px;
+    overflow: hidden;
+    display: inline-block;
   }
 
   .card .image-box{
@@ -86,6 +90,11 @@
   .card .image-box img{
     height: 100%;
     border-radius: 8px 8px 0 0;
+  }
+
+  .image-box img {
+    width: 100%;
+    object-fit: cover;
   }
 
   .card .description{
@@ -104,12 +113,14 @@
   .description .recipe-name{
     font-size: 15px;
     font-weight: 500; 
+    text-align: justify;
   }
 
   .description .ingredients{
     font-size: 12px;
     font-weight: 300;
     color: #777;
+    text-align: justify;
   }
   
   footer {
