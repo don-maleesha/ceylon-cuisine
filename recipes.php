@@ -59,55 +59,65 @@
   </header>
 
   <div class="container">
-    <div class="slider-container">
-      <div class="card-wrapper">
-        <div class="card">
-          <div class="image-box">
-            <img src="./images/download (6).jfif" alt="hoppers" class="img-fluid" draggable="false">
-          </div>
-          <div class="description">
-            <div class="recipe-name">
-              <h3>Hoppers</h3>
-              <h4 class="ingrediants">Ingrediants:</h4>
-              <p>1 cup rice flour, 1 cup coconut milk, 1 egg, 1/2 tsp salt, 1/2 tsp sugar, 1/2 tsp yeast, 1/2 cup warm water, 1/2 tsp baking powder, 1/2 tsp baking soda, 1/2 tsp oil.</p>
-              <h5 class="method">Method:</h5>
-              <p>Mix the rice flour, coconut milk, egg, salt, sugar, yeast, and warm water in a bowl. Let it ferment for 4 hours. Add baking powder, baking soda, and oil to the mixture. Pour the mixture into a hopper pan and cook for 2 minutes. Serve hot with sambol or curry.</p>
-          </div>
-        </div>
+    <div class="card">
+      <div class="image-box">
+        <img src="./images/images (1).jfif" alt="recipe1" class="img-fluid">
       </div>
+      <div class="title">
+        <h2>Hoppers</h2>
+      </div>
+      <div class="description">
+        <p>Recipe 1 description</p>
+      </div>
+      <button>View Recipe</button>
     </div>
-    <div class="slider-container">
-      <div class="card-wrapper">
-        <div class="card">
-          <div class="image-box">
-            <img src="./images/336919407_5806908546074945_1170120185552864888_n.jpg" alt="ambul thiyal" class="img-fluid" draggable="false">
-          </div>
-          <div class="description">
-            <div class="recipe-name">
-              <h3>Fish Ambul Thiyal</h3>
-              <h4 class="ingrediants">Ingrediants:</h4>
-              <p>500g tuna(Kelawalla), 10 dried goraka, 1 tbsp black pepper, 1 tbsp chili powder, 1 tsp turmeric, 4 garlic cloves, curry leaves, 1 tsp salt, water, coconut oil.</p>
-              <h5 class="method">Method:</h5>
-              <p>Soak goraka in water. Cut fish into cubes. Mix goraka, pepper, chili, turmeric, garlic, curry leaves, and salt. Coat fish with the mixture. Heat oil in a pan, add fish and water. Simmer on low heat for 30 mins, stirring occasionally until fish is cooked and dry.</p>
-          </div>
-        </div>
+    <div class="card">
+      <div class="image-box">
+        <img src="./images/images (1).jfif" alt="recipe1" class="img-fluid">
       </div>
-      <div class="slider-container">
-      <div class="card-wrapper">
-        <div class="card">
-          <div class="image-box">
-            <img src="./images/download (7).jfif" alt="ambul thiyal" class="img-fluid" draggable="false">
-          </div>
-          <div class="description">
-            <div class="recipe-name">
-              <h3>Cashew Curry</h3>
-              <h4 class="ingrediants">Ingrediants:</h4>
-              <p> 1 cup raw cashews, 1 onion (chopped), 2-3 green chilies, 2-3 garlic cloves (minced), 1-inch ginger (minced), 2 tomatoes (chopped), 1 tsp turmeric, 1-2 tsp curry powder, 1 can coconut milk, 1 tbsp oil, salt, fresh cilantro.</p>
-              <h5 class="method">Method:</h5>
-              <p>Soak goraka in water. Cut fish into cubes. Mix goraka, pepper, chili, turmeric, garlic, curry leaves, and salt. Coat fish with the mixture. Heat oil in a pan, add fish and water. Simmer on low heat for 30 mins, stirring occasionally until fish is cooked and dry.</p>
-          </div>
-        </div>
+      <div class="title">
+        <h2>Hoppers</h2>
       </div>
+      <div class="description">
+        <p>Recipe 1 description</p>
+      </div>
+      <button>View Recipe</button>
+    </div>
+    <div class="card">
+      <div class="image-box">
+        <img src="./images/images (1).jfif" alt="recipe1" class="img-fluid">
+      </div>
+      <div class="title">
+        <h2>Hoppers</h2>
+      </div>
+      <div class="description">
+        <p>Recipe 1 description</p>
+      </div>
+      <button>View Recipe</button>
+    </div>
+    <div class="card">
+      <div class="image-box">
+        <img src="./images/images (1).jfif" alt="recipe1" class="img-fluid">
+      </div>
+      <div class="title">
+        <h2>Hoppers</h2>
+      </div>
+      <div class="description">
+        <p>Recipe 1 description</p>
+      </div>
+      <button>View Recipe</button>
+    </div>
+    <div class="card">
+      <div class="image-box">
+        <img src="./images/images (1).jfif" alt="recipe1" class="img-fluid">
+      </div>
+      <div class="title">
+        <h2>Hoppers</h2>
+      </div>
+      <div class="description">
+        <p>Recipe 1 description</p>
+      </div>
+      <button>View Recipe</button>
     </div>
   </div>
   <footer>

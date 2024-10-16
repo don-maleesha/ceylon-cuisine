@@ -15,7 +15,7 @@
     padding: 1px 0;
     height: auto;
     border: 1px solid #795548;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     z-index: 1030;
   }
   
@@ -66,25 +66,17 @@
       "wdth" 100;
   }
 
-  .slider-container{
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    max-width: 1200px;
-  }
-
   .card {
-    width: 512px;
-    background-color: #fff;
-    border-radius: 10px;
-    margin: 10px;
-    overflow: hidden;
+    width: 20%;
     display: inline-block;
+    box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    margin: 2%;
+    opacity: 0.9;
   }
 
   .card .image-box{
-    height: 200px;
+    height: 20%;
   }
 
   .card .image-box img{
@@ -95,6 +87,11 @@
   .image-box img {
     width: 100%;
     object-fit: cover;
+  }
+
+  .title {
+    text-align: center;
+    padding: 10px;
   }
 
   .card .description{
@@ -110,17 +107,21 @@
     border-radius: 50%;
   }
 
-  .description .recipe-name{
-    font-size: 15px;
-    font-weight: 500; 
-    text-align: justify;
+  button{
+    margin-top: 10px 0;
+    margin-bottom: 10px;
+    background-color: #eb3f3f;
+    border: 1px solid #795548;
+    border-radius: 5px;
+    padding:10px 20px; 
+    
   }
 
-  .description .ingredients{
-    font-size: 12px;
-    font-weight: 300;
-    color: #777;
-    text-align: justify;
+  button:hover{
+    background-color: #FFC107;
+    color: white;
+    transition: .5s;
+    cursor: pointer;
   }
   
   footer {
