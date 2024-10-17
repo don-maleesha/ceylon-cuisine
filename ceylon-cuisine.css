@@ -5,9 +5,9 @@
 body {
   height: 100%;
   background-color: #FAFAFA;
-  background-image: url('./images/coconut-sambol.webp'), url('./images/Pittu.jpg');
-  background-size: auto, cover;
-  background-repeat: no-repeat, no-repeat;
+  background-image: url('./images/Sri\ Lanka\ food.jpeg');
+  background-size: cover;
+  background-repeat: no-repeat;
   padding-top: 75px;
 }
 
