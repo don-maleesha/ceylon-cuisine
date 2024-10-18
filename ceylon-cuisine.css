@@ -5,7 +5,7 @@
 body {
   height: 100%;
   background-color: #FAFAFA;
-  background-image: url('./images/Sri\ Lanka\ food.jpeg');
+  background-image: url('./images/Exploring-Sri-Lanka-Desktop.jpg');
   background-size: cover;
   background-repeat: no-repeat;
   padding-top: 75px;
@@ -58,27 +58,41 @@ header {
   font-style: normal;
 }
 
-#welcome {
-  background-color: #eb3f3f;
-  opacity: .75;
-  border: 1px solid #795548;
-  color: #000;
+#welcomeMessage {
+  color: #FFC107;
+  font-size: 2.2rem;
 }
 
-#welcome:hover {
-  transform: translate(50px);
+#welcome {
+  background-color: #eb3f3f;
+  opacity: .9;
+  border: 1px solid #795548;
+  color: #f8f9fa;
+  font-size: 1.1rem;
+  font-weight: 400;
 }
 
 button {
-  background-color: #eb3f3f;
+  background-color: #795548;
   border: 1px solid #795548;
   border-radius: 5px;
-  color: #fff;
   font-size: 1.1rem;
   font-weight: 500;
   padding: 10px 20px;
   transition: background-color 0.3s, color 0.3s;
   cursor: pointer;
+  transition: background-color 0.3s, color 0.3s, transform 0.3s;
+}
+
+button:hover{
+  background-color: #FFC107;
+  transform: scale(1.05);
+}
+
+button a{
+  color: #f8f9fa;
+  text-decoration: none;
+  margin: 10px 10px 10px 10px;
 }
 
 footer {
@@ -91,7 +105,9 @@ footer {
   text-align: center;
 }
 
-
+.copy {
+  color: #f8f9fa;
+}
 /* Media Queries */
 
 @media (max-width: 1200px) {

@@ -58,7 +58,7 @@
   <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5 vh-100" id="welcome">
     <div class="row">
       <div class="col">
-        <h2 id="welcomeMessage" class="h4 mt-2"></h2>
+        <h2 id="welcomeMessage" class="h4 mt-2 josefin-sans"></h2>
         <p class="h6">We are the largest Sri Lankan traditional food recipes collection.</p>
       </div>
     </div>
@@ -75,12 +75,12 @@
       <div class="row">
           <div class="col">
             <div class="">
-              <a href="#">Privacy Policy</a>
-              <a href="#">Terms of Conditions</a>
+              <a href="#" class="nav-link">Privacy Policy</a>
+              <a href="#" class="nav-link">Terms of Conditions</a>
             </div>
             <div class="col">
               <div class="mt-2">
-                <p>&copy; ceylon-cuisine 2024</p>
+                <p class="copy">&copy; ceylon-cuisine 2024</p>
               </div>
             </div>
           </div>
