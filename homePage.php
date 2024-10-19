@@ -12,6 +12,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Satisfy&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&display=swap" rel="stylesheet">
   <script src="ceylon-cuisine.js"></script>
 </head>
 
@@ -55,11 +58,11 @@
     </div>
   </header>
 
-  <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5 vh-100" id="welcome">
+  <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center  mb-5 vh-100" id="">
     <div class="row">
       <div class="col">
         <h2 id="welcomeMessage" class="h4 mt-2 josefin-sans"></h2>
-        <p class="h6">We are the largest Sri Lankan traditional food recipes collection.</p>
+        <p class="h6 playwrite-gb-s">We are the largest Sri Lankan traditional food recipes collection.</p>
       </div>
     </div>
     <div class="row mt-5 mb-5">
