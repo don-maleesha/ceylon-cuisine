@@ -83,9 +83,9 @@ header {
 }
 
 button {
-  background-color: #795548;
-  border: 1px solid #795548;
-  border-radius: 5px;
+  background-color: #eb3f3f;
+  border: 5px solid #795548;
+  border-radius: 25px;
   font-size: 1.1rem;
   font-weight: 500;
   padding: 10px 20px;

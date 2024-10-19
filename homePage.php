@@ -58,10 +58,10 @@
     </div>
   </header>
 
-  <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center  mb-5 vh-100" id="">
+  <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5 vh-100" id="welcome">
     <div class="row">
       <div class="col">
-        <h2 id="welcomeMessage" class="h4 mt-2 josefin-sans"></h2>
+        <h2 id="welcomeMessage" class="h4 josefin-sans"></h2>
         <p class="h6 playwrite-gb-s">We are the largest Sri Lankan traditional food recipes collection.</p>
       </div>
     </div>
