@@ -81,20 +81,18 @@
     font-weight: 400;
     justify-content: right;
   }
-
-  .form {
-  }
   
   button {
     background-color: #eb3f3f;
     border: 5px solid #795548;
-    border-radius: 25px;
+    border-radius: 15px;
     font-size: 1.1rem;
     font-weight: 500;
-    padding: 10px 20px;
+    padding: 6px 8px 6px 8px;
     transition: background-color 0.3s, color 0.3s;
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s, transform 0.3s;
+    color: #f8f9fa;
   }
   
   button:hover{
