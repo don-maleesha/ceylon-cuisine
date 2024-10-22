@@ -79,7 +79,20 @@
     color: #f8f9fa;
     font-size: 1.1rem;
     font-weight: 400;
-    justify-content: right;
+    justify-content: center;
+    align-items: center;
+    display: inline;
+  }
+
+  .label {
+    color: #f8f9fa;
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+
+  .form {
+    width: 50%;
+    margin-left: 100px;
   }
   
   button {
