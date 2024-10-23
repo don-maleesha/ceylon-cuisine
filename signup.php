@@ -16,110 +16,103 @@
 </head>
 
 <body>
-    <br>
-    <br>
   <?php
 
-  if (isset($_POST['submit'])) {
+    if (isset($_POST['submit'])) {
 
-  //retrieves form data
-  $name = $_POST['name'];
-  $email = $_POST['email_address'];
-  $password = $_POST['password'];
-  $confirm_pwd = $_POST['password_confirm'];
-  
-  //hashes the password for security
-  $password_hash = password_hash($password, PASSWORD_BCRYPT);
-  
-  //array to store the error messages
-  $errors = array();
+    //retrieves form data
+    $name = $_POST['name'];
+    $email = $_POST['email_address'];
+    $password = $_POST['password'];
+    $confirm_pwd = $_POST['password_confirm'];
+    
+    //hashes the password for security
+    $password_hash = password_hash($password, PASSWORD_BCRYPT);
+    
+    //array to store the error messages
+    $errors = array();
 
-  //validates that all fields are filled
-  if (empty($name) || empty($email) || empty($password)) {
+    //validates that all fields are filled
+    if (empty($name) || empty($email) || empty($password)) {
 
-      array_push($errors, 'All fields must be provided');
+        array_push($errors, 'All fields must be provided');
 
+    }
+
+    //validates email format
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+
+        array_push($errors, 'Email must be a valid email address');
+
+    }
+
+    //validates password length
+    if (strlen($password) < 8) {
+
+        array_push($errors, 'Password must be at least 8 characters long');
+
+    }
+
+    //validates that the password and confirmation match
+    if ($password !== $confirm_pwd) {
+
+        array_push($errors, 'password does not match');
+
+    }
+
+    //include he database connection file
+    include "dbconn.php";
+
+    //checks if the email address already exists in the database
+    $sql = "SELECT * FROM users WHERE email_address = '$email'";
+
+    $result = mysqli_query($conn, $sql);
+    $row_count = mysqli_num_rows($result);
+
+    if($row_count > 0) {
+
+        array_push($errors, "Email address already exists");
+
+    }
+
+    //if there are any errors, display them
+    if (count($errors) > 0) {
+
+        foreach ($errors as $error) {
+
+            echo "<div class='alert alert-danger'>$error</div>";
+
+        } 
+
+    } else {
+
+        //prepares the sql statement for inserting a new user
+        $sql = "INSERT INTO users (name, email_address, password) VALUES (?, ?, ?)";
+
+        $statement = mysqli_stmt_init($conn);
+        $prepare_statement = mysqli_stmt_prepare($statement, $sql);
+
+        if ($prepare_statement) {
+
+            //binds the parameters and executes the statement
+            mysqli_stmt_bind_param($statement, "sss", $name, $email, $password_hash);
+
+            mysqli_stmt_execute($statement);
+
+            echo "<div class='alert alert-success'>You are registered successfully.</div>";
+
+        } else {
+
+            die("Something went wrong with your registration. Please try again later.");
+
+        }
+
+    }
   }
-
-  //validates email format
-  if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-
-      array_push($errors, 'Email must be a valid email address');
-
-  }
-
-  //validates password length
-  if (strlen($password) < 8) {
-
-      array_push($errors, 'Password must be at least 8 characters long');
-
-  }
-
-  //validates that the password and confirmation match
-  if ($password !== $confirm_pwd) {
-
-      array_push($errors, 'password does not match');
-
-  }
-
-  //include he database connection file
-  include "dbconn.php";
-
-  //checks if the email address already exists in the database
-  $sql = "SELECT * FROM users WHERE email_address = '$email'";
-
-  $result = mysqli_query($conn, $sql);
-  $row_count = mysqli_num_rows($result);
-
-  if($row_count > 0) {
-
-      array_push($errors, "Email address already exists");
-
-  }
-
-  //if there are any errors, display them
-  if (count($errors) > 0) {
-
-      foreach ($errors as $error) {
-
-          echo "<div class='alert alert-danger'>$error</div>";
-
-      } 
-
-  } else {
-
-      //prepares the sql statement for inserting a new user
-      $sql = "INSERT INTO users (name, email_address, password) VALUES (?, ?, ?)";
-
-      $statement = mysqli_stmt_init($conn);
-      $prepare_statement = mysqli_stmt_prepare($statement, $sql);
-
-      if ($prepare_statement) {
-
-          //binds the parameters and executes the statement
-          mysqli_stmt_bind_param($statement, "sss", $name, $email, $password_hash);
-
-          mysqli_stmt_execute($statement);
-
-          echo "<div class='alert alert-success'>You are registered successfully.</div>";
-
-      } else {
-
-          die("Something went wrong with your registration. Please try again later.");
-
-      }
-
-  }
-}
 
 ?>
-
-
-                
-
 <body>
   <script src="./bootstrap-5.3.3-dist/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
-
   <header class="text-white align-items-center fixed-top">
     <div class="container-fluid">
       <div class="row align-items-center">
@@ -156,9 +149,8 @@
       </div>
     </div>
   </header>
-
   <div class="container rounded-3 col-6 d-flex flex-column justify-content-center mt-5 mb-5 vh-100" id="welcome">
-    <form method="post">
+    <form method="post" id="form-id">
       <div class="row mb-3">
         <label for="name" class="col-sm-2 col-form-label label">Name</label>
         <div class="col-sm-10">
@@ -186,7 +178,6 @@
       <button type="submit" name="submit">Sign up</button>
     </form>
   </div>
-
   <footer>
     <div class="container-fluid justify-content-center align-items-center mt-1">
       <div class="row">
@@ -205,6 +196,5 @@
       </div>
     </div>
   </footer>
-
 </body>
 </html>

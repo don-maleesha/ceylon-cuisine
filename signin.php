@@ -12,7 +12,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ceylon-cuisine</title>
     <link rel="stylesheet" href="./bootstrap-5.3.3-dist/bootstrap-5.3.3-dist/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="ceylon-cuisine.css">
+    <link rel="stylesheet" type="text/css" href="signup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Satisfy&display=swap" rel="stylesheet">
@@ -21,8 +21,6 @@
 </head>
 
 <body>
-    <br>
-    <br>
     <?php
         if(isset($_POST["login"])){
 
@@ -53,9 +51,7 @@
             }
         }
     ?>
-
     <script src="./bootstrap-5.3.3-dist/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
-
     <header class="text-white align-items-center fixed-top">
         <div class="container-fluid">
             <div class="row align-items-center">
@@ -92,36 +88,34 @@
             </div>
         </div>
     </header>
-
     <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5 vh-100" id="welcome">
-        <form action="signin.php" method="post">
+        <form action="signin.php" method="post" id="form-id">
             <div class="row mb-3">
-                <label for="email" class="col-sm-2 col-form-label">Email</label>
+                <label for="email" class="col-sm-2 col-form-label label">Email</label>
                 <div class="col-sm-10">
-                    <input type="email" class="form-control" id="email" name="email_address">
+                    <input type="email" class="form-control form" id="email" name="email_address">
                 </div>
             </div>
             <div class="row mb-3">
-                <label for="password" class="col-sm-2 col-form-label">Password</label>
+                <label for="password" class="col-sm-2 col-form-label label">Password</label>
                 <div class="col-sm-10">
-                    <input type="password" class="form-control" id="password" name="password">
+                    <input type="password" class="form-control form" id="password" name="password">
                 </div>
             </div>
-            <button type="submit" name="login" class="btn btn-primary">Sign in</button>
+            <button type="submit" name="login" class="button">Sign in</button>
         </form>
     </div>
-
     <footer>
         <div class="container-fluid justify-content-center align-items-center mt-1">
             <div class="row">
                 <div class="col">
                     <div class="">
-                        <a href="#">Privacy Policy</a>
-                        <a href="#">Terms of Conditions</a>
+                        <a href="#" class="nav-link">Privacy Policy</a>
+                        <a href="#" class="nav-link">Terms of Conditions</a>
                     </div>
                     <div class="col">
                         <div class="mt-2">
-                            <p>&copy; ceylon-cuisine 2024</p>
+                            <p class="copy">&copy; ceylon-cuisine 2024</p>
                         </div>
                     </div>
                 </div>

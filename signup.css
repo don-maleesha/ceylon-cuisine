@@ -5,7 +5,7 @@
   body {
     height: 100%;
     background-color: #FAFAFA;
-    background-image: url('./images/Exploring-Sri-Lanka-Desktop.jpg');
+    background-image: url('./images/img86980.whqc_1426x713q80.jpg');
     background-size: cover;
     background-repeat: no-repeat;
     padding-top: 75px;
@@ -16,7 +16,7 @@
     padding: 1px 0;
     height: auto;
     border: 1px solid #795548;
-    margin-bottom: 20px;
+    margin-bottom: 200px;
     z-index: 1030;
   }
   
@@ -80,8 +80,12 @@
     font-size: 1.1rem;
     font-weight: 400;
     justify-content: center;
+  }
+
+  #form-id {
+    justify-content: center;
     align-items: center;
-    display: inline;
+    padding: 0 0 0 25%;
   }
 
   .label {
@@ -92,14 +96,14 @@
 
   .form {
     width: 50%;
-    margin-left: 100px;
+    margin-left: 15px;
+    border: 2px solid #795548;
   }
   
   button {
     background-color: #eb3f3f;
     border: 5px solid #795548;
     border-radius: 15px;
-    font-size: 1.1rem;
     font-weight: 500;
     padding: 6px 8px 6px 8px;
     transition: background-color 0.3s, color 0.3s;
@@ -116,7 +120,7 @@
   button a{
     color: #f8f9fa;
     text-decoration: none;
-    margin: 10px 10px 10px 10px;
+    padding: 6px 8px 6px 8px;
   }
   
   footer {
