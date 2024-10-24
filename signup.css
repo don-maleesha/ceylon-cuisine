@@ -10,6 +10,13 @@
     background-repeat: no-repeat;
     padding-top: 75px;
   }
+
+  /* su=ign in page bg image */
+  #signin-body {
+    background-image: url('./images/item_35.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
   
   header {
     background-color: #eb3f3f;
