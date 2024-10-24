@@ -5,7 +5,7 @@
   body {
     height: 100%;
     background-color: #FAFAFA;
-    background-image: url('./images/kiribath.jpg');
+    background-image: url('./images/spices.jpg');
     background-size: cover;
     background-repeat: no-repeat;
     padding-top: 75px;
@@ -60,14 +60,22 @@
   
   #about {
     background-color: #eb3f3f;
-    opacity: .75;
+    opacity: .8;
     border: 1px solid #795548;
     color: #000;
     text-align: justify;
   }
-  
-  #about:hover {
-    transform: translate(50px);
+
+  .h2 {
+    font-size: 2.5rem;
+    font-weight: bolder;
+    color: #FFC107;
+  }
+
+  .p {
+    color: #f8f9fa;
+    text-align: justify;
+    font-weight: bolder;
   }
   
   button {
@@ -91,7 +99,10 @@
     width: 100%;
     text-align: center;
   }
-  
+
+  .copy {
+    color: #f8f9fa;
+  }  
   
   /* Media Queries */
   
