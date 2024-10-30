@@ -56,36 +56,36 @@
     <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5 vh-100 contact-selection" id="about">
       <div class="left-side">
         <div class="address details mb-4">
-          <i class="fas fa-map-marker-alt"></i>
-          <div class="topic">Address</div>
-          <div class="text-one">47, Medagammedda, Walala,</div>
+          <i class="fas fa-map-marker-alt icon"></i>
+          <div class="topic">Address: </div>
+          <div class="text-one">47, Yapa Patumaga, Walala,</div>
           <div class="text-two">Menikhinna, Kandy. 20170</div>
         </div>
         <div class="phone details mb-4">
-          <i class="fas fa-phone-alt"></i>
-          <div class="topic">Phone</div>
+          <i class="fas fa-phone-alt icon"></i>
+          <div class="topic">Phone: </div>
           <div class="text-one">+94 71 349 8849</div>
         </div>
         <div class="email details mb-4">
-          <i class="fas fa-envelope"></i>
-          <div class="topic">Email</div>
-          <div class="text-one">lochanamt@gmail.com</div>
+          <i class="fas fa-envelope icon"></i>
+          <div class="topic">Email: </div>
+          <div class="text-one">info@ceyloncuisine.com</div>
         </div>
       </div>
       <div class="righ-side">
         <div class="topic-text">Leave us a message</div>
         <form action="#">
         <div class="input-box">
-          <input type="text" placeholder="Enter your name" />
+          <input type="text" placeholder="Enter your name" class="input-field"/>
         </div>
         <div class="input-box">
-          <input type="text" placeholder="Enter your email" />
+          <input type="text" placeholder="Enter your email" class="input-field"/>
         </div>
         <div class="input-box message-box">
-          <textarea placeholder="Enter your message"></textarea>
+          <textarea placeholder="Enter your message" class="input-field"></textarea>
         </div>
         <div class="button">
-          <input type="button" value="Send Now" />
+          <input type="button" value="Send Now"/>
         </div>
         </form>
       </div>
@@ -97,12 +97,12 @@
       <div class="row">
           <div class="col">
             <div class="">
-              <a href="#">Privacy Policy</a>
-              <a href="#">Terms of Conditions</a>
+              <a href="#" class="nav-link">Privacy Policy</a>
+              <a href="#" class="nav-link">Terms of Conditions</a>
             </div>
             <div class="col">
               <div class="mt-2">
-                <p>&copy; ceylon-cuisine 2024</p>
+                <p class="copy">&copy; ceylon-cuisine 2024</p>
               </div>
             </div>
           </div>

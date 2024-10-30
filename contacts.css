@@ -5,7 +5,7 @@
 body {
     height: 100%;
     background-color: #FAFAFA;
-    background-image: url('./images/lankafood3.webp');
+    background-image: url('./images/Screenshot-2021-03-22-at-16.09.38.jpg');
     background-size: cover;
     background-repeat: no-repeat;
     padding-top: 75px;
@@ -60,16 +60,20 @@ header {
 
 #about {
     background-color: #eb3f3f;
-    opacity: .75;
+    opacity: .8;
     border: 1px solid #795548;
-    color: #000;
+    color: #f8f9fa;
     text-align: justify;
+    font-weight: 700;
 }
 
-#about:hover {
-    transform: translate(50px);
+.icon {
+    color: #FFC107;
 }
 
+.copy {
+    color: #f8f9fa;
+  }
 
 .contact-section {
     margin-top: 50px;
@@ -80,18 +84,27 @@ header {
     text-align: center;
 }
 
-
-
 button {
     background-color: #eb3f3f;
-    border: 1px solid #795548;
-    border-radius: 5px;
-    color: #fff;
-    font-size: 1.1rem;
-    font-weight: 500;
-    padding: 10px 20px;
-    transition: background-color 0.3s, color 0.3s;
-    cursor: pointer;
+  border: 5px solid #795548;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  padding: 10px 20px;
+  transition: background-color 0.3s, color 0.3s;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s, transform 0.3s;
+}
+
+.topic-text {
+    text-decoration: underline;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #FFC107;
+}
+
+.input-field {
+    border: 3px solid #795548;
 }
 
 footer {
