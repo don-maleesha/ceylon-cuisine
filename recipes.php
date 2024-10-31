@@ -229,12 +229,12 @@
       <div class="row">
           <div class="col">
             <div class="">
-              <a href="#">Privacy Policy</a>
-              <a href="#">Terms of Conditions</a>
+              <a href="#" class="nav-link">Privacy Policy</a>
+              <a href="#" class="nav-link">Terms of Conditions</a>
             </div>
             <div class="col">
               <div class="mt-2">
-                <p>&copy; ceylon-cuisine 2024</p>
+                <p class="copy">&copy; ceylon-cuisine 2024</p>
               </div>
             </div>
           </div>
