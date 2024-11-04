@@ -14,6 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="ceylon-cuisine.js"></script>
 </head>
 <body>
@@ -55,6 +56,10 @@
     </div>
   </header>
   <div class="container">
+    <div class="search-wraapp">
+      <input type="text" class="search-bar" placeholder="Search for recipes...">
+      <button class="search-btn">Search</button>
+    </div>
     <div class="card">
       <div class="image-box">
         <img src="./images/336919407_5806908546074945_1170120185552864888_n.jpg" alt="ambul thiyal" class="img-fluid">

@@ -67,16 +67,60 @@
     color: #795548;
   }
 
+  .search-wrapper {
+    display: flex;
+    justify-content: right;
+    float: right;
+  }
+
+  .search-bar {
+    width: 25%;
+    height: 50px;
+    border-radius: 5px;
+    border: 1px solid #795548;
+    padding: 10px;
+    font-size: 1rem;
+    color: #795548;
+    margin-top: 60px;
+    margin-left: 65%;
+  }
+
+  .search-bar::placeholder {
+    color: #795548;
+  }
+
+  .search-btn {
+    background-color: #eb3f3f;
+    border: 1px solid #795548;
+    border-radius: 5px;
+    padding: 10px;
+    color: #FFC107;
+    font-size: 1rem;
+    margin-top: 60px;
+  }
+
+  .search-btn:hover {
+    background-color: #795548;
+    color: white;
+    transition: .5s;
+    cursor: pointer;
+  }
+
+  .hide {
+    display: none;
+  }
+
   .card {
     width: 25%;
     display: inline-block;
     box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
-    margin: 8% 4% 0 4%;
+    margin: 6% 4% 0 4%;
     opacity: 0.9;
     height: auto;
     border: 1px solid #795548;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   }
 
   .card:hover {
