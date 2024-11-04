@@ -82,7 +82,7 @@
     font-size: 1rem;
     color: #795548;
     margin-top: 60px;
-    margin-left: 65%;
+    margin-left: 59%;
   }
 
   .search-bar::placeholder {
@@ -110,12 +110,18 @@
     display: none;
   }
 
+  #root {
+    color: #795548;
+    font-size: larger;
+    align-items: center;
+  }
+
   .card {
     width: 25%;
     display: inline-block;
     box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
-    margin: 6% 4% 0 4%;
+    margin: 4% 4% 0 4%;
     opacity: 0.9;
     height: auto;
     border: 1px solid #795548;
