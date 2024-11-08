@@ -16,6 +16,9 @@
 </head>
 
 <body>
+  <br>
+  <br>
+  <br>
   <?php
 
     if (isset($_POST['submit'])) {

@@ -23,7 +23,6 @@ include "dbconn.php";
 
 <body>
   <script src="./bootstrap-5.3.3-dist/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
-
   <header class="text-white align-items-center fixed-top">
     <div class="container-fluid">
       <div class="row align-items-center">
@@ -60,7 +59,6 @@ include "dbconn.php";
       </div>
     </div>
   </header>
-
   <section>
   <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5 vh-100" id="about">
     <div class="row">
