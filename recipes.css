@@ -76,6 +76,7 @@ header {
   font-size: 1rem;
   color: #795548;
   margin-top: 60px;
+  margin-left: 2%;
   border-radius: 60px;
 }
 
@@ -89,6 +90,10 @@ header {
   font-size: larger;
   align-items: center;
   margin-top: 15px;
+}
+
+.add-btn{
+  margin-left: 64%;
 }
 
 .card {
@@ -152,6 +157,16 @@ button{
   padding: 5px 10px; 
   color: #FFC107;
   font-size: .9rem;
+}
+
+button a {
+  text-decoration: none;
+  color: #FFC107;
+}
+
+button a:hover {
+  text-decoration: none;
+  color:#f8f9fa;
 }
 
 .card button {

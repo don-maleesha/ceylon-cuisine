@@ -73,20 +73,25 @@
     text-align: center;
   }
   
-  #welcomeMessage {
-    color: #FFC107;
-    font-weight: 1000;
-    text-align: center;
-  }
-  
   #welcome {
     background-color: #eb3f3f;
     opacity: .8;
     border: 1px solid #795548;
-    color: #f8f9fa;
-    font-size: 1.1rem;
-    font-weight: 400;
     justify-content: center;
+  }
+
+  #h1 {
+    font-size: 3.5rem;
+    font-weight: 600;
+    color: #FFC107;
+    margin-bottom: 10px;
+  }
+
+  #p {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #f8f9fa;
+    margin-bottom: 90px;
   }
 
   #form-id {
@@ -105,6 +110,27 @@
     width: 50%;
     margin-left: 15px;
     border: 2px solid #795548;
+  }
+
+  .textarea{
+    height: 170px;
+  }
+
+  #char-count {
+    font-size: 14px;
+    color: #f8f9fa;
+}
+
+  .file-btn {
+    background-color: #eb3f3f;
+    border: 3px solid #795548;
+    border-radius: 15px;
+    font-weight: 500;
+    padding: 6px 8px 6px 8px;
+    transition: background-color 0.3s, color 0.3s;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, transform 0.3s;
+    color: #f8f9fa;
   }
   
   button {

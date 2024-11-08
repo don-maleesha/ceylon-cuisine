@@ -1,21 +1,20 @@
 
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ceylon-cuisine</title>
   <link rel="stylesheet" href="./bootstrap-5.3.3-dist/bootstrap-5.3.3-dist/css/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="ceylon-cuisine.css">
+  <link rel="stylesheet" type="text/css" href="recipes.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Satisfy&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&display=swap" rel="stylesheet">
-  <script src="ceylon-cuisine.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
   <script src="./bootstrap-5.3.3-dist/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
@@ -55,19 +54,11 @@
       </div>
     </div>
   </header>
-  <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5 vh-100" id="welcome">
-    <div class="row">
-      <div class="col">
-        <h2 id="welcomeMessage" class="h4 josefin-sans"></h2>
-        <p class="h6 playwrite-gb-s">We are the largest Sri Lankan traditional food recipes collection.</p>
-      </div>
-    </div>
-    <div class="row mt-5 mb-5">
-      <div class="col">
-        <button type="submit"><a href="signup.php">Sign-up</a></button>
-        <button><a href="signin.php">Sign-in</a></button>
-      </div>
-    </div>
+  <div>
+    <input type="text" class="search-bar" id="search-bar" placeholder="Search for recipes...">
+    <button class="add-btn" id="add-btn"><a href="addrecipes.php">Add Recipe</a></button>
+  </div>
+  <div class="container" id="root">
   </div>
   <footer>
     <div class="container-fluid justify-content-center align-items-center mt-1">
@@ -87,5 +78,6 @@
       </div>
     </div>
   </footer>
+  <script src="ceylon-cuisine.js"></script>
 </body>
 </html>

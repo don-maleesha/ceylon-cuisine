@@ -39,7 +39,7 @@
                     if (password_verify($password, $user["password"])) {
                             session_start();
                             $_SESSION["user"] = "yes";
-                            header("Location: homePage.php");
+                            header("Location: userreceipes.php");
                             die();
                     } else {
                         echo "<div class='alert alert-danger'>Invalid password</div>";
@@ -87,6 +87,10 @@
             </div>
         </header>
         <div class="container rounded-3 col-6 d-flex flex-column justify-content-center mt-5 mb-5 vh-100" id="welcome">
+            <div>
+                <h1 class="text-center josefin-sans" id="h1">Sign In!</h1>
+                <p id="p"></p>
+            </div>
             <form action="signin.php" method="post" id="form-id">
                 <div class="row mb-3">
                     <label for="email" class="col-sm-2 col-form-label label">Email</label>
