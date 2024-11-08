@@ -56,7 +56,6 @@
   </header>
   <div>
     <input type="text" class="search-bar" id="search-bar" placeholder="Search for recipes...">
-    <button class="search-btn">Search</button>
   </div>
   <div class="container" id="root">
   </div>
