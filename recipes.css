@@ -133,6 +133,12 @@ header {
   padding: 10px;
 }
 
+#root {
+  color: #795548;
+  font-size: larger;
+  align-items: center;
+}
+
 .card .description{
   display: flex;
   align-items: center;
