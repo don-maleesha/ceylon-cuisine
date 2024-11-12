@@ -39,7 +39,7 @@
                     if (password_verify($password, $user["password"])) {
                             session_start();
                             $_SESSION["user"] = "yes";
-                            header("Location: userreceipes.php");
+                            header("Location: userrecipes.php");
                             die();
                     } else {
                         echo "<div class='alert alert-danger'>Invalid password</div>";
