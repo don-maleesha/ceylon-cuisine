@@ -1,15 +1,15 @@
 //welcome message
 document.addEventListener("DOMContentLoaded", function() {
-    function updateWelcomeMessage() {
-      const currentTime = new Date();
-      const hours = currentTime.getHours();
-      const greeting = hours < 12 ? "Good morning" : hours < 18 ? "Good afternoon" : "Good evening";
-      document.getElementById("welcomeMessage").textContent = `${greeting}, welcome to Ceylon Cuisine!`;
-    }
-  
-    updateWelcomeMessage();
-    setInterval(updateWelcomeMessage, 60000);
-  });
+  function updateWelcomeMessage() {
+    const currentTime = new Date();
+    const hours = currentTime.getHours();
+    const greeting = hours < 12 ? "Good morning" : hours < 18 ? "Good afternoon" : "Good evening";
+    document.getElementById("welcomeMessage").textContent = `${greeting}, welcome to Ceylon Cuisine!`;
+  }
+
+  updateWelcomeMessage();
+  setInterval(updateWelcomeMessage, 60000);
+});
   
   //recipe cards
   const card = [
@@ -130,19 +130,18 @@ const searchRecipes = () => {
 displayItem(categories);
 
 
-let description = document.getElementsByClassName('description');
+$(document).ready(function() {
+  var maximumCharacters = 160;
 
-let numberofWords = 158;
+  // Initialize the remaining characters when the page loads
+  $("#remaining-characters").text("Remaining characters: " + maximumCharacters);
 
-for(let i=description.length; i>=0; i--){
-    let currentCharacter = description[i];
+  $('#description').keyup(function() {
+      var length = this.value.length;
 
-    if(currentCharacter == " "){
-        numberofWords -= 1;
-    }
-}
-
-numberofWords -= 1;
-
-document.getElementById("char-count").innerHTML = numberofWords;
-  
+      // Update the remaining characters
+      if (length <= maximumCharacters) {
+          $("#remaining-characters").text("Remaining characters: " + (maximumCharacters - length));
+      }
+  });
+});
