@@ -16,7 +16,7 @@
   <br>
   <br>
   <br>
-  <?php
+  <span?php
 
     
 
@@ -34,7 +34,7 @@
         <div class="col-3 text-end">
           <nav class="navbar navbar-expand-md navbar-light">
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
+              <div class="navbar-toggler-icon"></div>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
               <ul class="navbar-nav ml-5">
@@ -69,11 +69,12 @@
           <input type="text" class="form-control form" id="name" name="name" required>
         </div>
       </div>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
       <div class="row mb-3">
         <label for="description" class="col-sm-2 col-form-label label">Description</label>
         <div class="col-sm-10">
-          <textarea class="form-control form textarea" id="description" name="description" maxlength="158"></textarea>
-          <p id="char-count">158 characters remaining</p>
+          <textarea class="form-control form textarea" id="description" name="description" maxlength="160"></textarea>
+          <span id="remaining-characters"></span>
         </div>
       </div>
       <div class="row mb-3">
