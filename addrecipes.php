@@ -69,12 +69,12 @@
           <input type="text" class="form-control form" id="name" name="name" required>
         </div>
       </div>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
       <div class="row mb-3">
         <label for="description" class="col-sm-2 col-form-label label">Description</label>
         <div class="col-sm-10">
           <textarea class="form-control form textarea" id="description" name="description" maxlength="160"></textarea>
-          <span id="remaining-characters"></span>
+          <span id="remaining-characters" class="remaining-characters"></span>
         </div>
       </div>
       <div class="row mb-3">
