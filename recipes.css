@@ -67,6 +67,10 @@ header {
   color: #795548;
 }
 
+.remaining-characters{
+  color: #f8f9fa;
+}
+
 .search-bar {
   width: 25%;
   height: 50px;
