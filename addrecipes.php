@@ -16,7 +16,42 @@
   <br>
   <br>
   <br>
-  <span?php
+  <?php
+
+    if(isset($_POST['submit'])) {
+
+      $name = $_POST['name'];
+      $description = $_POST['description'];
+      $image = $_POST['image_path'];
+
+      $errors = array();
+
+      if(empty($name) || empty($description) || empty($image)){
+
+        array_push($errors, 'All fields must be provided');
+
+      }
+
+      include "dbconn.php";
+
+      $sql = "INSERT INTO recipes (name, description, image_path) VALUES (?, ?, ?)";
+
+      $statement = mysqli_stmt_init($conn);
+      $prepare_statement = mysqli_stmt_prepare($statement, $sql);
+
+      if($prepare_statement){
+
+        mysqli_stmt_bind_param($statement, "sss", $name, $description, $image);
+
+        mysqli_stmt_execute($statement);
+
+        echo "<div class='alert alert-success'>Recipe Added Successfully!</div>";
+
+      } else {
+
+        die("Your recipe couldn't be submitted. Ensure all required fields are filled and try again.");
+      }
+    }
 
     
 
@@ -80,7 +115,7 @@
       <div class="row mb-3">
         <label for="image" class="col-sm-2 col-form-label label">Image</label>
         <div class="col-sm-10">
-          <input type="file" class="form-control form file-btn" id="image" name="image" required>
+          <input type="file" class="form-control form file-btn" id="image" name="image_path" required>
         </div>
       </div>
       <button type="submit" name="submit">Add Recipe</button>
