@@ -88,15 +88,21 @@ document.addEventListener("DOMContentLoaded", function() {
   const categories = [...new Set(card.map(item => item.title))].map(title => {
     return card.find(item => item.title === title);
   });
-  
-  document.getElementById('search-bar').addEventListener('keyup', (e) => {
-    const searchData = e.target.value.toLowerCase();
-    const filteredData = categories.filter(item => item.title.toLowerCase().includes(searchData));
-    displayItem(filteredData);
-  });
-  
-  const displayItem = (items) => {
+  const searchBar = document.getElementById('search-bar');
+  if (searchBar) {
+    searchBar.addEventListener('keyup', (e) => {
+      const searchData = e.target.value.toLowerCase();
+      const filteredData = categories.filter(item => item.title.toLowerCase().includes(searchData));
+      displayItem(filteredData);
+    });
+  }
+    
+    const displayItem = (items) => {
     const rootElement = document.getElementById('root');
+    if (!rootElement) {
+      console.error('Root element not found');
+      return;
+    }
     if (items.length === 0) {
       rootElement.innerHTML = `<p id="root">No recipes found. Try a different search term!</p>`;
       return;
@@ -129,19 +135,22 @@ const searchRecipes = () => {
   
 displayItem(categories);
 
-
+//
 $(document).ready(function() {
-  var maximumCharacters = 160;
+  //console.log("Script Loaded");
+
+  var maximumCharacters = $('#description').attr('maxlength') || 160;
 
   // Initialize the remaining characters when the page loads
-  $("#remaining-characters").text("Remaining characters: " + maximumCharacters);
+  $("#remaining-characters").text(maximumCharacters + " Characters Remaining").css("color", "#f8f9fa");
 
   $('#description').keyup(function() {
       var length = this.value.length;
 
       // Update the remaining characters
       if (length <= maximumCharacters) {
-          $("#remaining-characters").text("Remaining characters: " + (maximumCharacters - length));
+          $("#remaining-characters").text((maximumCharacters - length) + " Characters Remaining.");
       }
+      
   });
 });
