@@ -1,3 +1,8 @@
+<?php
+
+include 'dbconn.php';
+
+?>
 
 <!doctype html>
 <html lang="en">
@@ -57,8 +62,23 @@
   <div>
     <input type="text" class="search-bar" id="search-bar" placeholder="Search for recipes...">
   </div>
-  <div class="container" id="root">
-  </div>
+  <?php
+
+  $sql = "SELECT * FROM recipes";
+  $result = mysqli_query($conn, $sql);
+
+  while ($row = mysqli_fetch_assoc($result)) {
+
+
+    $name = $row['name'];
+    $description = $row['description'];
+    $image = $row['image_path'];
+
+    echo '<div class="container" id="root">
+  </div>';
+  }
+    
+  ?>
   <footer>
     <div class="container-fluid justify-content-center align-items-center mt-1">
       <div class="row">
