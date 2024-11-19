@@ -18,42 +18,63 @@
   <br>
   <?php
 
-    if(isset($_POST['submit'])) {
+if (isset($_POST['submit'])) {
 
-      $name = $_POST['name'];
-      $description = $_POST['description'];
-      $image = $_POST['image_path'];
+    $name = $_POST['name'];
+    $description = $_POST['description'];
+    $errors = array();
 
-      $errors = array();
+    // Handle the image file
+    if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+        $upload_dir = 'images/';
 
-      if(empty($name) || empty($description) || empty($image)){
+        // Ensure the directory exists
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
 
-        array_push($errors, 'All fields must be provided');
+        $file_name = basename($_FILES['image']['name']);
+        $unique_file_name = uniqid() . "_" . $file_name; // Generate unique file name
+        $file_path = $upload_dir . $unique_file_name;
 
-      }
-
-      include "dbconn.php";
-
-      $sql = "INSERT INTO recipes (name, description, image_path) VALUES (?, ?, ?)";
-
-      $statement = mysqli_stmt_init($conn);
-      $prepare_statement = mysqli_stmt_prepare($statement, $sql);
-
-      if($prepare_statement){
-
-        mysqli_stmt_bind_param($statement, "sss", $name, $description, $image);
-
-        mysqli_stmt_execute($statement);
-
-        echo "<div class='alert alert-success'>Recipe Added Successfully!</div>";
-
-      } else {
-
-        die("Your recipe couldn't be submitted. Ensure all required fields are filled and try again.");
-      }
+        // Move the file to the destination folder
+        if (!move_uploaded_file($_FILES['image']['tmp_name'], $file_path)) {
+            array_push($errors, 'Failed to upload image.');
+        }
+    } else {
+        array_push($errors, 'Please upload a valid image.');
     }
 
-    
+    // Validate inputs
+    if (empty($name) || empty($description) || empty($file_path)) {
+        array_push($errors, 'All fields must be provided.');
+    }
+
+    if (empty($errors)) {
+        include "dbconn.php";
+
+        $sql = "INSERT INTO recipes (name, description, image) VALUES (?, ?, ?)";
+
+        $statement = mysqli_stmt_init($conn);
+        $prepare_statement = mysqli_stmt_prepare($statement, $sql);
+
+        if ($prepare_statement) {
+            mysqli_stmt_bind_param($statement, "sss", $name, $description, $file_path);
+
+            if (mysqli_stmt_execute($statement)) {
+                echo "<div class='alert alert-success'>Recipe Added Successfully!</div>";
+            } else {
+                echo "<div class='alert alert-danger'>Failed to add recipe. Please try again.</div>";
+            }
+        } else {
+            die("SQL Error: Unable to prepare the statement.");
+        }
+    } else {
+        foreach ($errors as $error) {
+            echo "<div class='alert alert-danger'>$error</div>";
+        }
+    }
+}
 
 ?>
   <header class="text-white align-items-center fixed-top">
@@ -97,7 +118,7 @@
         <h1 class="text-center josefin-sans" id="h1">Share Your Recipe with Us!</h1>
         <p class="h6 playwrite-gb-s" id="p">Let’s Taste Your Creation!</p>
     </div>
-    <form method="post" id="form-id">
+    <form method="post" id="form-id" enctype="multipart/form-data">
       <div class="row mb-3">
         <label for="name" class="col-sm-2 col-form-label label">Name</label>
         <div class="col-sm-10">
@@ -115,7 +136,7 @@
       <div class="row mb-3">
         <label for="image" class="col-sm-2 col-form-label label">Image</label>
         <div class="col-sm-10">
-          <input type="file" class="form-control form file-btn" id="image" name="image_path" required>
+          <input type="file" class="form-control form file-btn" id="image" name="image" accept="image/*zz">
         </div>
       </div>
       <button type="submit" name="submit">Add Recipe</button>

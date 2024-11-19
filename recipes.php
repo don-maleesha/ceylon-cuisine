@@ -63,7 +63,6 @@ include 'dbconn.php';
     <input type="text" class="search-bar" id="search-bar" placeholder="Search for recipes...">
   </div>
   <?php
-
   $sql = "SELECT * FROM recipes";
   $result = mysqli_query($conn, $sql);
 
@@ -73,12 +72,12 @@ include 'dbconn.php';
     while($row = mysqli_fetch_assoc($result)) {
       $name = $row['name'];
       $description = $row['description'];
-      $image = $row['image_path'];
+      $image = $row['image'];
 
       echo '
       <div class="card">
         <div class="image-box">
-          <img src="' . $image . '" alt="' . $name . '" class="img-fluid">
+          <img src="images/' . $image . '" alt="' . $name . '" class="img-fluid">
         </div>
         <div class="title">
           <h2 class="noto-sans">' . $name . '</h2>
