@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function() {
     {
         image: './images/336919407_5806908546074945_1170120185552864888_n.jpg',
         title: 'Fish Ambul Thiyal',
-        description: 'Fish ambul thiyal is a traditional Sri Lankan sour fish curry made with spices and tamarind. It\'s known for its tangy flavor and is often served with rice.',
+        description: 'Fish Ambul Thiyal is a traditional Sri Lankan sour fish curry cooked with spices and tamarind. Renowned for its tangy taste, it\'s a perfect companion for steamed rice.',
     },
     {
         image: './images/istockphoto-543978354-612x612.jpg',
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function() {
     {
         image: './images/01-odiyal-kool-ig-cjkit_chen-3.jpg',
         title: 'Odiyal Kool',
-        description: 'Odiyal Kool is a spicy seafood soup from Jaffna, featuring fish, prawns, squid, and crab. It\'s a flavorful dish that\'s sure to delight!',
+        description: 'Odiyal Kool is a spicy seafood soup from Jaffna, made with fish, prawns, squid, and crab. Bursting with flavor, this hearty dish is a true delight for seafood lovers!',
     },
     {
         image: './images/kola-kanda-6322021_1280.jpg',
@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function() {
     {
         image: './images/kurakkan-kanda.jpg',
         title: 'Porridge',
-        description: 'Finger Millet Porridge is a healthy Sri Lankan drink made from finger millet flour, water, and coconut milk. It\'s smooth, filling, and usually served warm.',
+        description: 'Finger Millet Porridge is a healthy Sri Lankan drink made with finger millet flour, water, and coconut milk. Smooth and filling, it\'s typically served warm and comforting.',
     },
     {
         image: './images/309064641_176054931607113_208558741360292147_n.jpg',
