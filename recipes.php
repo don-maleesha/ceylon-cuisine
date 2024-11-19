@@ -67,15 +67,33 @@ include 'dbconn.php';
   $sql = "SELECT * FROM recipes";
   $result = mysqli_query($conn, $sql);
 
-  while ($row = mysqli_fetch_assoc($result)) {
+  if(mysqli_num_rows($result) > 0) {
+    echo '<div id="root"></div>';
+    
+    while($row = mysqli_fetch_assoc($result)) {
+      $name = $row['name'];
+      $description = $row['description'];
+      $image = $row['image_path'];
 
+      echo '
+      <div class="card">
+        <div class="image-box">
+          <img src="' . $image . '" alt="' . $name . '" class="img-fluid">
+        </div>
+        <div class="title">
+          <h2 class="noto-sans">' . $name . '</h2>
+        </div>
+        <div class="description">
+          <p>' . $description . '</p>
+          </div>
+        <button>View Recipe</button>
+      </div>';
+    }
 
-    $name = $row['name'];
-    $description = $row['description'];
-    $image = $row['image_path'];
-
-    echo '<div class="container" id="root">
-  </div>';
+    echo '</div>';
+    
+  } else {
+    echo '<p>No recipes found.</p>';
   }
     
   ?>
