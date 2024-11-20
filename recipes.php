@@ -66,30 +66,31 @@ include 'dbconn.php';
   $sql = "SELECT * FROM recipes";
   $result = mysqli_query($conn, $sql);
 
+  if (!$result) {
+    die('Error executing query: ' . mysqli_error($conn));
+}
+
   if(mysqli_num_rows($result) > 0) {
-    echo '<div id="root"></div>';
     
     while($row = mysqli_fetch_assoc($result)) {
-      $name = $row['name'];
-      $description = $row['description'];
-      $image = $row['image'];
+      $name = htmlspecialchars( $row['title']);
+      $description = htmlspecialchars($row['description']);
+      $file_name = htmlspecialchars($row['image_url']);
 
       echo '
-      <div class="card">
-        <div class="image-box">
-          <img src="images/' . $image . '" alt="' . $name . '" class="img-fluid">
-        </div>
-        <div class="title">
-          <h2 class="noto-sans">' . $name . '</h2>
-        </div>
-        <div class="description">
-          <p>' . $description . '</p>
-          </div>
-        <button>View Recipe</button>
-      </div>';
+        <div class="card">
+            <div class="image-box">
+                <img src="./uploads/' . $file_name . '" alt="' . $name . '" class="img-fluid">
+            </div>
+            <div class="title">
+                <h2 class="noto-sans">' . $name . '</h2>
+            </div>
+            <div class="description">
+                <p>' . $description . '</p>
+            </div>
+            <button>View Recipe</button>
+        </div>';
     }
-
-    echo '</div>';
     
   } else {
     echo '<p>No recipes found.</p>';
