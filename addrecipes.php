@@ -20,46 +20,42 @@
 
 if (isset($_POST['submit'])) {
 
-    $name = $_POST['name'];
+    $name = $_POST['title'];
     $description = $_POST['description'];
+    $file_name = $_FILES['image_url']['name'];
+    $tempory_name = $_FILES['image_url']['tmp_name'];
+    $folder = 'uploads/'.$file_name;
+
     $errors = array();
 
-    // Handle the image file
-    if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-        $upload_dir = 'images/';
+    $allowed_extensions = array("jpg", "jpeg", "png");
+    $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
 
-        // Ensure the directory exists
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0777, true);
-        }
+    if(!in_array($file_extension, $allowed_extensions)){
 
-        $file_name = basename($_FILES['image']['name']);
-        $unique_file_name = uniqid() . "_" . $file_name; // Generate unique file name
-        $file_path = $upload_dir . $unique_file_name;
+      $errors[] = "Only JPG, JPEG, PNG files are allowed.";
 
-        // Move the file to the destination folder
-        if (!move_uploaded_file($_FILES['image']['tmp_name'], $file_path)) {
-            array_push($errors, 'Failed to upload image.');
-        }
-    } else {
-        array_push($errors, 'Please upload a valid image.');
     }
 
-    // Validate inputs
-    if (empty($name) || empty($description) || empty($file_path)) {
-        array_push($errors, 'All fields must be provided.');
+    if($_FILES['image_url']['size'] > 5000000) {
+
+      $errors[] = "File size should not exceed 5MB.";
+
     }
 
     if (empty($errors)) {
+        
+      if(move_uploaded_file($tempory_name, $folder)){
+
         include "dbconn.php";
 
-        $sql = "INSERT INTO recipes (name, description, image) VALUES (?, ?, ?)";
+        $sql = "INSERT INTO recipes (title, description, image_url) VALUES (?, ?, ?)";
 
         $statement = mysqli_stmt_init($conn);
         $prepare_statement = mysqli_stmt_prepare($statement, $sql);
 
         if ($prepare_statement) {
-            mysqli_stmt_bind_param($statement, "sss", $name, $description, $file_path);
+            mysqli_stmt_bind_param($statement, "sss", $name, $description, $file_name);
 
             if (mysqli_stmt_execute($statement)) {
                 echo "<div class='alert alert-success'>Recipe Added Successfully!</div>";
@@ -69,11 +65,14 @@ if (isset($_POST['submit'])) {
         } else {
             die("SQL Error: Unable to prepare the statement.");
         }
+
+      }
+
     } else {
-        foreach ($errors as $error) {
-            echo "<div class='alert alert-danger'>$error</div>";
-        }
-    }
+      foreach ($errors as $error) {
+          echo "<div class='alert alert-danger'>$error</div>";
+      }
+  }
 }
 
 ?>
@@ -122,21 +121,21 @@ if (isset($_POST['submit'])) {
       <div class="row mb-3">
         <label for="name" class="col-sm-2 col-form-label label">Name</label>
         <div class="col-sm-10">
-          <input type="text" class="form-control form" id="name" name="name" required>
+          <input type="text" class="form-control form" id="name" name="title" required>
         </div>
       </div>
       <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
       <div class="row mb-3">
         <label for="description" class="col-sm-2 col-form-label label">Description</label>
         <div class="col-sm-10">
-          <textarea class="form-control form textarea" id="description" name="description" maxlength="160"></textarea>
+          <textarea class="form-control form textarea" id="description" name="description" maxlength="175"></textarea>
           <span id="remaining-characters" class="remaining-characters"></span>
         </div>
       </div>
       <div class="row mb-3">
         <label for="image" class="col-sm-2 col-form-label label">Image</label>
         <div class="col-sm-10">
-          <input type="file" class="form-control form file-btn" id="image" name="image" accept="image/*zz">
+          <input type="file" class="form-control form file-btn" id="image" name="image_url" accept="image/*">
         </div>
       </div>
       <button type="submit" name="submit">Add Recipe</button>
