@@ -139,7 +139,7 @@ displayItem(categories);
 $(document).ready(function() {
   //console.log("Script Loaded");
 
-  var maximumCharacters = $('#description').attr('maxlength') || 160;
+  var maximumCharacters = $('#description').attr('maxlength') || 175;
 
   // Initialize the remaining characters when the page loads
   $("#remaining-characters").text(maximumCharacters + " Characters Remaining").css("color", "#f8f9fa");
