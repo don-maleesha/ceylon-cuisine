@@ -1,7 +1,8 @@
 <?php
     session_start();
-    if (isset($_SESSION["user"])) {
+    if (isset($_SESSION["id"])) {
         header("Location: signin.php");
+        exit();
     }
 ?>
 <!DOCTYPE html>
@@ -86,7 +87,7 @@
                 </div>
             </div>
         </header>
-        <div class="container rounded-3 col-6 d-flex flex-column justify-content-center mt-5 mb-5 vh-100" id="welcome">
+        <div class="container rounded-3 col-6 d-flex flex-column justify-content-center mt-5 mb-5 vh-100" id="">
             <div>
                 <h1 class="text-center josefin-sans" id="h1">Sign In!</h1>
                 <p id="p"></p>

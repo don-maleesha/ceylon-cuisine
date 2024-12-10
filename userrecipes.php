@@ -44,8 +44,8 @@
                 <li class="nav-item ubuntu-light-italic">
                   <a href="contacts.php" class="nav-link">Contacts</a>
                 </li>
-                <li class="nav-item">
-                  <a href="recipes.php" class="nav-link ubuntu-light-italic">Recipes</a>
+                <li class="nav-item ubuntu-light-italic">
+                  <a href="recipes.php" class="nav-link">Recipes</a>
                 </li>
               </ul>
             </div>
@@ -58,7 +58,45 @@
     <input type="text" class="search-bar" id="search-bar" placeholder="Search for recipes...">
     <button class="add-btn" id="add-btn"><a href="addrecipes.php">Add Recipe</a></button>
   </div>
-  <div class="container" id="root">
+  <div class="container">
+  <?php
+
+  include "dbconn.php";
+  
+  $sql = "SELECT * FROM recipes";
+  $result = mysqli_query($conn, $sql);
+
+  if (!$result) {
+    die('Error executing query: ' . mysqli_error($conn));
+}
+
+  if(mysqli_num_rows($result) > 0) {
+    
+    while($row = mysqli_fetch_assoc($result)) {
+      $name = htmlspecialchars( $row['title']);
+      $description = htmlspecialchars($row['description']);
+      $file_name = htmlspecialchars($row['image_url']);
+
+      echo '
+        <div class="card">
+            <div class="image-box">
+                <img src="./uploads/' . $file_name . '" alt="' . $name . '" class="img-fluid">
+            </div>
+            <div class="title">
+                <h2 class="noto-sans">' . $name . '</h2>
+            </div>
+            <div class="description">
+                <p>' . $description . '</p>
+            </div>
+            <button>View Recipe</button>
+        </div>';
+    }
+    
+  } else {
+    echo '<p>No recipes found.</p>';
+  }
+    
+  ?>
   </div>
   <footer>
     <div class="container-fluid justify-content-center align-items-center mt-1">

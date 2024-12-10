@@ -55,7 +55,7 @@
       </div>
     </div>
   </header>
-  <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5 vh-100" id="welcome">
+  <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5 vh-100" id="">
     <div class="row">
       <div class="col">
         <h2 id="welcomeMessage" class="h4 josefin-sans"></h2>

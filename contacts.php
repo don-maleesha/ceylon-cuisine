@@ -53,7 +53,7 @@
   </header>
 
   <section>
-    <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5 vh-100 contact-selection" id="about">
+    <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5 vh-100 contact-selection" id="">
       <div class="left-side">
         <div class="address details mb-4">
           <i class="fas fa-map-marker-alt icon"></i>

@@ -60,7 +60,7 @@ include "dbconn.php";
     </div>
   </header>
   <section>
-  <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5 vh-100" id="about">
+  <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5 vh-100" id="">
     <div class="row">
       <div class="col">
         <h2 class="h2 josefin-sans">About Us</h2>
