@@ -150,7 +150,7 @@
       </div>
     </div>
   </header>
-  <div class="container rounded-3 col-6 d-flex flex-column justify-content-center mt-5 mb-5 vh-100" id="">
+  <div class="container rounded-3 col-6 d-flex flex-column justify-content-center mt-1 mb-5 vh-100" id="">
     <div>
         <h1 class="text-center josefin-sans" id="h1">Join Us!</h1>
         <p class="h6 playwrite-gb-s" id="p">Where Your Flavors Meet the World!</p>

@@ -1,91 +1,163 @@
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ceylon-cuisine</title>
-  <link rel="stylesheet" href="./bootstrap-5.3.3-dist/bootstrap-5.3.3-dist/css/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="ceylon-cuisine.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Satisfy&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&display=swap" rel="stylesheet">
-  <script src="ceylon-cuisine.js"></script>
-</head>
-<body>
-  <script src="./bootstrap-5.3.3-dist/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
-  <header class="text-white align-items-center fixed-top">
-    <div class="container-fluid">
-      <div class="row align-items-center">
-        <div class="col-3 d-flex align-items-center">
-          <img src="./images/logo.png" alt="logo" class="logo-img img-fluid rounded-circle">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Ceylon Cuisine</title>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+      <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"><link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Satisfy&display=swap" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap">
+      <link href="https://fonts.googleapis.com/css2?family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&display=swap" rel="stylesheet">
+      <link rel="stylesheet" href="./ceylon-cuisine.css">
+      <script src="ceylon-cuisine.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <div class="logo">
+          <img src="./images/Ceylon.png" alt="Logo">
+          <span class="company-name josefin-sans">Ceylon Cuisine</span>
         </div>
-        <div class="col-6 d-flex flex-column justify-content-center align-items-center">
-          <h1 class="display-4 m-0 josefin-sans mt-2">Ceylon Cuisine</h1>
-          <p class="tagline text-center">Experience the Taste of Tradition</p>
+        <nav>
+          <ul>
+            <li><a href="homePage.php">Home</a></li>
+            <li><a href="aboutus.php">About</a></li>
+            <li><a href="contacts.php">Contact</a></li>
+            <li><a href="recipes.php">Recipes</a></li>
+          </ul>
+        </nav>
+        <div class="auth-buttons">
+          <a href="signin.php" class="sign-in">Sign in</a>
+          <a href="signup.php" class="sign-up">Sign up</a>
         </div>
-        <div class="col-3 text-end">
-          <nav class="navbar navbar-expand-md navbar-light">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-              <ul class="navbar-nav ml-5">
-                <li class="nav-item ubuntu-light-italic">
-                  <a href="homePage.php" class="nav-link" target="_top">Home</a>
-                </li>
-                <li class="nav-item ubuntu-light-italic">
-                  <a href="aboutus.php" class="nav-link" target="_top">About Us</a>
-                </li>
-                <li class="nav-item ubuntu-light-italic">
-                  <a href="contacts.php" class="nav-link">Contacts</a>
-                </li>
-                <li class="nav-item">
-                  <a href="recipes.php" class="nav-link ubuntu-light-italic">Recipes</a>
-                </li>
-              </ul>
+      </div>
+    </header>
+    <section class="hero">
+      <div class="text">
+        <h1 id="welcomeMessage" class="josefin-sans">Welcome to Ceylon Cuisine!</h1>
+        <p class="playwrite-gb-s">We are home to the largest collection of traditional Sri Lankan food recipes.</p>
+        <div class="buttons">
+          <a href="#" class="explore-recipes">Explore</a>
+          <a href="#" class="submit-recipe">Submit</a>
+        </div>
+      </div>
+      <img src="./images/istockphoto-2169029066-612x612.jpg" alt="" class="src">
+    </section>
+    <section class="features">
+      <h2>Recipe features</h2>
+      <p>Discover the unique flavors of Sri Lanka with our carefully curated recipes, user-friendly tools, and a community that celebrates culinary creativity.</p>
+      <div class="feature-list">
+        <div class="feature">
+          <img src="./images/istockphoto-1350375887-612x612.jpg" alt="" class="src">
+          <h3>Local ingredients guide</h3>
+          <p>Learn about sourcing fresh, authentic ingredients to bring Sri Lankan flavors to your kitchen.</p>
+        </div>
+        <div class="feature">
+          <img src="./images/istockphoto-1603613324-612x612.jpg" alt="" class="src">
+          <h3>Recipe customization based on dietary needs.</h3>
+          <p>Tailor recipes to suit your dietary needs, whether you're vegan, gluten-free, or keto.</p>
+        </div>
+        <div class="feature">
+          <img src="./images/istockphoto-1603613324-612x612.jpg" alt="" class="src">
+          <h3>Video tutorials for traditional cooking methods.</h3>
+          <p>Master traditional cooking methods with step-by-step video demonstrations.</p>
+        </div>
+      </div>
+    </section>
+    <section class="trusted-by">
+        <h2>Trusted by</h2>
+        <div>
+            <img src="https://placehold.co/100x40" alt="Company logo 1">
+            <img src="https://placehold.co/100x40" alt="Company logo 2">
+            <img src="https://placehold.co/100x40" alt="Company logo 3">
+            <img src="https://placehold.co/100x40" alt="Company logo 4">
+            <img src="https://placehold.co/100x40" alt="Company logo 5">
+        </div>
+    </section>
+    <section class="team">
+        <h2>Our Team</h2>
+        <p>Do consectetur proident proident id eiusmod deserunt consequat pariatur ad ex velit do Lorem reprehenderit.</p>
+        <div class="team-list">
+            <div class="member">
+                <img src="https://placehold.co/300x300" alt="Team member 1">
+                <h3>Full name</h3>
+                <p>Professional title</p>
+                <p>Commodo qui nulla ipsum ea cupidatat sit aliqua dolore.</p>
+                <div>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
             </div>
-          </nav>
-        </div>
-      </div>
-    </div>
-  </header>
-  <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5 vh-100" id="">
-    <div class="row">
-      <div class="col">
-        <h2 id="welcomeMessage" class="h4 josefin-sans"></h2>
-        <p class="h6 playwrite-gb-s">We are the largest Sri Lankan traditional food recipes collection.</p>
-      </div>
-    </div>
-    <div class="row mt-5 mb-5">
-      <div class="col">
-        <button type="submit"><a href="signup.php">Sign-up</a></button>
-        <button><a href="signin.php">Sign-in</a></button>
-      </div>
-    </div>
-  </div>
-  <footer>
-    <div class="container-fluid justify-content-center align-items-center mt-1">
-      <div class="row">
-          <div class="col">
-            <div class="">
-              <a href="#" class="nav-link">Privacy Policy</a>
-              <a href="#" class="nav-link">Terms of Conditions</a>
+            <div class="member">
+                <img src="https://placehold.co/300x300" alt="Team member 2">
+                <h3>Full name</h3>
+                <p>Professional title</p>
+                <p>Commodo qui nulla ipsum ea cupidatat sit aliqua dolore.</p>
+                <div>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
             </div>
-            <div class="col">
-              <div class="mt-2">
-                <p class="copy">&copy; ceylon-cuisine 2024</p>
-              </div>
+            <div class="member">
+                <img src="https://placehold.co/300x300" alt="Team member 3">
+                <h3>Full name</h3>
+                <p>Professional title</p>
+                <p>Commodo qui nulla ipsum ea cupidatat sit aliqua dolore.</p>
+                <div>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
             </div>
-          </div>
+            <div class="member">
+                <img src="https://placehold.co/300x300" alt="Team member 4">
+                <h3>Full name</h3>
+                <p>Professional title</p>
+                <p>Commodo qui nulla ipsum ea cupidatat sit aliqua dolore.</p>
+                <div>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </footer>
-</body>
+    </section>
+    <footer class="footer">
+        <div class="container">
+            <div class="logo">
+                <img src="https://placehold.co/100x40" alt="Logo">
+            </div>
+            <div class="links">
+                <h3>Product</h3>
+                <ul>
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Pricing</a></li>
+                </ul>
+            </div>
+            <div class="resources">
+                <h3>Resources</h3>
+                <ul>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">User guides</a></li>
+                    <li><a href="#">Webinars</a></li>
+                </ul>
+            </div>
+            <div class="company">
+                <h3>Company</h3>
+                <ul>
+                    <li><a href="#">About us</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="social">
+                <h3>Follow us</h3>
+                <ul>
+                    <li><a href="#"><i class="fab fa-twitter"></i></a></li>
+                    <li><a href="#"><i class="fab fa-facebook"></i></a></li>
+                    <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+  </body>
 </html>
