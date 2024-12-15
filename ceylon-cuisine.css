@@ -3,6 +3,20 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  line-height: 1.6;
+  color: #333;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
 }
 
 header {
@@ -36,38 +50,22 @@ header .logo .company-name {
   font-weight: 700;
 }
 
-.josefin-sans {
-  font-family: "Josefin Sans", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
-  color: #FAFAFA;
-  margin-right: 15px;
-  font-size: 46px;
-}
-
 header nav ul {
-  list-style: none;
   display: flex;
   gap: 20px;
 }
 
-header nav ul li {
-  display: inline;
-}
-
 header nav ul li a {
   color: #fff;
-  text-decoration: none;
   font-weight: 500;
 }
 
 header .auth-buttons a {
   color: #fff;
-  text-decoration: none;
   margin-left: 20px;
   padding: 10px 20px;
   border-radius: 5px;
+  display: inline-block;
 }
 
 header .auth-buttons .sign-in {
@@ -88,6 +86,16 @@ header .auth-buttons .sign-up {
   margin: 0 auto;
 }
 
+.josefin-sans {
+  font-family: "Josefin Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+  color: #FAFAFA;
+  margin-right: 15px;
+  font-size: 46px;
+}
+
 .hero .text {
   max-width: 50%;
 }
@@ -101,21 +109,12 @@ header .auth-buttons .sign-up {
 .hero .text p {
   font-size: 18px;
   margin-bottom: 25px;
+  color: #555;
 }
-
-.playwrite-gb-s {
-  font-family: "Playwrite GB S", cursive;
-  font-optical-sizing: auto;
-  font-style: normal;
-  color: #000;
-}
-
 
 .hero .text .buttons a {
-  text-decoration: none;
   padding: 15px 30px;
   border-radius: 5px;
-  margin-right: 10px;
   font-weight: 500;
 }
 
@@ -133,99 +132,96 @@ header .auth-buttons .sign-up {
 .hero img {
   max-width: 45%;
   border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
-.features, .team, .pricing, .cta, .footer {
+
+.features {
   padding: 60px 20px;
   max-width: 1200px;
   margin: 0 auto;
 }
-.features h2, .team h2, .pricing h2, .cta h2 {
+
+.features h2 {
   text-align: center;
   font-size: 36px;
   margin-bottom: 20px;
 }
-.features p, .team p, .pricing p, .cta p {
+
+.features p {
   text-align: center;
   font-size: 18px;
   margin-bottom: 40px;
 }
-.features .feature-list, .team .team-list, .pricing .pricing-list {
+
+.features .feature-list {
   display: flex;
   justify-content: space-between;
   gap: 20px;
   flex-wrap: wrap;
 }
-.features .feature, .team .member, .pricing .plan {
+
+.features .feature {
   background-color: #fff;
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
   text-align: center;
   flex: 1;
   min-width: 250px;
 }
-.features .feature img, .team .member img {
-  max-width: 100%;
+
+.features .feature img {
+  width: 100%;
+  height: 150px;
   border-radius: 10px;
+  object-fit: cover;
 }
-.features .feature h3, .team .member h3, .pricing .plan h3 {
+
+.features .feature h3 {
   font-size: 24px;
   margin: 20px 0;
 }
-.features .feature p, .team .member p, .pricing .plan p {
-  font-size: 16px;
-  margin-bottom: 20px;
-}
-.features .feature .learn-more, .pricing .plan .upgrade {
-  text-decoration: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  background-color: #dbb657;
-  color: #fff;
-  font-weight: 500;
-}
+
 .testimonial {
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 60px 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+  justify-content: center;
+  padding: 50px 20px;
+  background-color: #f9f9f9;
+  text-align: center;
 }
+
 .testimonial img {
-  max-width: 150px;
-  border-radius: 10px;
+  border-radius: 50%;
+  margin-right: 20px;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
 }
+
 .testimonial .text {
-  max-width: 70%;
+  max-width: 50%;
 }
+
 .testimonial .text p {
   font-size: 18px;
-  margin-bottom: 20px;
-}
-.testimonial .text .name {
-  font-weight: 700;
-}
-.testimonial .text .job-title {
-  font-size: 16px;
   color: #666;
 }
-.trusted-by {
-  text-align: center;
-  padding: 60px 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+
+.testimonial .text .name {
+  font-weight: bold;
+  margin-top: 10px;
 }
-.trusted-by img {
-  max-width: 100px;
-  margin: 0 20px;
+
+.testimonial .text .title {
+  color: #666;
 }
 
 .footer {
   background-color: #86553f;
   color: #fff;
-  padding: 60px 20px;
-  max-width: 1200px;
+  padding: 50px 20px;
 }
 
 .footer .container {
@@ -233,92 +229,60 @@ header .auth-buttons .sign-up {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .footer .logo img {
-  height: 40px;
+  height: 80px;
+  border-radius: 50%;
 }
-.footer .links, .footer .resources, .footer .company {
-  flex: 1;
-  min-width: 200px;
-}
-.footer .links ul, .footer .resources ul, .footer .company ul {
-  list-style: none;
-  padding: 0;
-}
-.footer .links ul li, .footer .resources ul li, .footer .company ul li {
-  margin-bottom: 10px;
-}
-.footer .links ul li a, .footer .resources ul li a, .footer .company ul li a {
+
+.footer .links ul li a,
+.footer .resources ul li a,
+.footer .company ul li a,
+.footer .social ul li a {
   color: #fff;
-  text-decoration: none;
+  transition: color 0.3s ease;
 }
-.footer .newsletter {
-  flex: 1;
-  min-width: 200px;
+
+.footer .links ul li a:hover,
+.footer .resources ul li a:hover,
+.footer .company ul li a:hover,
+.footer .social ul li a:hover {
+  color: #dbb657;
 }
-.footer .newsletter input {
-  width: 100%;
-  padding: 10px;
-  border-radius: 5px;
-  border: none;
-  margin-bottom: 10px;
-}
-.footer .newsletter button {
-  width: 100%;
-  padding: 10px;
-  border-radius: 5px;
-  background-color: #6c63ff;
-  color: #fff;
-  border: none;
-  font-weight: 500;
-}
-.footer .social {
-  text-align: center;
-  margin-top: 20px;
-}
-.footer .social a {
-  color: #fff;
-  margin: 0 10px;
-  text-decoration: none;
-}
-.footer .social a i {
-  font-size: 20px;
-}
+
 .footer .copyright {
   text-align: center;
-  margin-top: 20px;
+  margin-top: 40px;
   font-size: 14px;
+  color: #ddd;
 }
-.footer .made-with {
-  text-align: center;
-  margin-top: 20px;
-  font-size: 14px;
-}
+
 @media (max-width: 768px) {
   .hero {
-      flex-direction: column;
-      text-align: center;
+    flex-direction: column;
+    text-align: center;
   }
+
   .hero .text, .hero img {
-      max-width: 100%;
+    max-width: 100%;
   }
-  .features .feature-list, .team .team-list, .pricing .pricing-list {
-      flex-direction: column;
-      align-items: center;
+
+  .features .feature-list {
+    flex-direction: column;
+    gap: 30px;
   }
+
   .testimonial {
-      flex-direction: column;
-      text-align: center;
+    flex-direction: column;
+    text-align: center;
   }
-  .testimonial img {
-      max-width: 100px;
-  }
-  .testimonial .text {
-      max-width: 100%;
-  }
+
   .footer .container {
-      flex-direction: column;
-      align-items: center;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
 }

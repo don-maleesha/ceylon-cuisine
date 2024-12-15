@@ -66,66 +66,17 @@
         </div>
       </div>
     </section>
-    <section class="trusted-by">
-        <h2>Trusted by</h2>
-        <div>
-            <img src="https://placehold.co/100x40" alt="Company logo 1">
-            <img src="https://placehold.co/100x40" alt="Company logo 2">
-            <img src="https://placehold.co/100x40" alt="Company logo 3">
-            <img src="https://placehold.co/100x40" alt="Company logo 4">
-            <img src="https://placehold.co/100x40" alt="Company logo 5">
-        </div>
-    </section>
-    <section class="team">
-        <h2>Our Team</h2>
-        <p>Do consectetur proident proident id eiusmod deserunt consequat pariatur ad ex velit do Lorem reprehenderit.</p>
-        <div class="team-list">
-            <div class="member">
-                <img src="https://placehold.co/300x300" alt="Team member 1">
-                <h3>Full name</h3>
-                <p>Professional title</p>
-                <p>Commodo qui nulla ipsum ea cupidatat sit aliqua dolore.</p>
-                <div>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
-                </div>
-            </div>
-            <div class="member">
-                <img src="https://placehold.co/300x300" alt="Team member 2">
-                <h3>Full name</h3>
-                <p>Professional title</p>
-                <p>Commodo qui nulla ipsum ea cupidatat sit aliqua dolore.</p>
-                <div>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
-                </div>
-            </div>
-            <div class="member">
-                <img src="https://placehold.co/300x300" alt="Team member 3">
-                <h3>Full name</h3>
-                <p>Professional title</p>
-                <p>Commodo qui nulla ipsum ea cupidatat sit aliqua dolore.</p>
-                <div>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
-                </div>
-            </div>
-            <div class="member">
-                <img src="https://placehold.co/300x300" alt="Team member 4">
-                <h3>Full name</h3>
-                <p>Professional title</p>
-                <p>Commodo qui nulla ipsum ea cupidatat sit aliqua dolore.</p>
-                <div>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
-                </div>
-            </div>
-        </div>
+    <section class="testimonial">
+    <img alt="Testimonial person" height="100" src="https://storage.googleapis.com/a1aa/image/wElfPm2FnTU8ECp6qE3CvW9gbx3Ucniz9o87Vdi1XgiGGj9JA.jpg" width="100"/>
+      <div class="text">
+        <p>"Aliqua cupidatat id duis irure sunt exercitation voluptate cillum. Consectetur ed ex do in reprehenderit est dolor elit et exercitation do ad. Consectetur ad ex do in reprehenderit est dolor elit et exercitation"</p>
+        <div class="name">Lochana Thilakarathne</div>
+      </div>
     </section>
     <footer class="footer">
         <div class="container">
             <div class="logo">
-                <img src="https://placehold.co/100x40" alt="Logo">
+                <img src="./images/Ceylon.png" alt="Logo">
             </div>
             <div class="links">
                 <h3>Product</h3>
@@ -147,6 +98,8 @@
                 <ul>
                     <li><a href="#">About us</a></li>
                     <li><a href="#">Contact</a></li>
+                    <li><a href="#">Terms of Policy</a></li>
+                    <li><a href="#">Conditions</a></li>
                 </ul>
             </div>
             <div class="social">
@@ -157,6 +110,9 @@
                     <li><a href="#"><i class="fab fa-instagram"></i></a></li>
                 </ul>
             </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2024 Ceylon Cuisine. All rights reserved.</p>
         </div>
     </footer>
   </body>
