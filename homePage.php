@@ -8,8 +8,7 @@
       <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"><link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Satisfy&display=swap" rel="stylesheet">
-      <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap">
-      <link href="https://fonts.googleapis.com/css2?family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&display=swap" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Raleway:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
       <link rel="stylesheet" href="./ceylon-cuisine.css">
       <script src="ceylon-cuisine.js"></script>
   </head>
@@ -22,55 +21,55 @@
         </div>
         <nav>
           <ul>
-            <li><a href="homePage.php">Home</a></li>
-            <li><a href="aboutus.php">About</a></li>
-            <li><a href="contacts.php">Contact</a></li>
-            <li><a href="recipes.php">Recipes</a></li>
+            <li><a href="homePage.php" class="raleway">Home</a></li>
+            <li><a href="aboutus.php" class="raleway">About</a></li>
+            <li><a href="contacts.php" class="raleway">Contact</a></li>
+            <li><a href="recipes.php" class="raleway">Recipes</a></li>
           </ul>
         </nav>
         <div class="auth-buttons">
-          <a href="signin.php" class="sign-in">Sign in</a>
-          <a href="signup.php" class="sign-up">Sign up</a>
+          <a href="signin.php" class="sign-in raleway">Sign in</a>
+          <a href="signup.php" class="sign-up raleway">Sign up</a>
         </div>
       </div>
     </header>
     <section class="hero">
       <div class="text">
         <h1 id="welcomeMessage" class="josefin-sans">Welcome to Ceylon Cuisine!</h1>
-        <p class="playwrite-gb-s">We are home to the largest collection of traditional Sri Lankan food recipes.</p>
+        <p class="merriweather-regular">We are home to the largest collection of traditional Sri Lankan food recipes.</p>
         <div class="buttons">
-          <a href="#" class="explore-recipes">Explore</a>
-          <a href="#" class="submit-recipe">Submit</a>
+          <a href="#" class="explore-recipes raleway">Explore</a>
+          <a href="#" class="submit-recipe raleway">Submit</a>
         </div>
       </div>
       <img src="./images/istockphoto-2169029066-612x612.jpg" alt="" class="src">
     </section>
     <section class="features">
-      <h2>Recipe features</h2>
-      <p>Discover the unique flavors of Sri Lanka with our carefully curated recipes, user-friendly tools, and a community that celebrates culinary creativity.</p>
+      <h2 class="playfair-display">Recipe Features</h2>
+      <p class="merriweather-regular">Discover the unique flavors of Sri Lanka with our carefully curated recipes, user-friendly tools, and a community that celebrates culinary creativity.</p>
       <div class="feature-list">
         <div class="feature">
           <img src="./images/istockphoto-1350375887-612x612.jpg" alt="" class="src">
-          <h3>Local ingredients guide</h3>
-          <p>Learn about sourcing fresh, authentic ingredients to bring Sri Lankan flavors to your kitchen.</p>
+          <h3 class="playfair-display">Local ingredients guide</h3>
+          <p class="merriweather-regular">Learn about sourcing fresh, authentic ingredients to bring Sri Lankan flavors to your kitchen.</p>
+        </div>
+        <div class="feature">
+          <img src="./images/istockphoto-1912684713-612x612.jpg" alt="" class="src">
+          <h3 class="playfair-display">Recipe customization based on dietary needs.</h3>
+          <p class="merriweather-regular">Tailor recipes to suit your dietary needs, whether you're vegan, gluten-free, or keto.</p>
         </div>
         <div class="feature">
           <img src="./images/istockphoto-1603613324-612x612.jpg" alt="" class="src">
-          <h3>Recipe customization based on dietary needs.</h3>
-          <p>Tailor recipes to suit your dietary needs, whether you're vegan, gluten-free, or keto.</p>
-        </div>
-        <div class="feature">
-          <img src="./images/istockphoto-1603613324-612x612.jpg" alt="" class="src">
-          <h3>Video tutorials for traditional cooking methods.</h3>
-          <p>Master traditional cooking methods with step-by-step video demonstrations.</p>
+          <h3 class="playfair-display">Video tutorials for traditional cooking methods.</h3>
+          <p class="merriweather-regular">Master traditional cooking methods with step-by-step video demonstrations.</p>
         </div>
       </div>
     </section>
     <section class="testimonial">
-    <img alt="Testimonial person" height="100" src="https://storage.googleapis.com/a1aa/image/wElfPm2FnTU8ECp6qE3CvW9gbx3Ucniz9o87Vdi1XgiGGj9JA.jpg" width="100"/>
+    <img alt="Testimonial person" height="100" src="./images/pexels-danxavier-1102341.jpg" width="100"/>
       <div class="text">
-        <p>"Aliqua cupidatat id duis irure sunt exercitation voluptate cillum. Consectetur ed ex do in reprehenderit est dolor elit et exercitation do ad. Consectetur ad ex do in reprehenderit est dolor elit et exercitation"</p>
-        <div class="name">Lochana Thilakarathne</div>
+        <p class="merriweather-regular">"Ceylon Cuisine has completely transformed the way I cook and explore new dishes! The recipes are simple to follow, and the step-by-step guides make even the most complex meals achievable. I especially love the feature that lets me rate and review recipes, as it feels like being part of a vibrant foodie community. Thank you for bringing the flavors of Sri Lanka to life!"</p>
+        <div class="name">– Amara Perera, Food Enthusiast</div>
       </div>
     </section>
     <footer class="footer">
@@ -79,35 +78,36 @@
                 <img src="./images/Ceylon.png" alt="Logo">
             </div>
             <div class="links">
-                <h3>Product</h3>
+                <h3 class="josefin-sans">Recipes</h3>
                 <ul>
-                    <li><a href="#">Features</a></li>
-                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#" class="raleway">Explore Recipes</a></li>
+                    <li><a href="#" class="raleway">Submit Your Recipe</a></li>
+                    <li><a href="#" class="raleway">Top Rated Dishes</a></li>
                 </ul>
             </div>
             <div class="resources">
-                <h3>Resources</h3>
+                <h3 class="josefin-sans">Kitchen Tips</h3>
                 <ul>
-                    <li><a href="#">Blog</a></li>
-                    <li><a href="#">User guides</a></li>
-                    <li><a href="#">Webinars</a></li>
+                    <li><a href="#" class="raleway">Cooking Techniques</a></li>
+                    <li><a href="#" class="raleway">Spice Guide</a></li>
+                    <li><a href="#" class="raleway">Food Pairing TIps</a></li>
                 </ul>
             </div>
             <div class="company">
-                <h3>Company</h3>
+                <h3 class="josefin-sans">About Ceylon Cuisine</h3>
                 <ul>
-                    <li><a href="#">About us</a></li>
-                    <li><a href="#">Contact</a></li>
-                    <li><a href="#">Terms of Policy</a></li>
-                    <li><a href="#">Conditions</a></li>
+                    <li><a href="#" class="raleway">Our Story</a></li>
+                    <li><a href="#" class="raleway">Contact Us</a></li>
+                    <li><a href="#" class="raleway">Privacy Policy</a></li>
+                    <li><a href="#" class="raleway">Terms of Conditions</a></li>
                 </ul>
             </div>
             <div class="social">
-                <h3>Follow us</h3>
+                <h3  class="josefin-sans">Follow us</h3>
                 <ul>
-                    <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                    <li><a href="#"><i class="fab fa-facebook"></i></a></li>
-                    <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                    <li><a href="#" class="raleway"><i class="fab fa-twitter"></i></a></li>
+                    <li><a href="#" class="raleway"><i class="fab fa-facebook"></i></a></li>
+                    <li><a href="#" class="raleway"><i class="fab fa-instagram"></i></a></li>
                 </ul>
             </div>
         </div>
