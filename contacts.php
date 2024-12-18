@@ -1,21 +1,29 @@
-<!DOCTYPE html>
+<?php
+include "dbconn.php";
+?>
+
+<!doctype html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <title>ceylon-cuisine</title>
-    <link rel="stylesheet" href="./bootstrap-5.3.3-dist/bootstrap-5.3.3-dist/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="contacts.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Satisfy&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="ceylon-cuisine.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ceylon-cuisine</title>
+  <link rel="stylesheet" href="./bootstrap-5.3.3-dist/bootstrap-5.3.3-dist/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="aboutus.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Satisfy&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <script src="ceylon-cuisine.js"></script>
 </head>
+
 <body>
-<header class="text-white align-items-center fixed-top">
+  <script src="./bootstrap-5.3.3-dist/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
+  <header class="text-white align-items-center fixed-top">
     <div class="container-fluid">
       <div class="row align-items-center">
         <div class="col-3 d-flex align-items-center">
@@ -51,45 +59,30 @@
       </div>
     </div>
   </header>
-
   <section>
-    <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5 vh-100 contact-selection" id="">
-      <div class="left-side">
-        <div class="address details mb-4">
-          <i class="fas fa-map-marker-alt icon"></i>
-          <div class="topic">Address: </div>
-          <div class="text-one">47, Yapa Patumaga, Walala,</div>
-          <div class="text-two">Menikhinna, Kandy. 20170</div>
-        </div>
-        <div class="phone details mb-4">
-          <i class="fas fa-phone-alt icon"></i>
-          <div class="topic">Phone: </div>
-          <div class="text-one">+94 71 349 8849</div>
-        </div>
-        <div class="email details mb-4">
-          <i class="fas fa-envelope icon"></i>
-          <div class="topic">Email: </div>
-          <div class="text-one">info@ceyloncuisine.com</div>
-        </div>
+  <div class="container rounded-3 col-6 d-flex flex-column justify-content-center align-items-center mt-5 mb-5 vh-100" id="">
+    <div class="row">
+      <div class="col">
+        <h2 class="h2 josefin-sans">About Us</h2>
+        <p class="fw-medium p">Welcome to Ceylon Cuisine, your ultimate destination for authentic Ceylon cuisine! We are passionate about bringing the rich, diverse, and vibrant flavors of Sri Lankan food to your kitchen. Our mission is to preserve and share the traditional recipes that have been passed down through generations, offering a true taste of Ceylon's culinary heritage.</p>
       </div>
-      <div class="righ-side">
-        <div class="topic-text">Leave us a message</div>
-        <form action="#">
-        <div class="input-box">
-          <input type="text" placeholder="Enter your name" class="input-field"/>
-        </div>
-        <div class="input-box">
-          <input type="text" placeholder="Enter your email" class="input-field"/>
-        </div>
-        <div class="input-box message-box">
-          <textarea placeholder="Enter your message" class="input-field"></textarea>
-        </div>
-        <div class="button">
-          <input type="button" value="Send Now"/>
-        </div>
-        </form>
+      <div class="col">
+        <h2 class="h2 josefin-sans">Our Story</h2>
+        <p class="fw-medium p">Our journey began with a love for the aromatic spices, fresh ingredients, and unique cooking techniques that define Ceylon cuisine. We are a team of food enthusiasts, chefs, and storytellers who believe that food is more than just sustenance; it's a gateway to culture, history, and connection. Inspired by the bustling markets, fragrant spice gardens, and the warm hospitality of Sri Lanka, we set out to create a platform where anyone can experience the magic of Sri Lankan food.</p>
       </div>
     </div>
+    <div class="row">
+        <h2 class="h2 josefin-sans">What We Offer</h2>
+        <p class="fw-medium p">At Ceylon Cuisine, we offer a curated collection of traditional Sri Lankan recipes, each carefully tested and crafted to ensure authenticity and ease of preparation. Whether you're looking for a hearty curry, a tangy sambol, or a sweet treat, our recipes cover a wide range of dishes to suit every palate. Alongside our recipes, we provide detailed cooking tips, ingredient guides, and cultural insights to enhance your culinary journey.</p>
+    </div>
+    <div class="row">
+        <h2 class="text-center h2 josefin-sans">Join Us</h2>
+        <p class="text-center fw-medium p">We invite you to join us on this culinary adventure. Whether you are a seasoned cook or a curious beginner, Ceylon Cuisine is here to guide you through the enchanting world of Sri Lankan food. Explore our recipes, share your creations, and become part of our vibrant community.
+            ,<br>
+            <br>Thank you for visiting Ceylon Cuisine. Let’s cook, share, and celebrate the flavors of Ceylon together!
+        </p>
+    </div>
+  </div>
   </section>
 
   <footer>
@@ -110,5 +103,7 @@
       </div>
     </div>
   </footer>
+
 </body>
+
 </html>
