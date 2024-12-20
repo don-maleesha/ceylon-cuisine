@@ -54,12 +54,12 @@
           <p class="merriweather-regular">Learn about sourcing fresh, authentic ingredients to bring Sri Lankan flavors to your kitchen.</p>
         </div>
         <div class="feature">
-          <img src="./images/istockphoto-1912684713-612x612.jpg" alt="" class="src">
+          <img src="./images/images (4).jpg" alt="" class="src">
           <h3 class="playfair-display">Recipe customization based on dietary needs.</h3>
           <p class="merriweather-regular">Tailor recipes to suit your dietary needs, whether you're vegan, gluten-free, or keto.</p>
         </div>
         <div class="feature">
-          <img src="./images/istockphoto-1603613324-612x612.jpg" alt="" class="src">
+          <img src="./images/images (5).jpg" alt="" class="src">
           <h3 class="playfair-display">Video tutorials for traditional cooking methods.</h3>
           <p class="merriweather-regular">Master traditional cooking methods with step-by-step video demonstrations.</p>
         </div>

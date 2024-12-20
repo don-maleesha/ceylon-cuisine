@@ -9,7 +9,7 @@
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Satisfy&display=swap" rel="stylesheet">
       <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Raleway:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
-      <link rel="stylesheet" href="./ceylon-cuisine.css">
+      <link rel="stylesheet" href="./aboutus.css">
       <script src="ceylon-cuisine.js"></script>
   </head>
   <body>
@@ -34,19 +34,39 @@
       </div>
     </header>
     <div class="hero">
-      <img src="./images/100082755_134993244857504_1265953808203120640_n.jpg" alt="">
+      <img src="./images/Exploring-Sri-Lanka-Desktop.jpg" alt="">
       <div class="hero-text">
-          <h1>About Ceylon Cuisine</h1>
-          <p> Welcome to Ceylon Cuisine, where we bring the vibrant flavors of Sri Lanka to life! Our mission is to celebrate the rich culinary heritage of this beautiful island by sharing recipes, stories, and cooking tips with food enthusiasts around the world.</p>
-          <p><strong>Our Story</strong></p>
-          <p>Born from a passion for authentic Sri Lankan food, Ceylon Cuisine was created to preserve and promote the unique flavors that make our dishes unforgettable. From traditional family recipes passed down through generations to modern twists on classic favorites, we aim to connect people with the soul of Sri Lankan cooking.</p>
+          <h1 class="playfair-display">About Ceylon Cuisine</h1>
+          <p class="merriweather-regular"> Welcome to Ceylon Cuisine, where we bring the vibrant flavors of Sri Lanka to life! Our mission is to celebrate the rich culinary heritage of this beautiful island by sharing recipes, stories, and cooking tips with food enthusiasts around the world.</p>
+          <h3 class="playfair-display"><strong>Our Story</strong></h3>
+          <p class="merriweather-light">Born from a passion for authentic Sri Lankan food, Ceylon Cuisine was created to preserve and promote the unique flavors that make our dishes unforgettable. From traditional family recipes passed down through generations to modern twists on classic favorites, we aim to connect people with the soul of Sri Lankan cooking.</p>
           <a href="#" class="learn-more"></a>
       </div>
     </div>
     <div class="section">
-      <h2>Traditional Heritage, Modern Flavors</h2>
-      <p>Sri Lankan cuisine is a perfect blend of tradition and innovation. While age-old recipes like rice and curry, hoppers, and sambols remain beloved classics, modern adaptations allow everyone to enjoy these flavors in new and exciting ways.</p>
+      <div class="section-text">
+        <h2>Traditional Heritage, Modern Flavors</h2>
+        <p>Sri Lankan cuisine is a perfect blend of tradition and innovation. While age-old recipes like rice and curry, hoppers, and sambols remain beloved classics, modern adaptations allow everyone to enjoy these flavors in new and exciting ways.</p>
+      </div>
       <img src="./images/0bdea33f27bc7de69e52cc7ba5e4a0c0 (1).jpg" alt="">
+    </div>
+    <div class="follow-us">
+      <div class="text">
+        <h2>Follow Us</h2>
+        <p>@ceyloncuisine</p>
+        <p>Stay updated with the latest recipes, cooking tips and Sri Lankan food culture by following us on social meida. Don't miss out on the excitement!</p>
+        <div class="social-icons">
+          <a href="#" class="raleway"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="raleway"><i class="fab fa-facebook"></i></a>
+          <a href="#" class="raleway"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+      <div class="images">
+        <img src="./images/01-odiyal-kool-ig-cjkit_chen-3.jpg" alt="">
+        <img src="./images/0bdea33f27bc7de69e52cc7ba5e4a0c0.jpg" alt="">
+        <img src="./images/100082755_134993244857504_1265953808203120640_n.jpg" alt="">
+        <img src="./images/301950900_126087683508028_5060570071255022194_n.jpg" alt="">
+      </div>
     </div>
     <footer class="footer">
         <div class="container">
