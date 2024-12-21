@@ -154,62 +154,17 @@ header .auth-buttons .sign-up {
 }
 
 .hero .hero-text .learn-more {
-  outline: none;
-  height: 40px;
-  text-align: center;
-  width: 130px;
-  border-radius: 40px;
-  background: #fff;
-  border: 2px solid green;
-  color: green;
-  letter-spacing: 1px;
-  text-shadow: none;
-  font-size: 12px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.25s ease;
+  background-color: #86553f;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 5px;
+  display: inline-block;
+  margin-top: 20px;
 }
 
 .hero .hero-text .learn-more:hover {
-  color: white;
-  background: green;
+  background-color: #dbb657;
 }
-
-.hero .hero-text .learn-more:active {
-  letter-spacing: 2px;
-}
-
-.hero .hero-text .learn-more::after {
-  content: "SUBMIT";
-}
-
-.onclic {
-  width: 40px;
-  border-color: gray;
-  border-width: 3px;
-  font-size: 0;
-  border-left-color: green;
-  animation: rotating 2s 0.25s linear infinite;
-}
-
-.onclic::after {
-  content: "";
-}
-
-.onclic:hover {
-  color: green;
-  background: white;
-}
-
-@keyframes rotating {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
 
 .section{
   display: flex;
@@ -242,6 +197,7 @@ header .auth-buttons .sign-up {
   width: 100%;
   max-width: 400px;
   height: 400px;
+  border: 1px solid #ddd;
   border-radius: 50%;
   object-fit: cover;
  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);;
@@ -253,32 +209,56 @@ header .auth-buttons .sign-up {
   justify-content: space-between;
   align-items: center;
 }
+
 .follow-us .text {
   flex: 1;
 }
+
 .follow-us .text h2 {
   font-size: 2em;
   margin-bottom: 20px;
 }
+
 .follow-us .text p {
   font-size: 1em;
   color: #666;
 }
+
 .follow-us .social-icons a {
   margin: 0 10px;
   color: #333;
   font-size: 1.5em;
 }
+
 .follow-us .images {
   flex: 1;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
+
 .follow-us .images img {
-  width: calc(33.333% - 10px);
-  height: auto;
-  border-radius: 10px;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.follow-us .images img:nth-child(1) {
+  grid-column: span 2;
+  grid-row: span 2;
+  width: 100%;
+  height: 100%;
+}
+
+.follow-us .images img:nth-child(2) {
+  width: 100%;
+  height: 150px;
+}
+
+.follow-us .images img:nth-child(3) {
+  width: 100%;
+  height: 200px;
 }
 
 .footer {
@@ -299,7 +279,6 @@ header .auth-buttons .sign-up {
 .footer h3 {
   font-size: x-large;
 }
-
 
 .footer .logo img {
   height: 80px;

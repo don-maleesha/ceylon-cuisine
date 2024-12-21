@@ -40,7 +40,7 @@
           <p class="merriweather-regular"> Welcome to Ceylon Cuisine, where we bring the vibrant flavors of Sri Lanka to life!<br>Our mission is to celebrate the rich culinary heritage of this beautiful island by sharing recipes, stories, and cooking tips with food enthusiasts around the world.</p>
           <h3 class="playfair-display"><strong>Our Story</strong></h3>
           <p class="merriweather-light">Born from a passion for authentic Sri Lankan food, Ceylon Cuisine was created to preserve and promote the unique flavors that make our dishes unforgettable. From traditional family recipes passed down through generations to modern twists on classic favorites, we aim to connect people with the soul of Sri Lankan cooking.</p>
-          <a href="#" class="learn-more">Learn More</a>
+          <a href="#" class="learn-more raleway">Learn More</a>
       </div>
     </div>
     <div class="section">
@@ -48,13 +48,13 @@
         <h2 class="playfair-display">Authentic Origins,<br>Modern Flavors</h2>
         <p class="merriweather-regular">Sri Lanka's rich culinary heritage is a harmonious mix of tradition and creativity. Timeless practices rooted in culture continue to captivate, while contemporary approaches bring fresh perspectives, offering a dynamic and evolving experience for everyone.</p>
       </div>
-      <img src="./images/istockphoto-1603613324-612x612.jpg" alt="">
+      <img src="./images/Pol-Roti__ResizedImageWzYwMCwzOTld.jpg" alt="">
     </div>
     <div class="follow-us">
       <div class="text">
-        <h2>Follow Us</h2>
-        <p>@ceyloncuisine</p>
-        <p>Stay updated with the latest recipes, cooking tips and Sri Lankan food culture by following us on social meida. Don't miss out on the excitement!</p>
+        <h2 class="playfair-display">Follow Us</h2>
+        <p class="merriweather-regular">@ceyloncuisine</p>
+        <p class="merriweather-regular">Stay updated with the latest recipes, cooking tips and Sri Lankan food culture by following us on social meida. Don't miss out on the excitement!</p>
         <div class="social-icons">
           <a href="#" class="raleway"><i class="fab fa-twitter"></i></a>
           <a href="#" class="raleway"><i class="fab fa-facebook"></i></a>
@@ -62,10 +62,9 @@
         </div>
       </div>
       <div class="images">
-        <img src="./images/01-odiyal-kool-ig-cjkit_chen-3.jpg" alt="">
-        <img src="./images/0bdea33f27bc7de69e52cc7ba5e4a0c0.jpg" alt="">
-        <img src="./images/100082755_134993244857504_1265953808203120640_n.jpg" alt="">
-        <img src="./images/301950900_126087683508028_5060570071255022194_n.jpg" alt="">
+        <img src="./images/item_35.jpg" alt="">
+        <img src="./images/istockphoto-806863994-612x612.jpg" alt="">
+        <img src="./images/istockphoto-913987750-612x612.jpg" alt="">
       </div>
     </div>
     <footer class="footer">
