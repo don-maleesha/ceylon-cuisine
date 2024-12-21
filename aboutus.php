@@ -37,18 +37,18 @@
       <img src="./images/Exploring-Sri-Lanka-Desktop.jpg" alt="">
       <div class="hero-text">
           <h1 class="playfair-display">About Ceylon Cuisine</h1>
-          <p class="merriweather-regular"> Welcome to Ceylon Cuisine, where we bring the vibrant flavors of Sri Lanka to life! Our mission is to celebrate the rich culinary heritage of this beautiful island by sharing recipes, stories, and cooking tips with food enthusiasts around the world.</p>
+          <p class="merriweather-regular"> Welcome to Ceylon Cuisine, where we bring the vibrant flavors of Sri Lanka to life!<br>Our mission is to celebrate the rich culinary heritage of this beautiful island by sharing recipes, stories, and cooking tips with food enthusiasts around the world.</p>
           <h3 class="playfair-display"><strong>Our Story</strong></h3>
           <p class="merriweather-light">Born from a passion for authentic Sri Lankan food, Ceylon Cuisine was created to preserve and promote the unique flavors that make our dishes unforgettable. From traditional family recipes passed down through generations to modern twists on classic favorites, we aim to connect people with the soul of Sri Lankan cooking.</p>
-          <a href="#" class="learn-more"></a>
+          <a href="#" class="learn-more">Learn More</a>
       </div>
     </div>
     <div class="section">
       <div class="section-text">
-        <h2>Traditional Heritage, Modern Flavors</h2>
-        <p>Sri Lankan cuisine is a perfect blend of tradition and innovation. While age-old recipes like rice and curry, hoppers, and sambols remain beloved classics, modern adaptations allow everyone to enjoy these flavors in new and exciting ways.</p>
+        <h2 class="playfair-display">Authentic Origins,<br>Modern Flavors</h2>
+        <p class="merriweather-regular">Sri Lanka's rich culinary heritage is a harmonious mix of tradition and creativity. Timeless practices rooted in culture continue to captivate, while contemporary approaches bring fresh perspectives, offering a dynamic and evolving experience for everyone.</p>
       </div>
-      <img src="./images/0bdea33f27bc7de69e52cc7ba5e4a0c0 (1).jpg" alt="">
+      <img src="./images/istockphoto-1603613324-612x612.jpg" alt="">
     </div>
     <div class="follow-us">
       <div class="text">
