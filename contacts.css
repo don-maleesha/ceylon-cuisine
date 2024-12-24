@@ -178,6 +178,7 @@ header .auth-buttons .sign-up {
   height: 500px;
   object-fit: cover;
   margin: 20px 0 0 0;
+  display: block;
 }
 
 .footer {

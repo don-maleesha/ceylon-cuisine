@@ -1,120 +1,147 @@
 <?php
 
-include 'dbconn.php';
+  include 'dbconn.php';
 
 ?>
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ceylon-cuisine</title>
-  <link rel="stylesheet" href="./bootstrap-5.3.3-dist/bootstrap-5.3.3-dist/css/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="recipes.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Satisfy&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body>
-  <script src="./bootstrap-5.3.3-dist/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
-  <header class="text-white align-items-center fixed-top">
-    <div class="container-fluid">
-      <div class="row align-items-center">
-        <div class="col-3 d-flex align-items-center">
-          <img src="./images/logo.png" alt="logo" class="logo-img img-fluid rounded-circle">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Ceylon Cuisine</title>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+      <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"><link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Satisfy&display=swap" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Raleway:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+      <link rel="stylesheet" href="./recipes.css">
+      <script src="ceylon-cuisine.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <div class="logo">
+          <img src="./images/Ceylon.png" alt="Logo">
+          <span class="company-name josefin-sans">Ceylon Cuisine</span>
         </div>
-        <div class="col-6 d-flex flex-column justify-content-center align-items-center">
-          <h1 class="display-4 m-0 josefin-sans mt-2">Ceylon Cuisine</h1>
-          <p class="tagline text-center">Experience the Taste of Tradition</p>
-        </div>
-        <div class="col-3 text-end">
-          <nav class="navbar navbar-expand-md navbar-light">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-              <ul class="navbar-nav ml-5">
-                <li class="nav-item ubuntu-light-italic">
-                  <a href="homePage.php" class="nav-link" target="_top">Home</a>
-                </li>
-                <li class="nav-item ubuntu-light-italic">
-                  <a href="aboutus.php" class="nav-link" target="_top">About Us</a>
-                </li>
-                <li class="nav-item ubuntu-light-italic">
-                  <a href="contacts.php" class="nav-link">Contacts</a>
-                </li>
-                <li class="nav-item">
-                  <a href="recipes.php" class="nav-link ubuntu-light-italic">Recipes</a>
-                </li>
-              </ul>
-            </div>
-          </nav>
+        <nav>
+          <ul>
+            <li><a href="homePage.php" class="raleway">Home</a></li>
+            <li><a href="aboutus.php" class="raleway">About</a></li>
+            <li><a href="contacts.php" class="raleway">Contact</a></li>
+            <li><a href="recipes.php" class="raleway">Recipes</a></li>
+          </ul>
+        </nav>
+        <div class="auth-buttons">
+          <a href="signin.php" class="sign-in raleway">Sign in</a>
+          <a href="signup.php" class="sign-up raleway">Sign up</a>
         </div>
       </div>
-    </div>
-  </header>
-  <div>
-    <input type="text" class="search-bar" id="search-bar" placeholder="Search for recipes...">
-  </div>
-  <?php
-  $sql = "SELECT * FROM recipes";
-  $result = mysqli_query($conn, $sql);
-
-  if (!$result) {
-    die('Error executing query: ' . mysqli_error($conn));
-}
-
-  if(mysqli_num_rows($result) > 0) {
-    
-    while($row = mysqli_fetch_assoc($result)) {
-      $name = htmlspecialchars( $row['title']);
-      $description = htmlspecialchars($row['description']);
-      $file_name = htmlspecialchars($row['image_url']);
-
-      echo '
-        <div class="card">
-            <div class="image-box">
-                <img src="./uploads/' . $file_name . '" alt="' . $name . '" class="img-fluid">
-            </div>
-            <div class="title">
-                <h2 class="noto-sans">' . $name . '</h2>
-            </div>
-            <div class="description">
-                <p>' . $description . '</p>
-            </div>
-            <button>View Recipe</button>
-        </div>';
-    }
-    
-  } else {
-    echo '<p>No recipes found.</p>';
-  }
-    
-  ?>
-  <footer>
-    <div class="container-fluid justify-content-center align-items-center mt-1">
-      <div class="row">
-          <div class="col">
-            <div class="">
-              <a href="#" class="nav-link">Privacy Policy</a>
-              <a href="#" class="nav-link">Terms of Conditions</a>
-            </div>
-            <div class="col">
-              <div class="mt-2">
-                <p class="copy">&copy; ceylon-cuisine 2024</p>
-              </div>
-            </div>
-          </div>
+    </header>
+    <main>
+      <h1 class="explore-title playfair-display">Explore<span> collection</span></h1>
+      <div class="filter-bar">
+        <div class="categories">
+          <a href="#" class="active">All</a>
+          <a href="#">Breakfast</a>
+          <a href="#">Lunch</a>
+          <a href="#">Dinner</a>
+          <a href="#">Main Dishes</a>
+          <a href="#">Snacks</a>
+          <a href="#">Desserts</a>
+          <a href="#">Sweets</a>
+          <a href="#">Drinks</a>
+        </div>
+        <div class="search-collection">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search for recipes">
+        </div>
+        <div class="sort-by">
+          <label for="sort">Sort by:</label>
+          <select name="sort" id="sort">
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+          </select>
         </div>
       </div>
-    </div>
-  </footer>
-  <script src="ceylon-cuisine.js"></script>
-</body>
+    </main>
+    <?php
+      $sql = "SELECT * FROM recipes";
+      $result = mysqli_query($conn, $sql);
+
+      if (!$result) {
+        die('Error executing query: ' . mysqli_error($conn));
+      }
+
+      if(mysqli_num_rows($result) > 0) {
+        
+        while($row = mysqli_fetch_assoc($result)) {
+          $name = htmlspecialchars( $row['title']);
+          $description = htmlspecialchars($row['description']);
+          $file_name = htmlspecialchars($row['image_url']);
+
+          echo '
+            <div class="card">
+                <div class="image-box">
+                    <img src="./uploads/' . $file_name . '" alt="' . $name . '" class="img-fluid">
+                </div>
+                <div class="title">
+                    <h2 class="noto-sans">' . $name . '</h2>
+                </div>
+                <div class="description">
+                    <p>' . $description . '</p>
+                </div>
+                <button>View Recipe</button>
+            </div>';
+        }  
+      } else {
+        echo '<p>No recipes found.</p>';
+      }
+    
+    ?>
+    <footer class="footer">
+        <div class="container">
+            <div class="logo">
+                <img src="./images/Ceylon.png" alt="Logo">
+            </div>
+            <div class="links">
+                <h3 class="josefin-sans">Recipes</h3>
+                <ul>
+                    <li><a href="#" class="raleway">Explore Recipes</a></li>
+                    <li><a href="#" class="raleway">Submit Your Recipe</a></li>
+                    <li><a href="#" class="raleway">Top Rated Dishes</a></li>
+                </ul>
+            </div>
+            <div class="resources">
+                <h3 class="josefin-sans">Kitchen Tips</h3>
+                <ul>
+                    <li><a href="#" class="raleway">Cooking Techniques</a></li>
+                    <li><a href="#" class="raleway">Spice Guide</a></li>
+                    <li><a href="#" class="raleway">Food Pairing TIps</a></li>
+                </ul>
+            </div>
+            <div class="company">
+                <h3 class="josefin-sans">About Ceylon Cuisine</h3>
+                <ul>
+                    <li><a href="#" class="raleway">Our Story</a></li>
+                    <li><a href="#" class="raleway">Contact Us</a></li>
+                    <li><a href="#" class="raleway">Privacy Policy</a></li>
+                    <li><a href="#" class="raleway">Terms of Conditions</a></li>
+                </ul>
+            </div>
+            <div class="social">
+                <h3  class="josefin-sans">Follow Us</h3>
+                <ul>
+                    <li><a href="#" class="raleway"><i class="fab fa-twitter"></i></a></li>
+                    <li><a href="#" class="raleway"><i class="fab fa-facebook"></i></a></li>
+                    <li><a href="#" class="raleway"><i class="fab fa-instagram"></i></a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2024 Ceylon Cuisine. All rights reserved.</p>
+        </div>
+    </footer>
+  </body>
 </html>

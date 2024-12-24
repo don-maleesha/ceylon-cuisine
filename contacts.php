@@ -38,7 +38,7 @@
         <h1 class="playfair-display">Contact Us</h1>
         <p class="merriweather-light"><i class="fas fa-map-marker-alt"></i>  47, Yapa Patumanga, Walala, Sri Lanka.</p>
         <p class="merriweather-light"><i class="fas fa-phone"></i>  (+94) 81 490 0439</p>
-        <p class="merriweather-light"><i class="fas fa-envelope"></i>  info@ceyloncuisine.come</p>
+        <p class="merriweather-light"><i class="fas fa-envelope"></i>  info@ceyloncuisine.com</p>
         <img alt="Office interior with a conference table and chairs" src="./images/lankafood3.webp">
       </div>
       <div class="contact-form">
