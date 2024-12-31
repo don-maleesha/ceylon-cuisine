@@ -1,39 +1,6 @@
 <?php
   include 'dbconn.php';
 
-  $output = '';
-
-  if(isset($_POST['submit'])) {
-    $search = isset($_POST['search']) ? $_POST['search'] : '';
-
-    $sql = "SELECT * FROM recipes WHERE title LIKE '%$search%' OR description LIKE '%$search%'";
-    $result = mysqli_query($conn, $sql);
-
-    if(mysqli_num_rows($result) > 0) {
-      while($row = mysqli_fetch_array($result)){
-        $name = htmlspecialchars($row['title']);
-        $description = htmlspecialchars($row['description']);
-        $file_name = htmlspecialchars($row['image_url']);
-
-        $output .= '
-          <div class="card">
-            <div class="image-box">
-              <img src="./uploads/' . $file_name . '" alt="' . $name . '" class="img-fluid">
-            </div>
-            <div class="title">
-              <h2 class="playfair-display">' . $name . '</h2>
-            </div>
-            <div class="description">
-              <p class="merriweather-regular">' . $description . '</p>
-            </div>
-            <button>View Recipe</button>
-          </div>';
-      }
-    } else {
-      $output = "<h2>No result found!</h2>";
-    }  
-  }
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -87,11 +54,12 @@
       </div>
     </div>
     <div class="search-sort">
-      <form action="" method="post">
+      <form action="" method="get">
         <div class="search-collection">
           <i class="fas fa-search"></i>
           <input type="text" name="search" placeholder="Search for recipes" class="merriweather-light">
         </div>
+        <button type="submit" name="submit" class="search-btn raleway">Search</button>
       </form>
       <div class="sort-by merriweather-light">
         <label for="sort">Sort by:</label>
@@ -102,40 +70,72 @@
       </div>
     </div>
   </main>
-  <?php echo $output; ?>
-  <?php $sql = "SELECT * FROM recipes";
-  $result = mysqli_query($conn, $sql);
-  if (!$result) {
-     die('Error executing query: ' . mysqli_error($conn));
-  } 
-     
-  if(mysqli_num_rows($result) > 0) { 
-    
-    while($row = mysqli_fetch_assoc($result)) { 
-      $name = htmlspecialchars( $row['title']);
-      $description = htmlspecialchars($row['description']);
-      $file_name = htmlspecialchars($row['image_url']); 
-      
-      echo ' 
-        <div class="card"> <div class="image-box">
-          <img src="./uploads/' . $file_name . '" alt="' . $name . '" class="img-fluid"> 
-        </div>
-        <div class="title">
-          <h2 class="playfair-display">' . $name . '</h2> 
-        </div>
-        <div class="description">
-          <p class="merriweather-regular">' . $description . '</p>
-        </div> <button>View Recipe</button> </div>'; 
-        
-      }
-      
-    } else {
-      
-      echo '<p>No recipes found.</p>';
-      
+  <?php
+
+  $output = '';
+
+  function displayRecipes($result){
+    // foreach($result as $row){
+    //   echo $row['title'];
+    //   echo $row['description'];
+    //   echo $row['image_url'];
+    // }
+    //     if(!$result) {
+    //       die('Error: ' . mysqli_error($conn));
+    // }
+    $output = '';
+
+    if(mysqli_num_rows($result) > 0){
+        while($row = mysqli_fetch_array($result)){
+          $name = htmlspecialchars($row['title']);
+          $description = htmlspecialchars($row['description']);
+          $file_name = htmlspecialchars($row['image_url']);
+  
+          $output .= '
+            <div class="card">
+                      <div class="image-box">
+                          <img src="./uploads/' . $file_name . '" alt="' . $name . '" class="img-fluid">
+                      </div>
+                      <div class="title">
+                          <h2 class="playfair-display">' . $name . '</h2>
+                      </div>
+                      <div class="description">
+                          <p class="merriweather-regular">' . $description . '</p>
+                      </div>
+                      <button>View Recipe</button>
+                  </div>';
+        }
+      } else {
+          $output = '<h2 class="no-recipe">No recipes found</h2>';
     }
+
+    return $output;
+  }
+
+  if(isset($_GET['submit'])){
+    $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+    $stmt = $conn->prepare("SELECT * FROM recipes WHERE title LIKE ? OR description LIKE ?");
+    $likeSearch = '%' . $search . '%';
+    $stmt->bind_param('ss', $likeSearch, $likeSearch);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $output = displayRecipes($result);
+    $stmt->close();
+
+  } else {
+    $sql = "SELECT * FROM recipes";
+    $result = mysqli_query($conn, $sql);
+
+    if(!$result) {
+      die('Error: ' . mysqli_error($conn));
+    }
+
+    $output = displayRecipes($result);
+  }
     
   ?>
+      <?php echo $output; ?>
   <footer class="footer">
     <div class="container">
       <div class="logo">
@@ -172,12 +172,13 @@
           <li><a href="#" class="raleway"><i class="fab fa-twitter"></i></a></li>
           <li><a href="#" class="raleway"><i class="fab fa-facebook"></i></a></li>
           <li><a href="#" class="raleway"><i class="fab fa-instagram"></i></a></li>
-        </ul>
+      /ul>
       </div>
     </div>
     <div class="copyright">
       <p>&copy; 2024 Ceylon Cuisine. All rights reserved.</p>
     </div>
+
   </footer>
 </body>
 </html>

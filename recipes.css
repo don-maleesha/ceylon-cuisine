@@ -164,13 +164,31 @@ main {
   align-items: center;
 }
 
+.search-sort form {
+  display: flex;
+  align-items: center;
+  width: 42%;
+}
+
+.search-sort form button {
+  background-color: #dbb657;
+  color: #fff;
+  border: none;
+  padding: 15px;
+  border-radius: 5px;
+  font-size: 1em;
+  cursor: pointer;
+  width: 40%;
+}
+
 .search-sort .search-collection {
   display: flex;
   align-items: center;
   border: 1px solid #86553f; /* Optional: Add border around the search box */
   border-radius: 5px; /* Smooth corners */
   padding: 5px; /* Spacing inside the container */
-  width: 200%; /* Optional: Restrict maximum width of the search bar */
+  width: 200%;
+  margin: 10px; /* Optional: Restrict maximum width of the search bar */
 }
 
 .search-sort .search-collection i {
