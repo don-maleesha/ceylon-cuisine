@@ -121,7 +121,6 @@ header .auth-buttons .sign-up {
   left: 50%;
   z-index: 10;
     /* opacity: 0; */
-  pointer-events: none;
     /* max-width: 720px; */
   background: #fff;
   border: 2px solid #fff;

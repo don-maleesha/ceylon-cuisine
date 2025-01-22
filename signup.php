@@ -1,7 +1,88 @@
 <?php
-  include 'dbconn.php';
+include 'dbconn.php';
 
+if (isset($_GET['submit'])) {
+  $name = isset($_GET['name']) ? $_GET['name'] : '';
+  $email = isset($_GET['email_address']) ? $_GET['email_address'] : '';
+  $password = isset($_GET['password']) ? $_GET['password'] : '';
+  $confirm_password = isset($_GET['confirm_password']) ? $_GET['confirm_password'] : '';
+
+  $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+  $errors = array();
+
+  if(empty($name) || empty($email) || empty($password)){
+    array_push($errors, "All fields are required");
+  }
+
+  if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+    array_push($errors, "Invalid email address");
+  }
+
+  if(strlen($password) < 8){
+    array_push($errors, "Password must be at least 8 characters long");
+  }
+
+  if($password !== $confirm_password){
+    array_push($errors, "Passwords do not match");
+  }
+
+  $sql = "SELECT * FROM users WHERE email_address = '$email'";
+  $result = mysqli_query($conn, $sql);
+  $row_count = mysqli_num_rows($result);
+
+  if($row_count > 0){
+    array_push($errors, "Email address already exists");
+  }
+
+  if(count($errors) > 0){
+
+      foreach($errors as $error){
+  
+        echo "<div class='error'>$error</div>";
+  
+      }
+  
+    } else {
+
+      $sql = "INSERT INTO users (name, email_address, password) VALUES (?, ?, ?)";
+      $statement = mysqli_stmt_init($conn);
+      $prepare_statement = mysqli_stmt_prepare($statement, $sql);
+
+      if($prepare_statement){
+        mysqli_stmt_bind_param($statement, "sss", $name, $email, $hashed_password);
+
+        mysqli_stmt_execute($statement);
+
+        header("Location: signin.php?message=Account created successfully. Please log in.");
+        exit();
+
+      } else {
+
+        header("Location: signup.php?error=Error inserting data: " . $stmt->error);
+        exit();
+    }
+  }
+
+  $sql = "INSERT INTO users (name, email_address, password) VALUES (?, ?, ?)";
+  $stmt = $conn->prepare($sql);
+  $stmt->bind_param("sss", $name, $email, $hashed_password);
+
+  if ($stmt->execute()) {
+    // Redirect to login page after successful sign-up
+    header("Location: signin.php?message=Account created successfully. Please log in.");
+    exit();
+  } else {
+    header("Location: signup.php?error=Error inserting data: " . $stmt->error);
+    exit();
+  }
+
+  $stmt->close();
+}
+
+$conn->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,10 +91,6 @@
   <title>Ceylon Cuisine</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Satisfy&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Raleway:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./signup.css">
   <script src="ceylon-cuisine.js"></script>
 </head>
@@ -45,32 +122,29 @@
           <img src="./images/Ceylon.png" alt="Logo">
           <span class="company-name josefin-sans">Ceylon Cuisine</span>
         </div>
-        <span><p>Already have an account?</p><a href="#">Sign in</a></span>
+        <span><p>Already have an account?</p><a href="signin.php">Sign in</a></span>
       </div>
       <div class="form-container">
         <h2>Create an account</h2>
-        <input type="text" placeholder="Enter your name" aria-label="Full name">
-        <input type="email" placeholder="Enter your email" aria-label="Email">
-        <input type="password" placeholder="Enter your password" aria-label="Password">
-        <input type="password" placeholder="Confirm your password" aria-label="Confirm password">
-        <button type="submit">Sign up</button>
+        <form action="" method="GET">
+          <input type="text" name="name" placeholder="Enter your name" aria-label="Full name" required>
+          <input type="email" name="email_address" placeholder="Enter your email" aria-label="Email" required>
+          <input type="password" name="password" placeholder="Enter your password" aria-label="Password" required>
+          <input type="password" name="confirm_password" placeholder="Confirm your password" aria-label="Confirm password" required>
+          <button type="submit" name="submit">Sign up</button>
+        </form>
         <p class="terms">
           By signing up, you agree to our
-          <a href="https://google.com">Terms of Conditions</a> & 
+          <a href="https://google.com">Terms and Conditions</a> & 
           <a href="#">Privacy Policy</a>.
         </p>
       </div>
     </div>
     <div class="right">
       <img src="./images/istockphoto-1603613324-612x612.jpg" alt="">
-      <!--
-      <div class="caption">
-        <h3>Where Every Dish Tells a Story</h3>
-        <p>Join our community of food lovers and discover new recipes, cooking tips, and more.</p>
-      </div>
-      -->
     </div>
   </div>
+
   <footer class="footer">
     <div class="container">
       <div class="logo">
