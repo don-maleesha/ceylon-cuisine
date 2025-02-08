@@ -123,14 +123,11 @@ header .auth-buttons .sign-up {
     /* opacity: 0; */
     /* max-width: 720px; */
   background: #fff;
-  border: 2px solid #fff;
     /* transform: translate(-50%, -70%); */
   display: flex;
   padding: 60px 90px;
   max-width: 100%;
   box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1);
-  border: 1px solid #dbb657;
-  border-radius: 8px;
 }
 
 .main-container .left,

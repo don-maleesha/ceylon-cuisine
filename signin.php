@@ -1,129 +1,152 @@
 <?php
-    session_start();
-    if (isset($_SESSION["id"])) {
-        header("Location: signin.php");
-        exit();
+session_start();
+
+// Redirect if user is already logged in
+if (isset($_SESSION['email_address'])) {
+    header("Location: homePage.php");
+    exit();
+}
+
+require_once "dbconn.php"; // Include database connection
+
+if (isset($_POST['submit'])) {
+    $email_address = $_POST['email_address'];
+    $password = $_POST['password'];
+
+    // Validate inputs
+    if (!empty($email_address) && !empty($password)) {
+        // Use prepared statements to prevent SQL injection
+        $sql = "SELECT * FROM users WHERE email_address = ?";
+        $stmt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmt, "s", $email_address);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        $user = mysqli_fetch_array($result, MYSQLI_ASSOC);
+
+        if ($user) {
+            // Verify password
+            if (password_verify($password, $user['password'])) {
+                // Set session variables
+                $_SESSION['email_address'] = $user['email_address'];
+                $_SESSION['user'] = "yes";
+                header("Location: homePage.php");
+                exit();
+            } else {
+                $error_message = "Invalid email address or password";
+            }
+        } else {
+            $error_message = "Invalid email address or password";
+        }
+    } else {
+        $error_message = "Please fill in all fields";
     }
+}
 ?>
 <!DOCTYPE html>
-<html lang="en"> 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>ceylon-cuisine</title>
-        <link rel="stylesheet" href="./bootstrap-5.3.3-dist/bootstrap-5.3.3-dist/css/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="signup.css">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Satisfy&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap">
-        <script src="ceylon-cuisine.js"></script>
-    </head>
-    <body id="signin-body">
-        <?php
-            if(isset($_POST["login"])){
-
-                $email = $_POST["email_address"];
-                $password = $_POST["password"];
-
-                require_once "dbconn.php";  // Include the database connection file
-
-                // Query to find the user by their email
-                $sql = "SELECT * FROM users WHERE email_address = '$email'";
-                $result = mysqli_query( $conn, $sql);
-
-
-                $user = mysqli_fetch_array($result, MYSQLI_ASSOC);
-
-                if ($user) {
-                    // checks if the password is correct
-                    if (password_verify($password, $user["password"])) {
-                            session_start();
-                            $_SESSION["user"] = "yes";
-                            header("Location: userrecipes.php");
-                            die();
-                    } else {
-                        echo "<div class='alert alert-danger'>Invalid password</div>";
-                    }
-                } else {
-                    echo "<div class='alert alert-danger'>User not found</div>";
-                }
-            }
-        ?>
-        <script src="./bootstrap-5.3.3-dist/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
-        <header class="text-white align-items-center fixed-top">
-            <div class="container-fluid">
-                <div class="row align-items-center">
-                    <div class="col-3 d-flex align-items-center">
-                        <img src="./images/logo.png" alt="logo" class="logo-img img-fluid rounded-circle">
-                    </div>
-                    <div class="col-6 d-flex flex-column justify-content-center align-items-center">
-                        <h1 class="display-4 m-0 josefin-sans mt-2">Ceylon Cuisine</h1>
-                        <p class="tagline text-center">Experience the Taste of Tradition</p>
-                    </div>
-                    <div class="col-3 text-end">
-                        <nav class="navbar navbar-expand-md navbar-light">
-                            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                                <span class="navbar-toggler-icon"></span>
-                            </button>
-                            <div class="collapse navbar-collapse" id="navbarNav">
-                                <ul class="navbar-nav ml-5">
-                                    <li class="nav-item ubuntu-light-italic">
-                                        <a href="homePage.php" class="nav-link" target="_top">Home</a>
-                                    </li>
-                                    <li class="nav-item ubuntu-light-italic">
-                                        <a href="aboutus.php" class="nav-link" target="_top">About Us</a>
-                                    </li>
-                                    <li class="nav-item ubuntu-light-italic">
-                                        <a href="contacts.php" class="nav-link" target="_top">Contacts</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="recipes.php" class="nav-link ubuntu-light-italic">Recipes</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </nav>
-                    </div>
-                </div>
-            </div>
-        </header>
-        <div class="container rounded-3 col-6 d-flex flex-column justify-content-center mt-5 mb-5 vh-100" id="">
-            <div>
-                <h1 class="text-center josefin-sans" id="h1">Sign In!</h1>
-                <p id="p"></p>
-            </div>
-            <form action="signin.php" method="post" id="form-id">
-                <div class="row mb-3">
-                    <label for="email" class="col-sm-2 col-form-label label">Email</label>
-                    <div class="col-sm-10">
-                        <input type="email" class="form-control form" id="email" name="email_address">
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <label for="password" class="col-sm-2 col-form-label label">Password</label>
-                    <div class="col-sm-10">
-                        <input type="password" class="form-control form" id="password" name="password">
-                    </div>
-                </div>
-                <button type="submit" name="login" class="button">Sign in</button>
-            </form>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ceylon Cuisine</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./signin.css">
+  <script src="ceylon-cuisine.js"></script>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="./images/Ceylon.png" alt="Logo">
+        <span class="company-name josefin-sans">Ceylon Cuisine</span>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="homePage.php" class="raleway">Home</a></li>
+          <li><a href="aboutus.php" class="raleway">About</a></li>
+          <li><a href="contacts.php" class="raleway">Contact</a></li>
+          <li><a href="recipes.php" class="raleway">Recipes</a></li>
+        </ul>
+      </nav>
+      <div class="auth-buttons">
+        <a href="signin.php" class="sign-in raleway">Sign in</a>
+        <a href="signup.php" class="sign-up raleway">Sign up</a>
+      </div>
+    </div>
+  </header>
+  <div class="main-container">
+    <div class="left">
+      <div class="logo">
+        <div class="logo-container">
+          <img src="./images/Ceylon.png" alt="Logo">
+          <span class="company-name josefin-sans">Ceylon Cuisine</span>
         </div>
-        <footer>
-            <div class="container-fluid justify-content-center align-items-center mt-1">
-                <div class="row">
-                    <div class="col">
-                        <div class="">
-                            <a href="#" class="nav-link">Privacy Policy</a>
-                            <a href="#" class="nav-link">Terms of Conditions</a>
-                        </div>
-                        <div class="col">
-                            <div class="mt-2">
-                                <p class="copy">&copy; ceylon-cuisine 2024</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </footer>
-    </body>
+      </div>
+      <div class="form-container">
+        <h2>Sign in to your account</h2>
+        <?php if (isset($error_message)): ?>
+          <div class="error"><?php echo $error_message; ?></div>
+        <?php endif; ?>
+        <form action="" method="POST" id="signin-form">
+          <input type="email" name="email_address" placeholder="Enter your email" aria-label="Email" required>
+          <input type="password" name="password" placeholder="Enter your password" aria-label="Password" required>
+          <div class="options">
+            <label for="remember">
+              <input type="checkbox" name="remember" id="remember"> Remember me
+            </label>
+            <a href="#" class="forgot-password raleway">Forgot password?</a>
+          </div>
+          <button type="submit" name="submit">Sign in</button>
+        </form>
+      </div>
+    </div>
+    <div class="right">
+      <img src="./images/istockphoto-1603613324-612x612.jpg" alt="">
+    </div>
+  </div>
+  <footer class="footer">
+    <div class="container">
+      <div class="logo">
+        <img src="./images/Ceylon.png" alt="Logo">
+      </div>
+      <div class="links">
+        <h3 class="josefin-sans">Recipes</h3>
+        <ul>
+          <li><a href="#" class="raleway">Explore Recipes</a></li>
+          <li><a href="#" class="raleway">Submit Your Recipe</a></li>
+          <li><a href="#" class="raleway">Top Rated Dishes</a></li>
+        </ul>
+      </div>
+      <div class="resources">
+        <h3 class="josefin-sans">Kitchen Tips</h3>
+        <ul>
+          <li><a href="#" class="raleway">Cooking Techniques</a></li>
+          <li><a href="#" class="raleway">Spice Guide</a></li>
+          <li><a href="#" class="raleway">Food Pairing Tips</a></li>
+        </ul>
+      </div>
+      <div class="company">
+        <h3 class="josefin-sans">About Ceylon Cuisine</h3>
+        <ul>
+          <li><a href="#" class="raleway">Our Story</a></li>
+          <li><a href="#" class="raleway">Contact Us</a></li>
+          <li><a href="#" class="raleway">Privacy Policy</a></li>
+          <li><a href="#" class="raleway">Terms of Conditions</a></li>
+        </ul>
+      </div>
+      <div class="social">
+        <h3 class="josefin-sans">Follow Us</h3>
+        <ul>
+          <li><a href="#" class="raleway"><i class="fab fa-twitter"></i></a></li>
+          <li><a href="#" class="raleway"><i class="fab fa-facebook"></i></a></li>
+          <li><a href="#" class="raleway"><i class="fab fa-instagram"></i></a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="copyright">
+      <p>&copy; 2024 Ceylon Cuisine. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
 </html>
