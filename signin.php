@@ -1,21 +1,18 @@
 <?php
 session_start();
 
-// Redirect if user is already logged in
 if (isset($_SESSION['email_address'])) {
     header("Location: homePage.php");
     exit();
 }
 
-require_once "dbconn.php"; // Include database connection
+require_once "dbconn.php";
 
 if (isset($_POST['submit'])) {
     $email_address = $_POST['email_address'];
     $password = $_POST['password'];
 
-    // Validate inputs
     if (!empty($email_address) && !empty($password)) {
-        // Use prepared statements to prevent SQL injection
         $sql = "SELECT * FROM users WHERE email_address = ?";
         $stmt = mysqli_prepare($conn, $sql);
         mysqli_stmt_bind_param($stmt, "s", $email_address);
@@ -25,9 +22,7 @@ if (isset($_POST['submit'])) {
         $user = mysqli_fetch_array($result, MYSQLI_ASSOC);
 
         if ($user) {
-            // Verify password
             if (password_verify($password, $user['password'])) {
-                // Set session variables
                 $_SESSION['email_address'] = $user['email_address'];
                 $_SESSION['user'] = "yes";
                 header("Location: homePage.php");
@@ -85,7 +80,7 @@ if (isset($_POST['submit'])) {
       </div>
       <div class="form-container">
         <h2>Sign in to your account</h2>
-        <?php if (isset($error_message)): ?>
+        <?php if (!empty($error_message)): ?>
           <div class="error"><?php echo $error_message; ?></div>
         <?php endif; ?>
         <form action="" method="POST" id="signin-form">
