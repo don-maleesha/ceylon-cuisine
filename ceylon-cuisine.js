@@ -135,22 +135,20 @@ const searchRecipes = () => {
   
 displayItem(categories);
 
-//
-$(document).ready(function() {
-  //console.log("Script Loaded");
+document.addEventListener("DOMContentLoaded", function () {
+  const customIcon = document.getElementById("customIcon");
+  const dropdownMenu = document.getElementById("dropdownMenu");
 
-  var maximumCharacters = $('#description').attr('maxlength') || 175;
+  customIcon.addEventListener("click", function (event) {
+    event.preventDefault();
+    dropdownMenu.classList.toggle("show");
+  });
 
-  // Initialize the remaining characters when the page loads
-  $("#remaining-characters").text(maximumCharacters + " Characters Remaining").css("color", "#f8f9fa");
-
-  $('#description').keyup(function() {
-      var length = this.value.length;
-
-      // Update the remaining characters
-      if (length <= maximumCharacters) {
-          $("#remaining-characters").text((maximumCharacters - length) + " Characters Remaining.");
+  window.addEventListener("click", function (event) {
+    if (!event.target.matches("#customIcon")) {
+      if (dropdownMenu.classList.contains("show")) {
+        dropdownMenu.classList.remove("show");
       }
-      
+    }
   });
 });

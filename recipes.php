@@ -172,7 +172,7 @@
           <li><a href="#" class="raleway"><i class="fab fa-twitter"></i></a></li>
           <li><a href="#" class="raleway"><i class="fab fa-facebook"></i></a></li>
           <li><a href="#" class="raleway"><i class="fab fa-instagram"></i></a></li>
-      /ul>
+        </ul>
       </div>
     </div>
     <div class="copyright">

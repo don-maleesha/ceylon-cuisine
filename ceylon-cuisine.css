@@ -81,6 +81,45 @@ header .auth-buttons .sign-up {
   background-color: #dbb657;
 }
 
+header .auth-buttons .dropdown .custom-icon {
+  font-size: 1.8em;
+}
+
+header .auth-buttons .dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+header .auth-buttons .dropdown .dropdown-menu {
+  display: none;
+  position: absolute;
+  background: white;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  padding: 10px 0;
+  list-style: none;
+  right: 0;
+  min-width: 150px;
+}
+
+header .auth-buttons .dropdown .dropdown-menu.show {
+  display: block;
+}
+
+header .auth-buttons .dropdown .dropdown-menu li {
+  padding: 10px 20px;
+}
+
+header .auth-buttons .dropdown .dropdown-menu li a {
+  text-decoration: none;
+  color: #333;
+  display: block;
+}
+
+header .auth-buttons .dropdown .dropdown-menu .dropdown.show{
+  display: block;
+}
+
 .hero {
   display: flex;
   justify-content: space-between;

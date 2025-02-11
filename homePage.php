@@ -1,3 +1,11 @@
+<?php
+session_start();
+if(isset($_SESSION["name"])) {
+  echo "Welcome, " . htmlspecialchars($_SESSION["name"]);
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -28,8 +36,21 @@
           </ul>
         </nav>
         <div class="auth-buttons">
-          <a href="signin.php" class="sign-in raleway">Sign in</a>
-          <a href="signup.php" class="sign-up raleway">Sign up</a>
+          <?php if(isset($_SESSION["email_address"])): ?>
+            <div class="dropdown">
+              <a href="#" id="customIcon" class="custom-icon">
+                <i class="fas fa-user-circle" aria-hidden="true"></i>
+              </a>
+              <ul id="dropdownMenu" class="dropdown-menu">
+                <li><a class="dropdown-item" href="profile.php">Profile</a></li>
+                <li><a class="dropdown-item" href="my-recipes.php">My Recipes</a></li>
+                <li><a class="dropdown-item" href="logout.php">Logout</a></li>
+              </ul>
+            </div>
+          <?php else: ?>
+            <a href="signin.php" class="sign-in raleway">Sign in</a>
+            <a href="signup.php" class="sign-up raleway">Sign up</a>
+          <?php endif; ?>
         </div>
       </div>
     </header>
