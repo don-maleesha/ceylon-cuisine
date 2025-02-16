@@ -24,6 +24,7 @@ if (isset($_POST['submit'])) {
         if ($user) {
             if (password_verify($password, $user['password'])) {
                 $_SESSION['email_address'] = $user['email_address'];
+                $_SESSION['name'] = $user['name'];
                 $_SESSION['user'] = "yes";
                 header("Location: homePage.php");
                 exit();

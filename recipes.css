@@ -82,6 +82,75 @@ header .auth-buttons .sign-up {
   background-color: #dbb657;
 }
 
+header .auth-buttons .dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+header .auth-buttons .dropdown a.custom-icon {
+  display: flex;
+  align-items: center;
+}
+
+header .auth-buttons .dropdown a.custom-icon .user-info{
+  display: inline;
+  flex-direction: column;
+  gap: 5px;
+  margin-right: 3px;
+}
+
+header .auth-buttons .dropdown a.custom-icon .user-info .fa-user-circle {
+  font-size: 2em;
+}
+
+header .auth-buttons .dropdown .custom-icon .username {
+  display: inline-block;
+  margin-right: 5px;
+  font-size: 0.8em;
+  margin-top: 2px;
+  align-items: center;
+  margin-left: 5px;
+}
+
+header .auth-buttons .dropdown a.custom-icon .fa-chevron-down {
+  margin-left: 5px;
+  font-size: 1em;
+  gap: 5px;
+}
+
+header .auth-buttons .dropdown .dropdown-menu {
+  display: none;
+  position: absolute;
+  background: white;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  padding: 10px 0;
+  list-style: none;
+  right: 0;
+  max-width: 150px;
+}
+
+header .auth-buttons .dropdown .dropdown-menu.show {
+  display: block;
+}
+
+header .auth-buttons .dropdown .dropdown-menu li a {
+  text-decoration: none;
+  color: #86553f;
+  display: block;
+}
+
+header .auth-buttons .dropdown .dropdown-menu li a.dropdown-item {
+  padding: 10px 20px;
+  margin-left: 2px;
+  gap : 5px;
+}
+
+header .auth-buttons .dropdown .dropdown-menu li a.dropdown-item .fa-user, .fa-sign-out-alt {
+  font-size: 1em;
+  color: #dbb657;
+}
+
 .josefin-sans {
   font-family: "Josefin Sans", sans-serif;
   font-optical-sizing: auto;

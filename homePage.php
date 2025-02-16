@@ -1,9 +1,5 @@
 <?php
 session_start();
-if(isset($_SESSION["name"])) {
-  echo "Welcome, " . htmlspecialchars($_SESSION["name"]);
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -38,13 +34,16 @@ if(isset($_SESSION["name"])) {
         <div class="auth-buttons">
           <?php if(isset($_SESSION["email_address"])): ?>
             <div class="dropdown">
-              <a href="#" id="customIcon" class="custom-icon">
-                <i class="fas fa-user-circle" aria-hidden="true"></i>
+              <a href="#" class="custom-icon">
+                <div class="user-info">
+                  <i class="fas fa-user-circle" aria-hidden="true"></i>
+                  <span class="username raleway"><?php echo htmlspecialchars($_SESSION['name']); ?></span>
+                </div>
+                <i id="customIcon" class="fas fa-chevron-down" aria-hidden="true"></i> 
               </a>
               <ul id="dropdownMenu" class="dropdown-menu">
-                <li><a class="dropdown-item" href="profile.php">Profile</a></li>
-                <li><a class="dropdown-item" href="my-recipes.php">My Recipes</a></li>
-                <li><a class="dropdown-item" href="logout.php">Logout</a></li>
+                <li><a class="dropdown-item raleway" href="profile.php"><i class="fas fa-user"></i>  Profile</a></li>
+                <li><a class="dropdown-item raleway" href="logout.php"><i class="fas fa-sign-out-alt"></i>  Logout</a></li>
               </ul>
             </div>
           <?php else: ?>

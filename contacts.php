@@ -1,3 +1,7 @@
+<?php 
+  session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -28,8 +32,24 @@
           </ul>
         </nav>
         <div class="auth-buttons">
-          <a href="signin.php" class="sign-in raleway">Sign in</a>
-          <a href="signup.php" class="sign-up raleway">Sign up</a>
+          <?php if(isset($_SESSION["email_address"])): ?>
+            <div class="dropdown">
+              <a href="#" class="custom-icon">
+                <div class="user-info">
+                  <i class="fas fa-user-circle" aria-hidden="true"></i>
+                  <span class="username raleway"><?php echo htmlspecialchars($_SESSION['name']); ?></span>
+                </div>
+                <i id="customIcon" class="fas fa-chevron-down" aria-hidden="true"></i> 
+              </a>
+              <ul id="dropdownMenu" class="dropdown-menu">
+                <li><a class="dropdown-item raleway" href="profile.php"><i class="fas fa-user"></i>  Profile</a></li>
+                <li><a class="dropdown-item raleway" href="logout.php"><i class="fas fa-sign-out-alt"></i>  Logout</a></li>
+              </ul>
+            </div>
+          <?php else: ?>
+            <a href="signin.php" class="sign-in raleway">Sign in</a>
+            <a href="signup.php" class="sign-up raleway">Sign up</a>
+          <?php endif; ?>
         </div>
       </div>
     </header>
