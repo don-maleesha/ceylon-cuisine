@@ -59,9 +59,15 @@ header nav ul li a {
   color: #fff;
   font-weight: 500;
 }
+
 header nav ul li a:hover {
   color: #dbb657;
   font-weight: 500;
+}
+
+header .auth-buttons {
+  display: flex;
+  gap: 20px;
 }
 
 header .auth-buttons a {
