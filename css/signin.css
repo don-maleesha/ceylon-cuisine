@@ -1,0 +1,344 @@
+/* Global Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    line-height: 1.6;
+    color: #333;
+  }
+  
+  a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.3s ease, background-color 0.3s ease;
+  }
+  
+  ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+  
+  /* Header Section */
+  header {
+    background-color: #86553f;
+    color: #fff;
+    padding: 20px 0;
+  }
+  
+  header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  header .logo {
+    display: flex;
+    align-items: center;
+  }
+  
+  header .logo img {
+    height: 40px;
+    margin-right: 10px;
+    border-radius: 50%;
+  }
+  
+  header .logo .company-name {
+    font-size: 1.875em;
+    font-weight: 700;
+  }
+  
+  header nav ul {
+    display: flex;
+    gap: 20px;
+  }
+  
+  header nav ul li a {
+    color: #fff;
+    font-weight: 500;
+  }
+  
+  header nav ul li a:hover {
+    color: #dbb657;
+  }
+
+  header .auth-buttons {
+    display: flex;
+    gap: 20px;
+  }
+  
+  header .auth-buttons a {
+    color: #fff;
+    margin-left: 20px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    display: inline-block;
+  }
+  
+  header .auth-buttons .sign-in {
+    background-color: transparent;
+    border: 1px solid #fff;
+  }
+  
+  header .auth-buttons .sign-up {
+    background-color: #dbb657;
+  }
+  
+  /* Typography Classes */
+  .josefin-sans {
+    font-family: "Josefin Sans", sans-serif;
+    color: #FAFAFA;
+    margin-right: 15px;
+    font-size: 46px;
+    font-weight: 500;
+  }
+  
+  .raleway {
+    font-family: "Raleway", sans-serif;
+    font-weight: 400;
+  }
+  
+  .merriweather-regular,
+  .merriweather-light {
+    font-family: "Merriweather", serif;
+  }
+  
+  .merriweather-regular {
+    font-weight: 400;
+  }
+  
+  .merriweather-light {
+    font-weight: 300;
+    font-size: 0.9em;
+  }
+  
+  .playfair-display {
+    font-family: "Playfair Display", serif;
+    font-weight: 600;
+  }
+  
+  /* Main Content */
+  .main-container {
+    top: 50%;
+    left: 50%;
+    z-index: 10;
+      /* opacity: 0; */
+      /* max-width: 720px; */
+    background: #fff;
+      /* transform: translate(-50%, -70%); */
+    display: flex;
+    padding: 120px 90px;
+    max-width: 100%;
+    box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .main-container .left,
+  .main-container .right {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid #dbb657;
+  }
+  
+  .main-container .left {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 8px 0 0 8px;
+  }
+  
+  .main-container .right {
+    background-color: #dbb657;
+    color: #fff;
+    border-radius: 0 8px 8px 0;
+  }
+  
+  .main-container .left .logo-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .main-container .left .logo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+      /* margin: 0 auto; */
+      /* padding: 1px; */
+    width: 100%;
+  }
+  
+  .main-container .left .logo .company-name {
+    color: #86553f;
+  }
+  
+  .main-container .left .logo img {
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+  
+  .main-container .left .logo .company-name {
+    font-size: 1.5em;
+  }
+  
+  .main-container .left .logo span {
+    display: flex;
+    align-items: center;
+  }
+  
+  .main-container .left .logo span a{
+    color: #dbb657;
+    font-size: 0.8em;
+    font-weight: 500;
+    text-decoration: underline;
+    margin: 5px;
+    color: #6366f1;
+  }
+  
+  .main-container .left .logo span p{
+    font-size: 0.8em;
+    font-weight: 500;
+    margin-left: 10px;
+  }
+  
+  .main-container .left .form-container {
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    margin: 0 auto;
+  }
+  
+  .main-container .left .form-container input,
+  .main-container .left .form-container button {
+    border: 1px solid #e5e7eb;
+    font-size: 14px;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+  
+  .main-container .left .form-container p{
+    font-size: 0.7em;
+    margin-top: 10px;
+  }
+  
+  .main-container .left .form-container p a{
+    color: #6366f1;
+    text-decoration: underline;
+  }
+
+  .main-container .left .form-container .options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+  }
+
+  .main-container .left .form-container .options label{
+    font-size: 0.8em;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  .main-container .left .form-container .options input{
+    margin-right: 5px;
+  }
+
+  .main-container .left .form-container .options a{
+    font-size: 0.8em;
+    color: #6366f1;
+    text-decoration: underline;
+  }
+
+  .main-container .left .form-container .options a:hover{
+    text-decoration: underline;
+  }
+
+  .main-container .left .form-container button {
+    background-color: #6366f1;
+    color: #fff;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .main-container .right img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0 8px 8px 0;
+  }
+  
+  .main-container .right .caption {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .main-container .right .caption h3 {
+    font-size: 24px;
+  }
+  
+  .main-container .right .caption p {
+    font-size: 14px;
+  }
+  
+  /* Footer Section */
+  .footer {
+    background-color: #86553f;
+    color: #fff;
+    padding: 50px 20px;
+  }
+  
+  .footer .container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .footer h3 {
+    font-size: x-large;
+  }
+  
+  .footer .logo img {
+    height: 80px;
+    border-radius: 50%;
+  }
+  
+  .footer .links ul li a,
+  .footer .resources ul li a,
+  .footer .company ul li a,
+  .footer .social ul li a {
+    color: #fff;
+    transition: color 0.3s ease;
+    font-size: medium;
+    line-height: 2;
+    font-weight: 400;
+  }
+  
+  .footer .links ul li a:hover,
+  .footer .resources ul li a:hover,
+  .footer .company ul li a:hover,
+  .footer .social ul li a:hover {
+    color: #dbb657;
+  }
+  
+  .footer .copyright {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 16px;
+    color: #ddd;
+  }
+  

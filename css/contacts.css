@@ -1,0 +1,306 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  line-height: 1.6;
+  color: #333;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+header {
+  background-color: #86553f;
+  color: #fff;
+  padding: 20px 0;
+}
+
+header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+header .logo {
+  display: flex;
+  align-items: center;
+}
+
+header .logo img {
+  height: 40px;
+  margin-right: 10px;
+  border-radius: 50%;
+}
+
+header .logo .company-name {
+  font-size: 1.875em;
+  font-weight: 700;
+}
+
+header nav ul {
+  display: flex;
+  gap: 20px;
+}
+
+header nav ul li a {
+  color: #fff;
+  font-weight: 500;
+}
+
+header nav ul li a:hover {
+  color: #dbb657;
+  font-weight: 500;
+}
+
+header .auth-buttons {
+  display: flex;
+  gap: 20px;
+}
+
+header .auth-buttons a {
+  color: #fff;
+  margin-left: 20px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+header .auth-buttons .sign-in {
+  background-color: transparent;
+  border: 1px solid #fff;
+}
+
+header .auth-buttons .sign-up {
+  background-color: #dbb657;
+}
+
+header .auth-buttons .dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+header .auth-buttons .dropdown a.custom-icon {
+  display: flex;
+  align-items: center;
+}
+
+header .auth-buttons .dropdown a.custom-icon .user-info{
+  display: inline;
+  flex-direction: column;
+  gap: 5px;
+  margin-right: 3px;
+}
+
+header .auth-buttons .dropdown a.custom-icon .user-info .fa-user-circle {
+  font-size: 2em;
+}
+
+header .auth-buttons .dropdown .custom-icon .username {
+  display: inline-block;
+  margin-right: 5px;
+  font-size: 0.8em;
+  margin-top: 2px;
+  align-items: center;
+  margin-left: 5px;
+}
+
+header .auth-buttons .dropdown a.custom-icon .fa-chevron-down {
+  margin-left: 5px;
+  font-size: 1em;
+  gap: 5px;
+}
+
+header .auth-buttons .dropdown .dropdown-menu {
+  display: none;
+  position: absolute;
+  background: white;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  padding: 10px 0;
+  list-style: none;
+  right: 0;
+  max-width: 150px;
+}
+
+header .auth-buttons .dropdown .dropdown-menu.show {
+  display: block;
+}
+
+header .auth-buttons .dropdown .dropdown-menu li a {
+  text-decoration: none;
+  color: #86553f;
+  display: block;
+}
+
+header .auth-buttons .dropdown .dropdown-menu li a.dropdown-item {
+  padding: 10px 20px;
+  margin-left: 2px;
+  gap : 5px;
+}
+
+
+header .auth-buttons .dropdown .dropdown-menu li a.dropdown-item .fa-user, .fa-sign-out-alt {
+  font-size: 1em;
+  color: #dbb657;
+}
+
+.josefin-sans {
+  font-family: "Josefin Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+  color: #FAFAFA;
+  margin-right: 15px;
+  font-size: 46px;
+}
+
+.raleway {
+  font-family: "Raleway", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.merriweather-regular {
+  font-family: "Merriweather", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.playfair-display {
+  font-family: "Playfair Display", serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.contacts-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 40px;
+  height: 600px;
+}
+
+.contact-info,
+.contact-form {
+  width: 45%;
+}
+
+.contact-info h1 {
+  font-size: 2.5em;
+  margin: 0 0 20px 0;
+}
+
+.contact-info p {
+  margin: 10px 0 0 0;
+  font-size: 0.9em;
+  line-height: 2;
+}
+
+.merriweather-light {
+  font-family: "Merriweather", serif;
+  font-weight: 300;
+  font-style: normal;
+  font-size: 0.9em;
+}
+
+.contact-info img {
+  width: 100%;
+  height: 50%;
+  margin: 20px 0 0 0;
+  object-fit: cover;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 15px;
+  margin: 23px 0 0 0;
+  border: 1px solid #86553f;
+  border-radius: 5px;
+  line-height: 2;
+}
+
+.contact-form button {
+  background-color: #86553f;
+  color: #fff;
+  padding: 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 25px;
+}
+
+.contact-form button:hover {
+  background-color: #dbb657;
+}
+
+.footer-image{
+  width: 100%;
+  height: 500px;
+  object-fit: cover;
+  margin: 20px 0 0 0;
+  display: block;
+}
+
+.footer {
+  background-color: #86553f;
+  color: #fff;
+  padding: 50px 20px;
+}
+
+.footer .container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer h3 {
+  font-size: x-large;
+}
+
+.footer .logo img {
+  height: 80px;
+  border-radius: 50%;
+}
+
+.footer .links ul li a,
+.footer .resources ul li a,
+.footer .company ul li a,
+.footer .social ul li a {
+  color: #fff;
+  transition: color 0.3s ease;
+  font-size: medium;
+  line-height: 2;
+  font-weight: 400;
+}
+
+.footer .links ul li a:hover,
+.footer .resources ul li a:hover,
+.footer .company ul li a:hover,
+.footer .social ul li a:hover {
+  color: #dbb657;
+}
+
+.footer .copyright {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 16px;
+  color: #ddd;
+}
