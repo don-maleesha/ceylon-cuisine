@@ -1,88 +1,124 @@
 <?php
-
 session_start();
 require_once "dbconn.php";
 
-if ($_SERVER["REQUEST_METHOD"] == 'POST' && isset($_POST['submit'])) {
-    if (isset($_FILES['profile_picture']) && !empty($_FILES['profile_picture']['tmp_name'])) {
-        $file_name = $_FILES['profile_picture']['name'];
-        $temporary_name = $_FILES['profile_picture']['tmp_name'];
-        $folder = '../uploads/' . basename($file_name);
+// Check if the user is logged in
+if (!isset($_SESSION['email_address'])) {
+    die("User not logged in.");
+}
 
-        $errors = array();
-        $allowed_extensions = array("jpg", "jpeg", "png");
-        $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+// Fetch user information from the session
+$email = $_SESSION['email_address'];
+$profile_picture = '../images/user-profile-icon-front-side-with-white-background.jpg';
+$uploadMessage = ''; // Initialize upload message
 
-        if (!in_array($file_extension, $allowed_extensions)) {
-            $errors[] = "Only JPG, JPEG, PNG files are allowed.";
-        }
+// Handle profile picture upload
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
+        $fileTmpPath = $_FILES['profile_picture']['tmp_name'];
+        $fileName = $_FILES['profile_picture']['name'];
+        $fileSize = $_FILES['profile_picture']['size'];
+        $fileType = $_FILES['profile_picture']['type'];
+        $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-        if ($_FILES['profile_picture']['size'] > 5000000) {
-            $errors[] = "File size should not exceed 5MB.";
-        }
+        $allowedExtensions = array('jpg', 'jpeg', 'png');
+        $maxFileSize = 2 * 1024 * 1024;
 
-        if (empty($errors)) {
-            if (move_uploaded_file($temporary_name, $folder)) {
-                $sql = "UPDATE users SET profile_picture = ? WHERE email_address = ?";
-                $statement = mysqli_stmt_init($conn);
-
-                if (mysqli_stmt_prepare($statement, $sql)) {
-                    mysqli_stmt_bind_param($statement, "ss", $folder, $_SESSION['email_address']);
-
-                    if (mysqli_stmt_execute($statement)) {
-                        $_SESSION['profile_picture'] = $folder;
-                        echo "<div class='alert alert-success'>Profile Picture Updated Successfully!</div>";
-                    } else {
-                        echo "<div class='alert alert-danger'>Failed to update profile picture. Please try again.</div>";
-                    }
-                } else {
-                    die("SQL Error: Unable to prepare the statement.");
-                }
-            } else {
-                echo "<div class='alert alert-danger'>Sorry, there was an error uploading your file.</div>";
-            }
+        if (!in_array($fileExtension, $allowedExtensions)) {
+            $uploadMessage = 'Only JPG, JPEG, and PNG files are allowed.';
+        } elseif ($fileSize > $maxFileSize) {
+            $uploadMessage = 'File size exceeds 2MB limit.';
         } else {
-            foreach ($errors as $error) {
-                echo "<div class='alert alert-danger'>$error</div>";
+            $uploadFileDir = '../uploads/';
+            $destPath = $uploadFileDir . $fileName;
+
+            if (move_uploaded_file($fileTmpPath, $destPath)) {
+
+                $relativePath = '../uploads/' . $fileName;
+                $sql = "UPDATE users SET profile_picture = ? WHERE email_address = ?";
+                $updateStmt = $conn->prepare($sql);
+                if ($updateStmt) {
+                    $updateStmt->bind_param("ss", $relativePath, $email);
+                    $updateStmt->execute();
+                    $updateStmt->close();
+                } else {
+                    $uploadMessage = 'Database error: ' . $conn->error;
+                }
+                
+                $profile_picture = $relativePath; // Update the profile picture path
+                $uploadMessage = 'Profile picture uploaded successfully!';
+            } else {
+                $uploadMessage = 'There was an error moving the uploaded file.';
             }
         }
     } else {
-        echo "<div class='alert alert-danger'>No file selected or file upload failed.</div>";
-    }
-
-    // Fetch the updated profile picture from the database after upload
-    $query = "SELECT profile_picture FROM users WHERE email_address = ?";
-    $stmt = mysqli_prepare($conn, $query);
-    mysqli_stmt_bind_param($stmt, "s", $_SESSION['email_address']);
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_bind_result($stmt, $profile_picture);
-    mysqli_stmt_fetch($stmt);
-    mysqli_stmt_close($stmt);
-
-    // Store the updated image path in session
-    if ($profile_picture) {
-        $_SESSION['profile_picture'] = $profile_picture;
+        $uploadMessage = 'No file uploaded or upload error occurred.';
     }
 }
 
-$email = $_SESSION['email_address'] ?? ''; // Ensure user is logged in and session is set
-
-// Fetch profile picture from the database using email
-$profile_picture = '../images/user-profile-icon-front-side-with-white-background.jpg'; // Default image
-if (!empty($email)) {
-    $sql = "SELECT profile_picture FROM users WHERE email_address = ?";
-    $stmt = $conn->prepare($sql);
+// Fetch the updated profile picture from the database
+$sql = "SELECT profile_picture FROM users WHERE email_address = ?";
+$stmt = $conn->prepare($sql);
+if ($stmt) {
     $stmt->bind_param("s", $email);
     $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
+    $stmt->bind_result($profile_picture_db);
+    $stmt->fetch();
+    $stmt->close();
 
-    // Check if the user has an uploaded profile picture
-    if (!empty($row['profile_picture'])) {
-        $profile_picture = $row['profile_picture'];
+    if (!empty($profile_picture_db)) {
+        $profile_picture = $profile_picture_db;
+    }
+}
+
+// handle recipe submission
+if (isset($_POST['submit'])) {
+    $name = $_POST['title'];
+    $description = $_POST['description'];
+    $file_name = $_FILES['image_url']['name'];
+    $tempory_name = $_FILES['image_url']['tmp_name'];
+    $folder = '../uploads/'.$file_name;
+
+    $errors = array();
+
+    $allowed_extensions = array("jpg", "jpeg", "png");
+    $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+
+    if(!in_array($file_extension, $allowed_extensions)){
+        $errors[] = "Only JPG, JPEG, PNG files are allowed.";
+    }
+
+    if($_FILES['image_url']['size'] > 5000000) {
+        $errors[] = "File size should not exceed 5MB.";
+    }
+
+    if (empty($errors)) {
+        if(move_uploaded_file($tempory_name, $folder)){
+
+            $sql = "INSERT INTO recipes (title, description, image_url) VALUES (?, ?, ?)";
+            $statement = mysqli_stmt_init($conn);
+            $prepare_statement = mysqli_stmt_prepare($statement, $sql);
+
+            if ($prepare_statement) {
+                mysqli_stmt_bind_param($statement, "sss", $name, $description, $file_name);
+
+                if (mysqli_stmt_execute($statement)) {
+                    echo "<div class='alert alert-success'>Recipe Added Successfully!</div>";
+                } else {
+                    echo "<div class='alert alert-danger'>Failed to add recipe. Please try again.</div>";
+                }
+            } else {
+                die("SQL Error: Unable to prepare the statement.");
+            }
+        }
+    } else {
+        foreach ($errors as $error) {
+            echo "<div class='alert alert-danger'>$error</div>";
+        }
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -96,7 +132,6 @@ if (!empty($email)) {
     <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Satisfy&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Raleway:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/profile.css">
-    <script src="../js/ceylon-cuisine.js"></script>
 </head>
 <body>
 <header>
@@ -142,6 +177,7 @@ if (!empty($email)) {
     <div class="profile-info">
         <div class="profile-picture">
             <img src="<?php echo $profile_picture; ?>" alt="Profile Picture">
+            <span id="upload-message" data-message="<?= htmlspecialchars($uploadMessage) ?>"></span>
             <form action="profile.php" method="POST" enctype="multipart/form-data">
                 <label for="profile-picture-upload" class="change-picture-button">
                     <i class="fas fa-camera"></i>
@@ -158,10 +194,48 @@ if (!empty($email)) {
     </div>
 </div>
 <div class="tabs">
-    <a href="#" class="active">Add New Recipe</a>
-    <a href="#" class="active">My Recipes</a>
-    <a href="#" class="active">Favourites</a>
-    <a href="#" class="active">Stats</a>
+    <button class="active raleway" onclick="showSection('newRecipe')">Add New Recipe</button>
+    <button class="raleway" onclick="showSection('myRecipe')">My Receips</button>
+    <button class="raleway" onclick="showSection('myFavourits')">My Favourites</button>
+    <button class="raleway" onclick="showSection('stats')">Stats</button>
+</div>
+<div class="content">
+    <section id="newRecipe" class="content-section active">
+        <div class="container">
+            <h2 class="playfair-display">Share Your Delicious Recipe with the World!</h2>
+            <p class="raleway">We are excited to see what you have created in your kitchen. Please fill out the form below to share your recipe with our community.</p>
+            <form action="profile.php" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="name" class="raleway">Recipe Name</label>
+                    <input type="text" id="name" name="title" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="description" class="raleway">Description</label>
+                    <textarea id="description" name="description" class="form-control" required></textarea> 
+                </div>
+                <div class="form-group upload-image">
+                    <label for="image" class="raleway">Upload Image</label>
+                    <input type="file" id="image" name="image_url" accept="image/*" class="form-control" required>
+                </div>
+                <!-- Add inside the form -->
+                <div>
+                    <button type="submit" name="submit" class="raleway">Submit Recipe</button>
+                </div>
+            </form>
+        </div>
+    </section>
+    <section id="myRecipe" class="content-section">
+        <div class="container">
+            <h2 class="playfair-display">About Us</h2>
+            <p class="raleway">Ceylon Cuisine is a platform for food lovers to explore and share their favourite recipes. You can find a wide range of recipes from different cuisines around the world. Our mission is to bring people together through food and create a community of food enthusiasts.</p>
+        </div>
+    </section>
+    <section id="myFavourits" class="content-section">
+        <div class="container">
+            <h2 class="playfair-display">Contact Us</h2>
+            <p class="raleway">Ceylon Cuisine is a platform for food lovers to explore and share their favourite recipes. You can find a wide range of recipes from different cuisines around the world. Our mission is to bring people together through food and create a community of food enthusiasts.</p>
+        </div>
+    </section>
 </div>
 <footer class="footer">
     <div class="container">
@@ -206,5 +280,8 @@ if (!empty($email)) {
         <p>&copy; 2024 Ceylon Cuisine. All rights reserved.</p>
     </div>
 </footer>
+
+<script src="../js/profile.js"></script>
+<script src="../js/ceylon-cuisine.js"></script>
 </body>
 </html>
