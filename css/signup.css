@@ -216,6 +216,20 @@ header .auth-buttons .sign-up {
   margin: 0 auto;
 }
 
+input:invalid {
+  border-color: #ff0000;
+}
+
+input:valid {
+  border-color: #00ff00;
+}
+
+.error {
+  color: #ff0000;
+  font-size: 0.8em;
+  margin-top: 5px;
+}
+
 .main-container .left .form-container input,
 .main-container .left .form-container button {
   border: 1px solid #e5e7eb;

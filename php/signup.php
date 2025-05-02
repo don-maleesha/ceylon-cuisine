@@ -1,88 +1,71 @@
 <?php
+
+session_start();
+
 include 'dbconn.php';
 
-if (isset($_GET['submit'])) {
-  $name = isset($_GET['name']) ? $_GET['name'] : '';
-  $email = isset($_GET['email_address']) ? $_GET['email_address'] : '';
-  $password = isset($_GET['password']) ? $_GET['password'] : '';
-  $confirm_password = isset($_GET['confirm_password']) ? $_GET['confirm_password'] : '';
+if (isset($_POST['submit'])) {
+    // Use $_POST for retrieving the input fields
+    $name = isset($_POST['name']) ? $_POST['name'] : '';
+    $email = isset($_POST['email_address']) ? $_POST['email_address'] : '';
+    $password = isset($_POST['password']) ? $_POST['password'] : '';
+    $confirm_password = isset($_POST['confirm_password']) ? $_POST['confirm_password'] : '';
 
-  $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-  $errors = array();
+    $errors = array();
 
-  if(empty($name) || empty($email) || empty($password)){
-    array_push($errors, "All fields are required");
-  }
-
-  if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
-    array_push($errors, "Invalid email address");
-  }
-
-  if(strlen($password) < 8){
-    array_push($errors, "Password must be at least 8 characters long");
-  }
-
-  if($password !== $confirm_password){
-    array_push($errors, "Passwords do not match");
-  }
-
-  $sql = "SELECT * FROM users WHERE email_address = '$email'";
-  $result = mysqli_query($conn, $sql);
-  $row_count = mysqli_num_rows($result);
-
-  if($row_count > 0){
-    array_push($errors, "Email address already exists");
-  }
-
-  if(count($errors) > 0){
-
-      foreach($errors as $error){
-  
-        echo "<div class='error'>$error</div>";
-  
-      }
-  
-    } else {
-
-      $sql = "INSERT INTO users (name, email_address, password) VALUES (?, ?, ?)";
-      $statement = mysqli_stmt_init($conn);
-      $prepare_statement = mysqli_stmt_prepare($statement, $sql);
-
-      if($prepare_statement){
-        mysqli_stmt_bind_param($statement, "sss", $name, $email, $hashed_password);
-
-        mysqli_stmt_execute($statement);
-
-        header("Location: signin.php?message=Account created successfully. Please log in.");
-        exit();
-
-      } else {
-
-        header("Location: signup.php?error=Error inserting data: " . $stmt->error);
-        exit();
+    // Basic validation for empty fields
+    if(empty($name) || empty($email) || empty($password)){
+        array_push($errors, "All fields are required");
     }
-  }
 
-  $sql = "INSERT INTO users (name, email_address, password) VALUES (?, ?, ?)";
-  $stmt = $conn->prepare($sql);
-  $stmt->bind_param("sss", $name, $email, $hashed_password);
+    // Validate email format
+    if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+        array_push($errors, "Invalid email address");
+    }
 
-  if ($stmt->execute()) {
-    // Redirect to login page after successful sign-up
-    header("Location: signin.php?message=Account created successfully. Please log in.");
-    exit();
-  } else {
-    header("Location: signup.php?error=Error inserting data: " . $stmt->error);
-    exit();
-  }
+    // Validate password length
+    if(strlen($password) < 8){
+        array_push($errors, "Password must be at least 8 characters long");
+    }
 
-  $stmt->close();
+    // Check if passwords match
+    if($password !== $confirm_password){
+        array_push($errors, "Passwords do not match");
+    }
+
+    // Check if email already exists in the database
+    $sql = "SELECT * FROM users WHERE email_address = '$email'";
+    $result = mysqli_query($conn, $sql);
+    $row_count = mysqli_num_rows($result);
+
+    if($row_count > 0){
+        array_push($errors, "Email address already exists");
+    }
+
+    // If there are errors, display them
+    if(count($errors) > 0){
+        foreach($errors as $error){
+            echo "<div class='error'>$error</div>";
+        }
+    } else {
+        // Insert the user into the database
+        $sql = "INSERT INTO users (name, email_address, password) VALUES (?, ?, ?)";
+        $stmt = mysqli_stmt_init($conn);
+        if (mysqli_stmt_prepare($stmt, $sql)) {
+            mysqli_stmt_bind_param($stmt, "sss", $name, $email, $hashed_password);
+            mysqli_stmt_execute($stmt);
+            header("Location: signin.php?message=Account created successfully. Please log in.");
+            exit();
+        } else {
+            header("Location: signup.php?error=Error inserting data: " . mysqli_stmt_error($stmt));
+            exit();
+        }
+    }
 }
-
-$conn->close();
+mysqli_close($conn);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -94,7 +77,7 @@ $conn->close();
   <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;500;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Raleway:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/signup.css">
-  <script src="../js/ceylon-cuisine.js"></script>
+  <!-- <script src="../js/signup.js"></script> -->
 </head>
 <body>
   <header>
@@ -128,10 +111,23 @@ $conn->close();
       </div>
       <div class="form-container">
         <h2>Create an account</h2>
-        <form action="" method="GET">
+        <!-- Message container for JavaScript -->
+        <div id="messageContainer"></div>
+        <!-- PHP error messages -->
+        <?php
+          if (isset($_SESSION['errors'])) {
+            echo '<div class="error-container">';
+            foreach ($_SESSION['errors'] as $error) {
+            echo "<div class='error'>$error</div>";
+            }
+            echo '</div>';
+            unset($_SESSION['errors']); // Clear errors after displaying
+          }
+        ?>
+        <form id="signupForm" action="signup.php" method="POST"  onsubmit="validateForm(event)">
           <input type="text" name="name" placeholder="Enter your name" aria-label="Full name" required>
           <input type="email" name="email_address" placeholder="Enter your email" aria-label="Email" required>
-          <input type="password" name="password" placeholder="Enter your password" aria-label="Password" required>
+          <input type="password" name="password" placeholder="Enter your password" aria-label="Password" required  minlength="8">
           <input type="password" name="confirm_password" placeholder="Confirm your password" aria-label="Confirm password" required>
           <button type="submit" name="submit">Sign up</button>
         </form>
