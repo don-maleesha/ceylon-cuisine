@@ -1,69 +1,67 @@
 <?php
-
 session_start();
-
 include 'dbconn.php';
 
+$_SESSION['errors'] = [];
+
 if (isset($_POST['submit'])) {
-    // Use $_POST for retrieving the input fields
-    $name = isset($_POST['name']) ? $_POST['name'] : '';
-    $email = isset($_POST['email_address']) ? $_POST['email_address'] : '';
-    $password = isset($_POST['password']) ? $_POST['password'] : '';
-    $confirm_password = isset($_POST['confirm_password']) ? $_POST['confirm_password'] : '';
+    // UNSANITIZED VERSION - RISKY
+    $name = $_POST['name'];
+    $email = $_POST['email_address'];
+    $password = $_POST['password'];
+    $confirm_password = $_POST['confirm_password'];
 
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
-    $errors = array();
-
-    // Basic validation for empty fields
-    if(empty($name) || empty($email) || empty($password)){
-        array_push($errors, "All fields are required");
+    // Basic validation
+    if (empty($name) || empty($email) || empty($password)) {
+        array_push($_SESSION['errors'], "All fields are required");
     }
 
-    // Validate email format
-    if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
-        array_push($errors, "Invalid email address");
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        array_push($_SESSION['errors'], "Invalid email address");
     }
 
-    // Validate password length
-    if(strlen($password) < 8){
-        array_push($errors, "Password must be at least 8 characters long");
+    if (strlen($password) < 8) {
+        array_push($_SESSION['errors'], "Password must be at least 8 characters long");
     }
 
-    // Check if passwords match
-    if($password !== $confirm_password){
-        array_push($errors, "Passwords do not match");
+    if ($password !== $confirm_password) {
+        array_push($_SESSION['errors'], "Passwords do not match");
     }
 
-    // Check if email already exists in the database
-    $sql = "SELECT * FROM users WHERE email_address = '$email'";
-    $result = mysqli_query($conn, $sql);
-    $row_count = mysqli_num_rows($result);
-
-    if($row_count > 0){
-        array_push($errors, "Email address already exists");
-    }
-
-    // If there are errors, display them
-    if(count($errors) > 0){
-        foreach($errors as $error){
-            echo "<div class='error'>$error</div>";
+    // Check email existence
+    if (empty($_SESSION['errors'])) {
+        $stmt = $conn->prepare("SELECT id FROM users WHERE email_address = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->store_result();
+        
+        if ($stmt->num_rows > 0) {
+            array_push($_SESSION['errors'], "Email address already exists");
         }
-    } else {
-        // Insert the user into the database
-        $sql = "INSERT INTO users (name, email_address, password) VALUES (?, ?, ?)";
-        $stmt = mysqli_stmt_init($conn);
-        if (mysqli_stmt_prepare($stmt, $sql)) {
-            mysqli_stmt_bind_param($stmt, "sss", $name, $email, $hashed_password);
-            mysqli_stmt_execute($stmt);
-            header("Location: signin.php?message=Account created successfully. Please log in.");
+        $stmt->close();
+    }
+
+    // Registration
+    if (empty($_SESSION['errors'])) {
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        
+        $stmt = $conn->prepare("INSERT INTO users (name, email_address, password) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $name, $email, $hashed_password);
+
+        if ($stmt->execute()) {
+            $_SESSION['user_id'] = $stmt->insert_id;
+            header("Location: signin.php");
             exit();
         } else {
-            header("Location: signup.php?error=Error inserting data: " . mysqli_stmt_error($stmt));
-            exit();
+            array_push($_SESSION['errors'], "Registration failed. Please try again.");
         }
+        $stmt->close();
     }
+
+    header("Location: signin.php");
+    exit();
 }
+
 mysqli_close($conn);
 ?>
 <!DOCTYPE html>
