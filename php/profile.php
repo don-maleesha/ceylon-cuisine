@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $fileType = $_FILES['profile_picture']['type'];
         $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-        $allowedExtensions = array('jpg', 'jpeg', 'png');
+        $allowedExtensions = array('jpg', 'jpeg', 'png', 'jfif');
         $maxFileSize = 2 * 1024 * 1024;
 
         if (!in_array($fileExtension, $allowedExtensions)) {
@@ -72,7 +72,26 @@ if ($stmt) {
 }
 
 // handle recipe submission
-if (isset($_POST['submit'])) {
+if (isset($_POST['submit-recipe'])) {
+
+    //get user id from database using email address
+    $email = $_SESSION['email_address'];
+    
+    // get user id from database
+    $sql = "SELECT id FROM users WHERE email_address = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        die("User not found in database");
+    }
+
+    $row = $result->fetch_assoc();
+    $user_id = $row['id'];
+    $stmt->close();
+    
     $name = $_POST['title'];
     $description = $_POST['description'];
     $file_name = $_FILES['image_url']['name'];
@@ -95,12 +114,12 @@ if (isset($_POST['submit'])) {
     if (empty($errors)) {
         if(move_uploaded_file($tempory_name, $folder)){
 
-            $sql = "INSERT INTO recipes (title, description, image_url) VALUES (?, ?, ?)";
+            $sql = "INSERT INTO recipes (user_id, title, description, image_url) VALUES (?, ?, ?, ?)";
             $statement = mysqli_stmt_init($conn);
             $prepare_statement = mysqli_stmt_prepare($statement, $sql);
 
             if ($prepare_statement) {
-                mysqli_stmt_bind_param($statement, "sss", $name, $description, $file_name);
+                mysqli_stmt_bind_param($statement, "isss", $user_id, $name, $description, $file_name);
 
                 if (mysqli_stmt_execute($statement)) {
                     echo "<div class='alert alert-success'>Recipe Added Successfully!</div>";
@@ -117,6 +136,36 @@ if (isset($_POST['submit'])) {
         }
     }
 }
+
+// Fetch user ID from the session
+$sql = "SELECT id FROM users WHERE email_address = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $_SESSION['email_address']);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 0) {
+    die("User not found in database");
+}
+$user = $result->fetch_assoc();
+$user_id = $user['id'];
+$stmt->close();
+
+//display user recipes
+$sql = "SELECT * FROM recipes WHERE user_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$recipes = array();
+while ($row = $result->fetch_assoc()) {
+    $recipes[] = $row; 
+}
+
+
+$stmt->close();
+$conn->close();
+
 ?>
 
 <!DOCTYPE html>
@@ -184,7 +233,7 @@ if (isset($_POST['submit'])) {
                     <p class="raleway">Change Picture</p>
                 </label>
                 <input type="file" id="profile-picture-upload" name="profile_picture" accept="image/*" class="upload-input">
-                <button type="submit" class="upload-button raleway" name="submit" aria-label="profile-picture-upload">Upload</button>
+                <button type="submit" class="upload-button raleway" name="submit-picture" aria-label="profile-picture-upload">Upload</button>
             </form>
         </div>
         <div>
@@ -219,15 +268,34 @@ if (isset($_POST['submit'])) {
                 </div>
                 <!-- Add inside the form -->
                 <div>
-                    <button type="submit" name="submit" class="raleway">Submit Recipe</button>
+                    <button type="submit" name="submit-recipe" class="raleway">Submit Recipe</button>
                 </div>
             </form>
         </div>
     </section>
     <section id="myRecipe" class="content-section">
-        <div class="container">
-            <h2 class="playfair-display">About Us</h2>
-            <p class="raleway">Ceylon Cuisine is a platform for food lovers to explore and share their favourite recipes. You can find a wide range of recipes from different cuisines around the world. Our mission is to bring people together through food and create a community of food enthusiasts.</p>
+        <div class="card-container">
+            <div class="recipe-list">
+                <?php if (empty($recipes)): ?>
+                    <p class="raleway">No recipes found.</p>
+                <?php else: ?>
+                    <?php foreach ($recipes as $recipe) : ?>
+                        <div class="card">
+                        <div class="image-box">
+                            <img src="../uploads/<?php echo htmlspecialchars($recipe['image_url']); ?>" 
+                                 alt="<?php echo htmlspecialchars($recipe['title']); ?>" 
+                                 class="img-fluid">
+                        </div>
+                        <div class="title">
+                            <h2 class="playfair-display"><?php echo htmlspecialchars($recipe['title']); ?></h2>
+                        </div>
+                        <div class="description">
+                            <p class="merriweather-regular"><?php echo htmlspecialchars($recipe['description']); ?></p>
+                        </div>
+                        <button>View Recipe</button>
+                    </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
         </div>
     </section>
     <section id="myFavourits" class="content-section">

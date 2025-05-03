@@ -423,6 +423,107 @@ body {
     width: 100%;
   }
 
+  .content .card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .card {
+    width: 25%;
+    display: inline-block;
+    box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    margin: 2% 4% 2% 4%;
+    opacity: 0.9;
+    height: auto;
+    border: 1px solid #795548;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  
+  .card:hover {
+    transform: scale(1.05);
+    box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .card .image-box{
+    height: 2%;
+  }
+  
+  .card .image-box img{
+    height: 200px;
+    border-radius:5px 5px 0 0;
+  }
+  
+  .card .image-box img {
+    width: 100%;
+    object-fit: cover;
+  }
+  
+  .card .title {
+    text-align: center;
+  }
+
+  .card .title h2 {
+    font-size: 1.5em;
+    margin: 10px 0;
+  }
+  
+  #root {
+    color: #795548;
+    font-size: larger;
+    align-items: center;
+  }
+  
+  .card .description{
+    display: flex;
+    align-items: center;
+    text-align: center;
+    font-size: medium;
+  }
+  
+  .card .description img{
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+  }
+  
+  .card .description p{
+    margin: 10px 0;
+    font-size: 0.9em;
+    color: #666;
+  }
+
+  .card button{
+    margin-top: 10px 0;
+    margin-bottom: 10px;
+    background-color: #86553f;
+    border: 1px solid #fff;
+    border-radius: 8px;
+    padding: 10px 15px; 
+    font-size: .9rem;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px auto;
+  }
+  
+  .card button a {
+    text-decoration: none;
+  }
+  
+  .card button:hover{
+    background-color: #dbb657;
+    color: white;
+    transition: .5s;
+    cursor: pointer;
+  }
+
   .footer {
     background-color: #86553f;
     color: #fff;
