@@ -72,67 +72,67 @@ if ($stmt) {
 }
 
 // handle recipe submission
-if (isset($_POST['submit-recipe'])) {
+if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit-recipe'])){
 
-    //get user id from database using email address
     $email = $_SESSION['email_address'];
-    
-    // get user id from database
     $sql = "SELECT id FROM users WHERE email_address = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
 
-    if ($result->num_rows === 0) {
-        die("User not found in database");
-    }
-
-    $row = $result->fetch_assoc();
-    $user_id = $row['id'];
+    if ($result->num_rows === 0 ) die("User not found in database");
+    $user_id = $result->fetch_assoc()['id'];
     $stmt->close();
-    
-    $name = $_POST['title'];
-    $description = $_POST['description'];
-    $file_name = $_FILES['image_url']['name'];
-    $tempory_name = $_FILES['image_url']['tmp_name'];
-    $folder = '../uploads/'.$file_name;
 
-    $errors = array();
+    // Sanitize inputs
+    $name = htmlspecialchars($_POST['title']);
+    $description = htmlspecialchars($_POST['description']);
 
-    $allowed_extensions = array("jpg", "jpeg", "png");
-    $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+    // Proceess ingredients and instructions from textareas
+    $ingredients = array_filter(array_map('trim', explode("\n", $_POST['ingredients'][0] ?? '')));
+    $instructions = array_filter(array_map('trim', explode("\n", $_POST['instructions'][0] ?? '')));
 
-    if(!in_array($file_extension, $allowed_extensions)){
-        $errors[] = "Only JPG, JPEG, PNG files are allowed.";
-    }
+    // Validate
+    $errors = [];
+    if (empty($ingredients)) $errors[] = "Ingredients cannot be empty.";
+    if (empty($instructions)) $errors[] = "Instructions cannot be empty.";
 
-    if($_FILES['image_url']['size'] > 5000000) {
-        $errors[] = "File size should not exceed 5MB.";
-    }
+    // Handle image upload
+    if(empty($errors)) {
+        $file_name = $_FILES['image_url']['name'];
+        $temporary_name = $_FILES['image_url']['tmp_name'];
+        $unique_file_name = uniqid() . '_' . $file_name;
+        $folder = '../uploads/' . $unique_file_name;
 
-    if (empty($errors)) {
-        if(move_uploaded_file($tempory_name, $folder)){
+        //Validate image
+        $allowed_extensions = ['jpg', 'jpeg', 'png', 'jfif'];
+        $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
 
-            $sql = "INSERT INTO recipes (user_id, title, description, image_url) VALUES (?, ?, ?, ?)";
-            $statement = mysqli_stmt_init($conn);
-            $prepare_statement = mysqli_stmt_prepare($statement, $sql);
-
-            if ($prepare_statement) {
-                mysqli_stmt_bind_param($statement, "isss", $user_id, $name, $description, $file_name);
-
-                if (mysqli_stmt_execute($statement)) {
-                    echo "<div class='alert alert-success'>Recipe Added Successfully!</div>";
-                } else {
-                    echo "<div class='alert alert-danger'>Failed to add recipe. Please try again.</div>";
-                }
-            } else {
-                die("SQL Error: Unable to prepare the statement.");
-            }
+        if(!in_array($file_extension, $allowed_extensions)) {
+            $errors[] = "Invalid image format";
+        } elseif ($_FILES['image_url']['size'] > 5 * 1024 * 1024) {
+            $errors[] = "Image size exceeds 5MB";
         }
-    } else {
-        foreach ($errors as $error) {
-            echo "<div class='alert alert-danger'>$error</div>";
+    }
+
+    // Insert recipe into the database
+    if(empty($errors)) {
+        if(move_uploaded_file($temporary_name, $folder)) {
+            $ingredients_json = json_encode($ingredients);
+            $instructions_json = json_encode($instructions);
+
+            $sql = "INSERT INTO recipes (user_id, title, description, image_url, ingredients, instructions) VALUES (?, ?, ?, ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("isssss", $user_id, $name, $description, $unique_file_name, $ingredients_json, $instructions_json);
+            if ($stmt->execute()) {
+                header("Location: profile.php");
+                exit();
+            } else {
+                die("Error inserting recipe: " . $stmt->error);
+            }
+        } else {
+            die("Error uploading image.");
         }
     }
 }
@@ -163,8 +163,30 @@ while ($row = $result->fetch_assoc()) {
 }
 
 
+//display recipe data
+$recipe_id = $_GET['id'] ?? null;
+$ingredients = [];
+$instructions = [];
+$recipe = null;
+
+if($recipe_id) {
+    $stmt = $conn->prepare("
+        SELECT title, description, image_url, ingredients, instructions 
+        FROM recipes 
+        WHERE id = ?");
+
+    $stmt->bind_param("i", $recipe_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $recipe = $result->fetch_assoc();
+
+    $ingredients = json_decode($recipe['ingredients'], true) ?? [];
+    $instructions = json_decode($recipe['instructions'], true) ?? [];
+}
+
+
 $stmt->close();
-$conn->close();
+// $conn->close();
 
 ?>
 
@@ -262,6 +284,31 @@ $conn->close();
                     <label for="description" class="raleway">Description</label>
                     <textarea id="description" name="description" class="form-control" required></textarea> 
                 </div>
+                <div class="form-group">
+                    <label for="" class="raleway">Ingredients</label>
+                    <div id="ingredients-container">
+                        <div class="ingredient-input">
+                        <textarea name="ingredients[]" class="form-control"
+                            placeholder="Enter one step per line:
+                                        Step 1: Mix ingredients
+                                        Step 2: Bake at 350°F
+                                        Step 3: Let cool before serving"
+                            rows="2"required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="" class="raleway">Instructions</label>
+                    <div id="instructions-container">
+                        <div class="instruction-input">
+                        <textarea name="instructions[]" class="form-control" 
+                            placeholder="Enter one step per line:
+                                        Step 1: Mix ingredients
+                                        Step 2: Bake at 350°F
+                                        Step 3: Let cool before serving" rows="4" required></textarea>
+                        </div>
+                    </div>
+                </div>
                 <div class="form-group upload-image">
                     <label for="image" class="raleway">Upload Image</label>
                     <input type="file" id="image" name="image_url" accept="image/*" class="form-control" required>
@@ -279,23 +326,26 @@ $conn->close();
                 <?php if (empty($recipes)): ?>
                     <p class="raleway">No recipes found.</p>
                 <?php else: ?>
-                    <?php foreach ($recipes as $recipe) : ?>
+                    <?php foreach ($recipes as $myrecipe) : ?>
                         <div class="card">
-                        <div class="image-box">
-                            <img src="../uploads/<?php echo htmlspecialchars($recipe['image_url']); ?>" 
-                                 alt="<?php echo htmlspecialchars($recipe['title']); ?>" 
-                                 class="img-fluid">
+                            <div class="image-box">
+                                <img src="../uploads/<?= htmlspecialchars($myrecipe['image_url']) ?>" 
+                                    alt="<?= htmlspecialchars($recipe['title']) ?>">
+                            </div>
+                            <div class="title">
+                                <h2 class="playfair-display"><?= htmlspecialchars($myrecipe['title']) ?></h2>
+                            </div>
+                            <div class="description">
+                                <p class="merriweather-regular"><?= htmlspecialchars($myrecipe['description']) ?></p>
+                            </div>
+                            <!-- In your recipe cards -->
+                            <a href="profile.php?id=<?= htmlspecialchars($myrecipe['id']) ?>">
+                                <button class="raleway">View Recipe</button>
+                            </a>
                         </div>
-                        <div class="title">
-                            <h2 class="playfair-display"><?php echo htmlspecialchars($recipe['title']); ?></h2>
-                        </div>
-                        <div class="description">
-                            <p class="merriweather-regular"><?php echo htmlspecialchars($recipe['description']); ?></p>
-                        </div>
-                        <button>View Recipe</button>
-                    </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
+            </div>
         </div>
     </section>
     <section id="myFavourits" class="content-section">
@@ -305,6 +355,48 @@ $conn->close();
         </div>
     </section>
 </div>
+
+<!-- model -->
+<?php if ($recipe): ?>
+<div id="recipeModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2 class="playfair-display"><?= htmlspecialchars($recipe['title']) ?></h2>
+        <img src="../uploads/<?= htmlspecialchars($recipe['image_url']) ?>" 
+             alt="<?= htmlspecialchars($recipe['title']) ?>" 
+             class="recipe-image">
+        <p><?= nl2br(htmlspecialchars($recipe['description'])) ?></p>
+
+        <div class="columns">
+            <div class="ingredients-column">
+                <h3>🍴 Ingredients</h3>
+                <ul class="ingredient-list">
+                    <?php foreach ($ingredients as $ingredient): ?>
+                        <?php if (trim($ingredient) !== ''): ?>
+                            <li class="ingredient-item"><?= htmlspecialchars(trim($ingredient)) ?></li>
+                        <?php endif; ?>
+                     <?php endforeach; ?>
+                </ul>
+            </div>
+            <div class="instructions-column">
+                <h3>📝 Instructions</h3>
+                <ol class="instruction-list">
+                    <?php foreach ($instructions as $index => $instruction): ?>
+                        <?php if (trim($instruction) !== ''): ?>
+                            <li class="instruction-step">
+                                <div class="step-content">
+                                    <?= htmlspecialchars(trim($instruction)) ?>
+                                </div>
+                            </li>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
 <footer class="footer">
     <div class="container">
         <div class="logo">
