@@ -621,7 +621,6 @@ body {
 
 .ingredients-column li:before {
   content: "•";
-  color: #e74c3c;
   font-size: 1.2rem;
 }
 

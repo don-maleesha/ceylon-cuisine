@@ -1,8 +1,57 @@
 <?php
-  include 'dbconn.php';
-  session_start();
+include 'dbconn.php';
+session_start();
 
+// Fetch all recipes for the listing
+$search = $_GET['search'] ?? '';
+$sort = $_GET['sort'] ?? 'newest'; // Default to 'newest'
+$recipes = [];
+
+// Base query
+$query = "SELECT id, title, description, image_url FROM recipes";
+
+// Add search condition
+if (!empty($search)) {
+    $query .= " WHERE title LIKE ?";
+    $searchTerm = "%$search%";
+}
+
+// Add sorting
+if ($sort === 'newest') {
+    $query .= " ORDER BY created_at DESC";
+} elseif ($sort === 'oldest') {
+    $query .= " ORDER BY created_at ASC";
+}
+
+// Prepare and execute the query
+$stmt_all = $conn->prepare($query);
+if (!empty($search)) {
+    $stmt_all->bind_param("s", $searchTerm);
+}
+$stmt_all->execute();
+$result_all = $stmt_all->get_result();
+$recipes = $result_all->fetch_all(MYSQLI_ASSOC);
+
+// Existing code for fetching a single recipe (for modal)
+$recipe_id = $_GET['id'] ?? null;
+$ingredients = [];
+$instructions = [];
+$recipe = null;
+
+if ($recipe_id) {
+    $stmt = $conn->prepare("SELECT title, description, image_url, ingredients, instructions FROM recipes WHERE id = ?");
+    $stmt->bind_param("i", $recipe_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $recipe = $result->fetch_assoc();
+
+    if ($recipe) {
+        $ingredients = json_decode($recipe['ingredients'], true);
+        $instructions = json_decode($recipe['instructions'], true);
+    }
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -74,85 +123,47 @@
       <form action="" method="get">
         <div class="search-collection">
           <i class="fas fa-search"></i>
-          <input type="text" name="search" placeholder="Search for recipes" class="merriweather-light">
+          <input type="text" name="search" placeholder="Search for recipes">
         </div>
         <button type="submit" name="submit" class="search-btn raleway">Search</button>
       </form>
       <div class="sort-by merriweather-light">
         <label for="sort">Sort by:</label>
-        <select name="sort" id="sort">
-          <option value="newest" class="merriweather-light">Newest</option>
-          <option value="oldest" class="merriweather-light">Oldest</option>
+        <select name="sort" id="sort" onchange="this.form.submit()">
+          <option value="newest" <?= $sort === 'newest' ? 'selected' : '' ?>>Newest</option>
+          <option value="oldest" <?= $sort === 'oldest' ? 'selected' : '' ?>>Oldest</option>
         </select>
       </div>
     </div>
   </main>
-  <?php
-
-  $output = '';
-
-  function displayRecipes($result){
-    // foreach($result as $row){
-    //   echo $row['title'];
-    //   echo $row['description'];
-    //   echo $row['image_url'];
-    // }
-    //     if(!$result) {
-    //       die('Error: ' . mysqli_error($conn));
-    // }
-    $output = '';
-
-    if(mysqli_num_rows($result) > 0){
-        while($row = mysqli_fetch_array($result)){
-          $name = htmlspecialchars($row['title']);
-          $description = htmlspecialchars($row['description']);
-          $file_name = htmlspecialchars($row['image_url']);
-  
-          $output .= '
-            <div class="card">
-                      <div class="image-box">
-                          <img src="../uploads/' . $file_name . '" alt="' . $name . '" class="img-fluid">
-                      </div>
-                      <div class="title">
-                          <h2 class="playfair-display">' . $name . '</h2>
-                      </div>
-                      <div class="description">
-                          <p class="merriweather-regular">' . $description . '</p>
-                      </div>
-                      <button>View Recipe</button>
-                  </div>';
-        }
-      } else {
-          $output = '<h2 class="no-recipe">No recipes found</h2>';
-    }
-
-    return $output;
-  }
-
-  if(isset($_GET['submit'])){
-    $search = isset($_GET['search']) ? trim($_GET['search']) : '';
-    $stmt = $conn->prepare("SELECT * FROM recipes WHERE title LIKE ? OR description LIKE ?");
-    $likeSearch = '%' . $search . '%';
-    $stmt->bind_param('ss', $likeSearch, $likeSearch);
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-    $output = displayRecipes($result);
-    $stmt->close();
-
-  } else {
-    $sql = "SELECT * FROM recipes";
-    $result = mysqli_query($conn, $sql);
-
-    if(!$result) {
-      die('Error: ' . mysqli_error($conn));
-    }
-
-    $output = displayRecipes($result);
-  }
-    
-  ?>
-      <?php echo $output; ?>
+  <section id="myRecipe" class="content-section">
+        <div class="card-container">
+            <div class="recipe-list">
+                <?php if (empty($recipes)): ?>
+                    <p class="raleway">No recipes found.</p>
+                <?php else: ?>
+                    <?php foreach ($recipes as $myrecipe) : ?>
+                        <div class="card">
+                            <div class="image-box">
+                                <img src="../uploads/<?= htmlspecialchars($myrecipe['image_url']) ?>" 
+                                    alt="<?= htmlspecialchars($recipe['title']) ?>">
+                            </div>
+                            <div class="title">
+                                <h2 class="playfair-display"><?= htmlspecialchars($myrecipe['title']) ?></h2>
+                            </div>
+                            <div class="description">
+                                <p class="merriweather-regular"><?= htmlspecialchars($myrecipe['description']) ?></p>
+                            </div>
+                            <!-- In your recipe cards -->
+                            <a href="recipes.php?id=<?= htmlspecialchars($myrecipe['id']) ?>">
+                                <button class="raleway">View Recipe</button>
+                            </a>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        </div>
+    </section></li>
   <footer class="footer">
     <div class="container">
       <div class="logo">
@@ -195,7 +206,46 @@
     <div class="copyright">
       <p>&copy; 2024 Ceylon Cuisine. All rights reserved.</p>
     </div>
-
   </footer>
+
+  <?php if ($recipe): ?>
+<div id="recipeModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2 class="playfair-display"><?= htmlspecialchars($recipe['title']) ?></h2>
+        <img src="../uploads/<?= htmlspecialchars($recipe['image_url']) ?>" 
+             alt="<?= htmlspecialchars($recipe['title']) ?>" 
+             class="recipe-image">
+        <p><?= nl2br(htmlspecialchars($recipe['description'])) ?></p>
+
+        <div class="columns">
+            <div class="ingredients-column">
+                <h3>🍴 Ingredients</h3>
+                <ul class="ingredient-list">
+                    <?php foreach ($ingredients as $ingredient): ?>
+                        <?php if (trim($ingredient) !== ''): ?>
+                            <li class="ingredient-item"><?= htmlspecialchars(trim($ingredient)) ?></li>
+                        <?php endif; ?>
+                     <?php endforeach; ?>
+                </ul>
+            </div>
+            <div class="instructions-column">
+                <h3>📝 Instructions</h3>
+                <ol class="instruction-list">
+                    <?php foreach ($instructions as $index => $instruction): ?>
+                        <?php if (trim($instruction) !== ''): ?>
+                            <li class="instruction-step">
+                                <div class="step-content">
+                                    <?= htmlspecialchars(trim($instruction)) ?>
+                                </div>
+                            </li>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 </body>
 </html>
