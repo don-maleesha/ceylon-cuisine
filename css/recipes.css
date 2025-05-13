@@ -236,12 +236,14 @@ main {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 20px;
+  padding: 0 20px;
 }
 
 .search-sort form {
   display: flex;
   align-items: center;
-  width: 42%;
+  width: 50%;
 }
 
 .search-sort form button {
@@ -287,9 +289,11 @@ main {
 }
 
 .search-sort .sort-by {
+  margin-left: auto; /* Push to right edge */
   display: flex;
   align-items: center;
-  width: 16.5%; /* Optional: Restrict maximum width of the select box */
+  gap: 10px;
+  width: auto; /* Remove fixed width */
 }
 
 .search-sort .sort-by select {
@@ -299,6 +303,16 @@ main {
   border-radius: 8px;
   font-size: 16px;
   margin: 10px;
+}
+
+.search-form {
+  flex-grow: 1;
+}
+
+.sort-form {
+  display: flex;
+  justify-content: flex-end;
+  min-width: 200px;
 }
 
 .card {

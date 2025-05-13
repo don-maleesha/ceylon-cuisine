@@ -120,20 +120,24 @@ if ($recipe_id) {
       </div>
     </div>
     <div class="search-sort">
-      <form action="" method="get">
+      <form action="" method="get" class="search-form">
         <div class="search-collection">
           <i class="fas fa-search"></i>
           <input type="text" name="search" placeholder="Search for recipes">
         </div>
         <button type="submit" name="submit" class="search-btn raleway">Search</button>
       </form>
-      <div class="sort-by merriweather-light">
-        <label for="sort">Sort by:</label>
-        <select name="sort" id="sort" onchange="this.form.submit()">
-          <option value="newest" <?= $sort === 'newest' ? 'selected' : '' ?>>Newest</option>
-          <option value="oldest" <?= $sort === 'oldest' ? 'selected' : '' ?>>Oldest</option>
-        </select>
-      </div>
+      <form action="" method="get" class="sort-form">
+    <!-- Hidden search input to preserve search when sorting -->
+        <input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>">
+        <div class="sort-by merriweather-light">
+          <label for="sort">Sort by:</label>
+          <select name="sort" id="sort" onchange="this.form.submit()">
+            <option value="newest" <?= $sort === 'newest' ? 'selected' : '' ?>>Newest</option>
+            <option value="oldest" <?= $sort === 'oldest' ? 'selected' : '' ?>>Oldest</option>
+          </select>
+        </div>
+      </form> 
     </div>
   </main>
   <section id="myRecipe" class="content-section">
@@ -163,7 +167,7 @@ if ($recipe_id) {
                 <?php endif; ?>
             </div>
         </div>
-    </section></li>
+  </section>
   <footer class="footer">
     <div class="container">
       <div class="logo">
