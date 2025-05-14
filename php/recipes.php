@@ -66,6 +66,8 @@ if ($recipe_id) {
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Raleway:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/recipes.css">
   <script src="../js/ceylon-cuisine.js"></script>
+  <script src="../js/recipes.js"></script>
+
 </head>
 <body>
   <header>
@@ -141,33 +143,32 @@ if ($recipe_id) {
     </div>
   </main>
   <section id="myRecipe" class="content-section">
-        <div class="card-container">
-            <div class="recipe-list">
-                <?php if (empty($recipes)): ?>
-                    <p class="raleway">No recipes found.</p>
-                <?php else: ?>
-                    <?php foreach ($recipes as $myrecipe) : ?>
-                        <div class="card">
-                            <div class="image-box">
-                                <img src="../uploads/<?= htmlspecialchars($myrecipe['image_url']) ?>" 
-                                    alt="<?= htmlspecialchars($recipe['title']) ?>">
-                            </div>
-                            <div class="title">
-                                <h2 class="playfair-display"><?= htmlspecialchars($myrecipe['title']) ?></h2>
-                            </div>
-                            <div class="description">
-                                <p class="merriweather-regular"><?= htmlspecialchars($myrecipe['description']) ?></p>
-                            </div>
-                            <!-- In your recipe cards -->
-                            <a href="recipes.php?id=<?= htmlspecialchars($myrecipe['id']) ?>">
-                                <button class="raleway">View Recipe</button>
-                            </a>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+  <div class="card-container">
+    <?php if (empty($recipes)): ?>
+      <p class="raleway">No recipes found.</p>
+    <?php else: ?>
+      <div class="recipe-grid"> <!-- Grid container -->
+        <?php foreach ($recipes as $myrecipe) : ?>
+          <div class="card"> <!-- Individual card -->
+            <div class="image-box">
+              <img src="../uploads/<?= htmlspecialchars($myrecipe['image_url']) ?>" 
+                   alt="<?= htmlspecialchars($recipe['title']) ?>">
             </div>
-        </div>
-  </section>
+            <div class="title">
+              <h2 class="playfair-display"><?= htmlspecialchars($myrecipe['title']) ?></h2>
+            </div>
+            <div class="description">
+              <p class="merriweather-regular"><?= htmlspecialchars($myrecipe['description']) ?></p>
+            </div>
+            <a href="recipes.php?id=<?= htmlspecialchars($myrecipe['id']) ?>">
+              <button class="raleway">View Recipe</button>
+            </a>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
+  </div>
+</section>
   <footer class="footer">
     <div class="container">
       <div class="logo">

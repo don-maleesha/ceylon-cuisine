@@ -315,6 +315,8 @@ main {
   min-width: 200px;
 }
 
+/* Slider Base Styles */
+
 .card {
   width: 25%;
   display: inline-block;
@@ -326,6 +328,9 @@ main {
   border: 1px solid #795548;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  flex: 0 0 calc(16.66% - 1rem); /* 6 cards per row (100% / 6) */
+  min-width: 250px; /* Fallback for smaller screens */
+
 }
 
 .card:hover {
