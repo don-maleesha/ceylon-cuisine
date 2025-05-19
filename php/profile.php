@@ -361,7 +361,10 @@ $stmt->close();
 <div id="recipeModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
-        <h2 class="playfair-display"><?= htmlspecialchars($recipe['title']) ?></h2>
+        <div class="update">
+            <h2 class="playfair-display"><?= htmlspecialchars($recipe['title']) ?> </h2>
+            <span><button><a href="#"><i class="fas fa-edit"></i></a></button></span>
+        </div>
         <img src="../uploads/<?= htmlspecialchars($recipe['image_url']) ?>" 
              alt="<?= htmlspecialchars($recipe['title']) ?>" 
              class="recipe-image">
