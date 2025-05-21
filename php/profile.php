@@ -188,6 +188,64 @@ if($recipe_id) {
 $stmt->close();
 // $conn->close();
 
+
+//handle recipe update
+// Handle recipe update
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
+    $recipe_id = $_POST['recipe_id'];
+    $title = htmlspecialchars($_POST['title']);
+    $description = htmlspecialchars($_POST['description']);
+    
+    // Process ingredients and instructions
+    $ingredients = array_filter(array_map('trim', explode("\n", $_POST['ingredients'])));
+    $instructions = array_filter(array_map('trim', explode("\n", $_POST['instructions'])));
+    
+    // Handle image update
+    $image_url = $recipe['image_url']; // Keep existing image by default
+    
+    if (!empty($_FILES['new_image']['name'])) {
+        // Similar to your existing image upload logic
+        $file_name = $_FILES['new_image']['name'];
+        $temporary_name = $_FILES['new_image']['tmp_name'];
+        $unique_file_name = uniqid() . '_' . $file_name;
+        $folder = '../uploads/' . $unique_file_name;
+        
+        // Validate and move file
+        $allowed_extensions = ['jpg', 'jpeg', 'png', 'jfif'];
+        $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+        
+        if (in_array($file_extension, $allowed_extensions) && 
+            $_FILES['new_image']['size'] <= 5 * 1024 * 1024) {
+            if (move_uploaded_file($temporary_name, $folder)) {
+                $image_url = $unique_file_name;
+            }
+        }
+    }
+    
+    // Update database
+    $ingredients_json = json_encode($ingredients);
+    $instructions_json = json_encode($instructions);
+    
+    $sql = "UPDATE recipes SET 
+            title = ?, 
+            description = ?, 
+            image_url = ?, 
+            ingredients = ?, 
+            instructions = ? 
+            WHERE id = ?";
+    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssssi", $title, $description, $image_url, 
+                     $ingredients_json, $instructions_json, $recipe_id);
+    
+    if ($stmt->execute()) {
+        header("Location: profile.php?id=$recipe_id");
+        exit();
+    } else {
+        die("Error updating recipe: " . $stmt->error);
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -363,7 +421,7 @@ $stmt->close();
         <span class="close" onclick="closeModal()">&times;</span>
         <div class="update">
             <h2 class="playfair-display"><?= htmlspecialchars($recipe['title']) ?> </h2>
-            <span><button><a href="#"><i class="fas fa-edit"></i></a></button></span>
+            <span><button onclick="openUpdatePanel()" class="edit-button"><i class="fas fa-edit"></i></button></span>
         </div>
         <img src="../uploads/<?= htmlspecialchars($recipe['image_url']) ?>" 
              alt="<?= htmlspecialchars($recipe['title']) ?>" 
@@ -399,6 +457,60 @@ $stmt->close();
     </div>
 </div>
 <?php endif; ?>
+
+<div class="panel-overlay" id="panelOverlay">
+<div id="updatePanel" class="update-panel">
+    <span class="close-btn" onclick="closeUpdatePanel()">&times;</span>
+    <h2 class="playfair-display">Update Recipe</h2>
+    <form action="profile.php" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="recipe_id" value="<?= $recipe_id ?>">
+        
+        <div class="form-group">
+            <label class="raleway">Title</label>
+            <input type="text" name="title" class="form-control" 
+                   value="<?= htmlspecialchars($recipe['title']) ?>" required>
+        </div>
+
+        <div class="form-group">
+            <label class="raleway">Description</label>
+            <textarea name="description" class="form-control" required><?= 
+                htmlspecialchars($recipe['description']) ?></textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="raleway">Ingredients (one per line)</label>
+            <textarea name="ingredients" class="form-control" rows="5" required><?= 
+                implode("\n", $ingredients) ?></textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="raleway">Instructions (one per line)</label>
+            <textarea name="instructions" class="form-control" rows="5" required><?= 
+                implode("\n", $instructions) ?></textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="raleway">Current Image</label>
+            <img src="../uploads/<?= $recipe['image_url'] ?>" 
+                 alt="Current image" style="max-width: 200px; display: block;">
+        </div>
+
+        <div class="form-group">
+            <label class="raleway">New Image (optional)</label>
+            <input type="file" name="new_image" accept="image/*" class="form-control">
+        </div>
+
+        <div class="form-group">
+            <button type="submit" name="update-recipe" class="raleway">
+                Update Recipe
+            </button>
+            <button type="button" class="raleway" onclick="closeUpdatePanel()">
+                Cancel
+            </button>
+        </div>
+    </form>
+</div>
+</div>
 
 <footer class="footer">
     <div class="container">

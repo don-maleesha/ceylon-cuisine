@@ -708,6 +708,172 @@ body {
   padding-left: 10px;
 }
 
+/* Panel Overlay */
+.panel-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  transition: opacity 0.3s ease;
+}
+
+/* Update Panel */
+.update-panel {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 680px;
+  height: 100%;
+  background: #fff;
+  padding: 50px 60px 50px 40px;
+  transition: right 0.3s ease-out;
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+  z-index: 1001;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.update-panel.active {
+  right: 0;
+}
+
+.update-panel h2 {
+  width: 700px;
+  font-size: 2.5rem;
+  color: #2c241d;
+  margin-bottom: 2rem;
+  border-bottom: 3px solid #e67e22;
+  padding-bottom: 0.5rem;
+}
+
+.close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 28px;
+  cursor: pointer;
+  color: #666;
+}
+
+.update-panel form {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  text-align: left;
+  margin: 0;
+  padding: 0;
+}
+
+/* Form Styling */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+ margin: 0 auto 15px auto;
+  position: relative;
+  letter-spacing: -0.3px;
+  width: 100%;
+  max-width: 100%;
+}
+
+.form-group label {
+  font-weight: 600;
+    color: #4a423b;
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+    display: block;
+    text-align: left;
+    width: 100%;
+    padding-left: 0;
+    margin-left: 0;
+}
+  
+.form-control {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  background: #f9f9f9;
+}
+
+.form-group:has(input[type="file"]) {
+  margin-bottom: 0.5rem !important;
+  padding-bottom: 0.5rem;
+}
+
+textarea.form-control {
+  min-height: 120px;
+  resize: vertical;
+  padding: 1rem;
+  height: 300px;
+}
+
+/* Target both buttons (submit & cancel) */
+.panel-overlay .update-panel form .form-group button[type="submit"], 
+.panel-overlay .update-panel form .form-group button[type="button"] {
+  width: 700px; /* Already full width of their container */
+  padding: 12px;;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  box-sizing: border-box;
+  display: block; /* Ensure block-level behavior */
+  margin: 0 auto; /* Add spacing if needed */
+}
+
+/* Submit button */
+button[type="submit"] {
+  background-color: #6366f1;
+  color: #fff;
+}
+
+/* Cancel button */
+button[type="button"] {
+  background-color: #EF4444;
+  color: #fff;
+}
+
+/* Ensure parent container matches input field's width */
+/* Add this if your input fields are in a container with max-width */
+.form-container {
+  max-width: 500px; /* Adjust to match your input field's container width */
+  margin: 0 auto; /* Center if needed */
+}
+
+.form-group img {
+  margin-top: 8px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Button Row */
+.form-group.button-group {
+  background: #d35400;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+
+}
+
+.form-group.button-group button {
+  flex: 1;
+}
+
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .update-panel {
+      width: 100%;
+      padding: 20px;
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .columns {

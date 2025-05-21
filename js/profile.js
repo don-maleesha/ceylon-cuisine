@@ -65,3 +65,25 @@ window.addEventListener('popstate', function(event) {
         closeModal();
     }
 });
+
+
+function openUpdatePanel() {
+    document.getElementById('panelOverlay').style.display = 'block';
+    setTimeout(() => {
+        document.getElementById('updatePanel').classList.add('active');
+    }, 10);
+}
+
+function closeUpdatePanel() {
+    document.getElementById('updatePanel').classList.remove('active');
+    setTimeout(() => {
+        document.getElementById('panelOverlay').style.display = 'none';
+    }, 300);
+}
+
+// Close panel when clicking outside
+document.getElementById('panelOverlay').addEventListener('click', (e) => {
+    if(e.target === document.getElementById('panelOverlay')) {
+        closeUpdatePanel();
+    }
+});
