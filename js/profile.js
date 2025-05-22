@@ -87,3 +87,21 @@ document.getElementById('panelOverlay').addEventListener('click', (e) => {
         closeUpdatePanel();
     }
 });
+
+function openProfileModal() {
+    document.getElementById('profileModal').style.display = 'block';
+}
+
+function closeProfileModal() {
+    document.getElementById('profileModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modals = document.getElementsByClassName('modal');
+    for (const modal of modals) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+}

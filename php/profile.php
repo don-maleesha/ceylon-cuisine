@@ -185,11 +185,44 @@ if($recipe_id) {
 }
 
 
-$stmt->close();
-// $conn->close();
+//update user profile
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
+    $newName = htmlspecialchars(trim($_POST['name']));
+    $newEmail = htmlspecialchars(trim($_POST['email']));
+    
+    // Validate email
+    if (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+        $uploadMessage = "Invalid email format";
+    } else {
+        // Check if email exists (excluding current user)
+        $checkEmail = $conn->prepare("SELECT email_address FROM users WHERE email_address = ? AND email_address != ?");
+        $checkEmail->bind_param("ss", $newEmail, $email);
+        $checkEmail->execute();
+        $checkEmail->store_result();
+        
+        if ($checkEmail->num_rows > 0) {
+            $uploadMessage = "Email already exists!";
+        } else {
+            // Update user info
+            $updateSql = "UPDATE users SET name = ?, email_address = ? WHERE email_address = ?";
+            $stmt = $conn->prepare($updateSql);
+            $stmt->bind_param("sss", $newName, $newEmail, $email);
+            
+            if ($stmt->execute()) {
+                // Update session variables
+                $_SESSION['name'] = $newName;
+                $_SESSION['email_address'] = $newEmail;
+                $email = $newEmail; // Update local variable for subsequent queries
+                $uploadMessage = "Profile updated successfully!";
+            } else {
+                $uploadMessage = "Error updating profile: " . $conn->error;
+            }
+            $stmt->close();
+        }
+        $checkEmail->close();
+    }
+}
 
-
-//handle recipe update
 // Handle recipe update
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
     $recipe_id = $_POST['recipe_id'];
@@ -319,6 +352,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
         <div>
             <h2 class="playfair-display"><?php echo htmlspecialchars($_SESSION['name']); ?></h2>
             <p class="raleway"><?php echo htmlspecialchars($_SESSION['email_address']); ?></p>
+            <button onclick="openProfileModal()" class="raleway profile-update-btn"><i class="fas fa-edit"></i></button>
         </div>
     </div>
 </div>
@@ -510,6 +544,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
         </div>
     </form>
 </div>
+</div>
+
+<!-- Profile Update Modal -->
+<div id="profileModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeProfileModal()">&times;</span>
+        <h2 class="playfair-display">Update Profile</h2>
+        <form action="profile.php" method="POST">
+            <div class="form-group">
+                <label class="raleway">Name:</label>
+                <input type="text" name="name" 
+                    value="<?php echo htmlspecialchars($_SESSION['name']); ?>" 
+                    class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="raleway">Email:</label>
+                <input type="email" name="email" 
+                    value="<?php echo htmlspecialchars($_SESSION['email_address']); ?>" 
+                    class="form-control" required>
+            </div>
+            <div class="form-group">
+                <button type="submit" name="update_profile" class="raleway">Save Changes</button>
+                <button type="button" class="raleway" onclick="closeProfileModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <footer class="footer">
