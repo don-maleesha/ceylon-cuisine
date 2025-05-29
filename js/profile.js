@@ -105,3 +105,38 @@ window.onclick = function(event) {
         }
     }
 }
+
+function rateRecipe(recipeId, rating) {
+    if (!confirm(`Are you sure you want to rate this recipe ${rating} stars?`)) return;
+    
+    fetch('rate_recipe.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            recipe_id: recipeId,
+            rating: rating
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update displayed ratings
+            document.querySelector('.average-rating').innerHTML = 
+                `Average: ${data.average_rating} ★`;
+            
+            // Update user stars
+            document.querySelectorAll('.star-rating .fa-star').forEach(star => {
+                const starValue = parseInt(star.dataset.rating);
+                star.classList.toggle('rated', starValue <= rating);
+            });
+        } else {
+            alert('Error: ' + (data.message || 'Failed to submit rating'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while submitting your rating');
+    });
+}

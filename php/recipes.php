@@ -8,7 +8,7 @@ $sort = $_GET['sort'] ?? 'newest'; // Default to 'newest'
 $recipes = [];
 
 // Base query
-$query = "SELECT id, title, description, image_url FROM recipes";
+$query = "SELECT r.id, r.title, r.description, r.image_url, COALESCE(r.average_rating, 0) AS average_rating FROM recipes r";
 
 // Add search condition
 if (!empty($search)) {
@@ -33,23 +33,53 @@ $result_all = $stmt_all->get_result();
 $recipes = $result_all->fetch_all(MYSQLI_ASSOC);
 
 // Existing code for fetching a single recipe (for modal)
-$recipe_id = $_GET['id'] ?? null;
+$recipe_id = isset($_GET['id']) ? (int)$_GET['id'] : null;;
 $ingredients = [];
 $instructions = [];
 $recipe = null;
 
 if ($recipe_id) {
-    $stmt = $conn->prepare("SELECT title, description, image_url, ingredients, instructions FROM recipes WHERE id = ?");
-    $stmt->bind_param("i", $recipe_id);
+    // Get user ID if logged in
+    $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+    
+    // Prepare the SQL query
+    $stmt = $conn->prepare("SELECT 
+    r.id,
+    r.title,
+    r.description,
+    r.image_url,
+    r.ingredients,
+    r.instructions,
+    COALESCE(r.average_rating, 0) AS average_rating,
+    ur.rating AS user_rating
+FROM recipes r
+LEFT JOIN ratings ur ON ur.recipe_id = r.id AND ur.user_id = ?
+WHERE r.id = ?");  // Added JOIN and WHERE clause
+    
+    // Bind parameters based on login status
+    if ($user_id) {
+        $stmt->bind_param("ii", $user_id, $recipe_id);
+    } else {
+        // Use dummy value for non-logged-in users
+        $dummy_user_id = 0;
+        $stmt->bind_param("ii", $dummy_user_id, $recipe_id);
+    }
+    
     $stmt->execute();
     $result = $stmt->get_result();
     $recipe = $result->fetch_assoc();
 
     if ($recipe) {
-        $ingredients = json_decode($recipe['ingredients'], true);
-        $instructions = json_decode($recipe['instructions'], true);
+        // Handle JSON decoding
+        $ingredients = json_decode($recipe['ingredients'] ?? '[]', true);
+        $instructions = json_decode($recipe['instructions'] ?? '[]', true);
+        
+        // Ensure rating fields exist
+        $recipe['average_rating'] = (float)($recipe['average_rating'] ?? 0);
+        $recipe['user_rating'] = (int)($recipe['user_rating'] ?? 0);
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -149,7 +179,7 @@ if ($recipe_id) {
     <?php else: ?>
       <div class="recipe-grid"> <!-- Grid container -->
         <?php foreach ($recipes as $myrecipe) : ?>
-          <div class="card"> <!-- Individual card -->
+          <div class="card" data-recipe="<?= $myrecipe['id'] ?>"> <!-- Individual card -->
             <div class="image-box">
               <img src="../uploads/<?= htmlspecialchars($myrecipe['image_url']) ?>" 
                    alt="<?= htmlspecialchars($recipe['title']) ?>">
@@ -159,6 +189,37 @@ if ($recipe_id) {
             </div>
             <div class="description">
               <p class="merriweather-regular"><?= htmlspecialchars($myrecipe['description']) ?></p>
+            </div>
+            <!-- Add this after the description <p> tag -->
+            <div class="rating-section">
+              <!-- <h3 class="playfair-display">Rating</h3> -->
+              <div class="average-rating merriweather-regular">
+                  <!-- Star display for average rating -->
+                  <div class="stars">
+                      <?php
+                      $average = (float)($myrecipe['average_rating'] ?? 0);
+                      $fullStars = floor($average);
+                      $hasHalfStar = ($average - $fullStars) >= 0.5;
+                      
+                      for ($i = 1; $i <= 5; $i++):
+                          if ($i <= $fullStars):
+                      ?>
+                          <i class="fas fa-star rated"></i>
+                      <?php elseif ($hasHalfStar && $i == $fullStars + 1): ?>
+                          <i class="fas fa-star-half-alt rated"></i>
+                      <?php else: ?>
+                          <i class="far fa-star"></i>
+                      <?php
+                          $hasHalfStar = false; // Only show one half-star
+                          endif;
+                      endfor;
+                      ?>
+                  </div>
+                  <!-- Optional: Display numeric value as tooltip -->
+                  <span class="rating-value" title="<?= number_format($average, 1) ?>">
+                      (<?= number_format($average, 1) ?>)
+                  </span>
+              </div>
             </div>
             <a href="recipes.php?id=<?= htmlspecialchars($myrecipe['id']) ?>">
               <button class="raleway">View Recipe</button>
@@ -214,7 +275,7 @@ if ($recipe_id) {
   </footer>
 
   <?php if ($recipe): ?>
-<div id="recipeModal" class="modal">
+<div id="recipeModal" class="modal" data-recipe-id="<?= $recipe_id ?>">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
         <h2 class="playfair-display"><?= htmlspecialchars($recipe['title']) ?></h2>
@@ -222,6 +283,29 @@ if ($recipe_id) {
              alt="<?= htmlspecialchars($recipe['title']) ?>" 
              class="recipe-image">
         <p><?= nl2br(htmlspecialchars($recipe['description'])) ?></p>
+
+        <div class="average-rating-section">
+            <h3>Overall Rating</h3>
+            <div class="stars">
+                <?php
+                $average = (float)$recipe['average_rating'];
+                $fullStars = floor($average);
+                $hasHalfStar = ($average - $fullStars) >= 0.5;
+                
+                for ($i = 1; $i <= 5; $i++):
+                    if ($i <= $fullStars):
+                        echo '<i class="fas fa-star rated"></i>';
+                    elseif ($hasHalfStar && $i == $fullStars + 1):
+                        echo '<i class="fas fa-star-half-alt rated"></i>';
+                        $hasHalfStar = false;
+                    else:
+                        echo '<i class="far fa-star"></i>';
+                    endif;
+                endfor;
+                ?>
+                <span class="rating-value">(<?= number_format($average, 1) ?>)</span>
+            </div>
+        </div>
 
         <div class="columns">
             <div class="ingredients-column">
@@ -249,6 +333,17 @@ if ($recipe_id) {
                 </ol>
             </div>
         </div>
+        <?php if(isset($_SESSION['user_id'])): ?>
+        <div class="user-rating-section">
+            <h3>Your Rating:</h3>
+            <div class="star-rating interactive-stars" data-recipe-id="<?= $recipe_id ?>">
+                <?php for($i = 1; $i <= 5; $i++): ?>
+                    <i class="far fa-star <?= $i <= (int)($recipe['user_rating'] ?? 0) ? 'rated' : '' ?>" 
+                      data-rating="<?= $i ?>"></i>
+                <?php endfor; ?>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 </div>
 <?php endif; ?>
