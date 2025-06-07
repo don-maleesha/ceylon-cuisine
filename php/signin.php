@@ -23,11 +23,28 @@ if (isset($_POST['submit'])) {
 
         if ($user) {
             if (password_verify($password, $user['password'])) {
-                $_SESSION['email_address'] = $user['email_address'];
-                $_SESSION['name'] = $user['name'];
-                $_SESSION['user'] = "yes";
-                header("Location: homePage.php");
-                exit();
+                // Check if user account is blocked
+                if (isset($user['status']) && $user['status'] === 'blocked') {
+                    $error_message = "Your account has been suspended. Please contact support.";
+                } else {                    // Set session variables
+                    $_SESSION['email_address'] = $user['email_address'];
+                    $_SESSION['name'] = $user['name'];
+                    $_SESSION['user_id'] = $user['id'];
+                    
+                    // Get user role from database (default to 'user' if not specified)
+                    $_SESSION['role'] = $user['role'] ?? 'user';
+                    $_SESSION['user'] = "yes";
+                    
+                    // Redirect based on role
+                    if ($_SESSION['role'] === 'admin') {
+                        header("Location: adminDashboard.php");
+                    } elseif ($_SESSION['role'] === 'moderator') {
+                        header("Location: moderatorDashboard.php");
+                    } else {
+                        header("Location: homePage.php");
+                    }
+                    exit();
+                }
             } else {
                 $error_message = "Invalid email address or password";
             }
@@ -48,7 +65,7 @@ if (isset($_POST['submit'])) {
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Raleway:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Raleway:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">  <link rel="stylesheet" href="../css/signin.css">
   <link rel="stylesheet" href="../css/signin.css">
   <script src="../js/ceylon-cuisine.js"></script>
 </head>
@@ -85,10 +102,9 @@ if (isset($_POST['submit'])) {
         <h2>Sign in to your account</h2>
         <?php if (!empty($error_message)): ?>
           <div class="error"><?php echo $error_message; ?></div>
-        <?php endif; ?>
-        <form action="" method="POST" id="signin-form">
-          <input type="email" name="email_address" placeholder="Enter your email" aria-label="Email" required>
+        <?php endif; ?>        <form action="" method="POST" id="signin-form">          <input type="email" name="email_address" placeholder="Enter your email" aria-label="Email" required>
           <input type="password" name="password" placeholder="Enter your password" aria-label="Password" required>
+
           <div class="options">
             <label for="remember">
               <input type="checkbox" name="remember" id="remember"> Remember me

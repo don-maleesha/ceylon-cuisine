@@ -291,6 +291,106 @@ body {
   .main-container .right .caption p {
     font-size: 14px;
   }
+
+  /* Role-based login styling */
+.role-selector {
+  margin-bottom: 20px;
+}
+
+.role-label {
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 10px;
+  margin-top: 0;
+  font-size: 15px;
+}
+
+.role-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.role-option {
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 100px;
+  border: 1px solid #ddd;
+}
+
+.role-option:hover {
+  background-color: #eee;
+}
+
+.role-option input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #86553f;
+  border-radius: 50%;
+  margin-right: 10px;
+  position: relative;
+  top: -1px;
+  transition: all 0.2s ease;
+}
+
+.role-option input[type="radio"]:checked {
+  border-color: #86553f;
+  background-color: #86553f;
+  box-shadow: inset 0 0 0 3px #fff;
+}
+
+.role-name {
+  font-family: 'Raleway', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+/* Error message styling */
+.error {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  text-align: center;
+  border-left: 4px solid #c62828;
+}
+
+/* Status message styling */
+.success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  text-align: center;
+  border-left: 4px solid #2e7d32;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 480px) {
+  .role-options {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .role-option {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
   
   /* Footer Section */
   .footer {
