@@ -367,7 +367,8 @@ body {
 }
 
 /* Status message styling */
-.success {
+.success,
+.success-message {
   background-color: #e8f5e9;
   color: #2e7d32;
   padding: 10px 15px;
@@ -434,11 +435,39 @@ body {
   .footer .social ul li a:hover {
     color: #dbb657;
   }
-  
-  .footer .copyright {
+    .footer .copyright {
     text-align: center;
     margin-top: 40px;
     font-size: 16px;
     color: #ddd;
+  }
+  
+  /* Error and Success Message Styling */
+  .error-container {
+    background-color: rgba(255, 0, 0, 0.1);
+    border-left: 4px solid #ff3b30;
+    color: #ff3b30;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+  }
+  
+  .error {
+    font-size: 0.875em;
+    margin-bottom: 5px;
+  }
+  
+  .error:last-child {
+    margin-bottom: 0;
+  }
+  
+  .success-message {
+    background-color: rgba(76, 217, 100, 0.1);
+    border-left: 4px solid #4cd964;
+    color: #2e7d32;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    font-size: 0.95em;
   }
   
