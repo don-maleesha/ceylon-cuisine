@@ -190,24 +190,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
         header("Location: adminDashboard.php?tab=reviews");
         exit();
     }
-    
-    // Assign categories
+      // Assign categories
     if (isset($_POST['assign_categories'])) {
         $recipeId = $_POST['recipe_id'];
         $categories = $_POST['categories'];
         
-        // First delete existing categories
-        $stmt = $conn->prepare("DELETE FROM recipe_categories WHERE recipe_id = ?");
-        $stmt->bind_param("i", $recipeId);
+        // Check if recipe_categories table exists
+        $stmt = $conn->prepare("SHOW TABLES LIKE 'recipe_categories'");
         $stmt->execute();
+        $result = $stmt->get_result();
+        $recipeCategoriesExist = $result->num_rows > 0;
         $stmt->close();
         
-        // Insert new categories
-        foreach ($categories as $categoryId) {
-            $stmt = $conn->prepare("INSERT INTO recipe_categories (recipe_id, category_id) VALUES (?, ?)");
-            $stmt->bind_param("ii", $recipeId, $categoryId);
+        if ($recipeCategoriesExist) {
+            // First delete existing categories
+            $stmt = $conn->prepare("DELETE FROM recipe_categories WHERE recipe_id = ?");
+            $stmt->bind_param("i", $recipeId);
             $stmt->execute();
             $stmt->close();
+            
+            // Insert new categories
+            foreach ($categories as $categoryId) {
+                $stmt = $conn->prepare("INSERT INTO recipe_categories (recipe_id, category_id) VALUES (?, ?)");
+                $stmt->bind_param("ii", $recipeId, $categoryId);
+                $stmt->execute();
+                $stmt->close();
+            }
         }
         
         header("Location: adminDashboard.php?tab=submissions");
@@ -483,15 +491,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                 <?php
                 // User listing with search
                 $search = $_GET['search'] ?? '';
-                
-                $query = "SELECT * FROM users WHERE 1=1";
+                  $query = "SELECT * FROM users WHERE 1=1";
                           
                 if (!empty($search)) {
                     $search = "%$search%";
                     $query .= " AND (name LIKE ? OR email_address LIKE ?)";
                 }
                 
-                $query .= " ORDER BY created_at DESC";
+                // Remove ORDER BY created_at since the column doesn't exist
                 
                 $stmt = $conn->prepare($query);
                 
@@ -520,24 +527,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                             <tr>
                                 <td><?php echo htmlspecialchars($user['name']); ?></td>
                                 <td><?php echo htmlspecialchars($user['email_address']); ?></td>
-                                <td><?php echo ucfirst($user['role'] ?? 'user'); ?></td>
-                                <td>
-                                    <span class="status-badge status-<?php echo strtolower($user['status'] ?? 'active'); ?>">
+                                <td><?php echo ucfirst($user['role'] ?? 'user'); ?></td>                                <td>                                    <span class="status-badge status-<?php echo strtolower($user['status'] ?? 'active'); ?>">
                                         <?php echo ucfirst($user['status'] ?? 'active'); ?>
                                     </span>
                                 </td>
-                                <td><?php echo date('M d, Y', strtotime($user['created_at'] ?? date('Y-m-d'))); ?></td>
+                                <td><?php echo isset($user['created_at']) ? date('M d, Y', strtotime($user['created_at'])) : 'N/A'; ?></td>
                                 <td class="action-buttons">
                                     <form method="POST" class="inline-form">
                                         <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
                                         
-                                        <!-- Role update dropdown -->
+                                        <!-- Role update dropdown
                                         <select name="role" onchange="this.form.submit()" class="role-select">
                                             <option value="user" <?php echo ($user['role'] ?? 'user') == 'user' ? 'selected' : ''; ?>>User</option>
                                             <option value="moderator" <?php echo ($user['role'] ?? 'user') == 'moderator' ? 'selected' : ''; ?>>Moderator</option>
                                             <option value="admin" <?php echo ($user['role'] ?? 'user') == 'admin' ? 'selected' : ''; ?>>Admin</option>
                                         </select>
-                                        <input type="hidden" name="update_role" value="1">
+                                        <input type="hidden" name="update_role" value="1"> -->
                                         
                                         <!-- Block/Unblock button -->
                                         <input type="hidden" name="status" value="<?php echo $user['status'] ?? 'active'; ?>">
@@ -671,16 +676,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                                           ORDER BY r.created_at DESC LIMIT 10");
                 }                if ($statusColumnExists) {
                     $stmt->bind_param("s", $status);
-                }
-                $stmt->execute();
+                }                $stmt->execute();
                 $submissions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                 $stmt->close();
                 
-                // Get all categories for assignment
-                $stmt = $conn->prepare("SELECT * FROM categories ORDER BY name");
+                // Check if categories table exists
+                $categoriesExist = false;
+                $stmt = $conn->prepare("SHOW TABLES LIKE 'categories'");
                 $stmt->execute();
-                $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+                $result = $stmt->get_result();
+                $categoriesExist = $result->num_rows > 0;
                 $stmt->close();
+                
+                $categories = [];
+                // Get all categories for assignment only if the table exists
+                if ($categoriesExist) {
+                    $stmt = $conn->prepare("SELECT * FROM categories ORDER BY name");
+                    $stmt->execute();
+                    $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+                    $stmt->close();
+                }
                 ?>
                 
                 <?php if(empty($submissions)): ?>
@@ -713,10 +728,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                                     <a href="profile.php?id=<?php echo $submission['id']; ?>" class="btn-view">
                                         <i class="fas fa-eye"></i> View Full Recipe
                                     </a>
-                                    
-                                    <form method="POST" class="inline-form">
+                                      <form method="POST" class="inline-form">
                                         <input type="hidden" name="recipe_id" value="<?php echo $submission['id']; ?>">
                                         
+                                        <?php if ($categoriesExist && !empty($categories)): ?>
                                         <div class="category-assignment">
                                             <h3>Assign Categories:</h3>
                                             <div class="category-checkboxes">
@@ -731,6 +746,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                                                 <i class="fas fa-tags"></i> Assign Categories
                                             </button>
                                         </div>
+                                        <?php endif; ?>
                                         
                                         <div class="approval-actions">
                                             <button type="submit" name="approve_recipe" class="btn-approve">

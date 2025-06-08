@@ -7,13 +7,32 @@ $search = $_GET['search'] ?? '';
 $sort = $_GET['sort'] ?? 'newest'; // Default to 'newest'
 $recipes = [];
 
+// Check if status column exists
+$statusColumnExists = false;
+$stmt = $conn->prepare("SHOW COLUMNS FROM recipes LIKE 'status'");
+$stmt->execute();
+$result = $stmt->get_result();
+$statusColumnExists = $result->num_rows > 0;
+$stmt->close();
+
 // Base query
 $query = "SELECT r.id, r.title, r.description, r.image_url, COALESCE(r.average_rating, 0) AS average_rating FROM recipes r";
 
-// Add search condition
-if (!empty($search)) {
-    $query .= " WHERE title LIKE ?";
-    $searchTerm = "%$search%";
+// Add status condition to only show approved recipes
+if ($statusColumnExists) {
+    $query .= " WHERE status = 'approved'";
+    
+    // Add search condition
+    if (!empty($search)) {
+        $query .= " AND title LIKE ?";
+        $searchTerm = "%$search%";
+    }
+} else {
+    // If status column doesn't exist, just use search condition
+    if (!empty($search)) {
+        $query .= " WHERE title LIKE ?";
+        $searchTerm = "%$search%";
+    }
 }
 
 // Add sorting
@@ -42,19 +61,35 @@ if ($recipe_id) {
     // Get user ID if logged in
     $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
     
-    // Prepare the SQL query
-    $stmt = $conn->prepare("SELECT 
-    r.id,
-    r.title,
-    r.description,
-    r.image_url,
-    r.ingredients,
-    r.instructions,
-    COALESCE(r.average_rating, 0) AS average_rating,
-    ur.rating AS user_rating
-FROM recipes r
-LEFT JOIN ratings ur ON ur.recipe_id = r.id AND ur.user_id = ?
-WHERE r.id = ?");  // Added JOIN and WHERE clause
+    // Prepare the SQL query with status check for approved recipes
+    if ($statusColumnExists) {
+        $stmt = $conn->prepare("SELECT 
+        r.id,
+        r.title,
+        r.description,
+        r.image_url,
+        r.ingredients,
+        r.instructions,
+        COALESCE(r.average_rating, 0) AS average_rating,
+        ur.rating AS user_rating
+    FROM recipes r
+    LEFT JOIN ratings ur ON ur.recipe_id = r.id AND ur.user_id = ?
+    WHERE r.id = ? AND r.status = 'approved'");  // Added status condition
+    } else {
+        // If status column doesn't exist
+        $stmt = $conn->prepare("SELECT 
+        r.id,
+        r.title,
+        r.description,
+        r.image_url,
+        r.ingredients,
+        r.instructions,
+        COALESCE(r.average_rating, 0) AS average_rating,
+        ur.rating AS user_rating
+    FROM recipes r
+    LEFT JOIN ratings ur ON ur.recipe_id = r.id AND ur.user_id = ?
+    WHERE r.id = ?");
+    }
     
     // Bind parameters based on login status
     if ($user_id) {
