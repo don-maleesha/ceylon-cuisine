@@ -99,21 +99,6 @@ if (isset($_POST['submit'])) {
         </div>
       </div>
       <div class="form-container">        <h2>Sign in to your account</h2>
-        
-        <?php if (isset($_SESSION['success_message'])): ?>
-          <div class="success-message">
-            <?php 
-              echo $_SESSION['success_message']; 
-              unset($_SESSION['success_message']); 
-            ?>
-          </div>
-        <?php endif; ?>
-        
-        <?php if (isset($error_message)): ?>
-          <div class="error-container">
-            <div class="error"><?php echo $error_message; ?></div>
-          </div>
-        <?php endif; ?>
         <?php if (isset($_SESSION['success_message'])): ?>
           <div class="success-message"><?php echo $_SESSION['success_message']; unset($_SESSION['success_message']); ?></div>
         <?php endif; ?>
