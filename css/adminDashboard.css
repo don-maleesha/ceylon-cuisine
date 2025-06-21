@@ -80,17 +80,28 @@
     display: flex;
     align-items: center;
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    min-height: 100px;
+    position: relative;
+}
+
+.pending-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    z-index: 10;
 }
 
 .stat-icon {
     width: 60px;
     height: 60px;
+    min-width: 60px;
     border-radius: 50%;
     background: #dbb657;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-right: 15px;
+    flex-shrink: 0;
 }
 
 .stat-icon i {
@@ -103,12 +114,16 @@
     margin: 0 0 5px 0;
     color: #2c241d;
     font-family: 'Playfair Display', serif;
+    text-align: left;
+    min-width: 50px;
+    overflow: visible;
 }
 
 .stat-info p {
     margin: 0;
     color: #666;
     font-family: 'Raleway', sans-serif;
+    text-align: left;
 }
 
 /* Tables */
@@ -464,13 +479,20 @@
     .admin-nav li a {
         padding: 10px 15px;
     }
-    
-    .admin-content {
+      .admin-content {
         padding: 20px;
     }
     
     .stat-cards {
         grid-template-columns: 1fr;
+    }
+    
+    .stat-card {
+        padding: 15px;
+    }
+    
+    .stat-info h2 {
+        font-size: 24px;
     }
     
     .submission-cards {

@@ -47,12 +47,19 @@ if ($statusColumnExists) {
     $stmt->fetch();
     $stmt->close();
 } else {
-    // If status column doesn't exist, set pending recipes to 0 or use another condition
-    $pendingRecipes = 0;
-    // Optionally, you can add an ALTER TABLE statement here to add the status column
-    // $stmt = $conn->prepare("ALTER TABLE recipes ADD COLUMN status VARCHAR(20) DEFAULT 'pending'");
-    // $stmt->execute();
-    // $stmt->close();
+    // If status column doesn't exist, add it and set all recipes to pending by default
+    $stmt = $conn->prepare("ALTER TABLE recipes ADD COLUMN status VARCHAR(20) DEFAULT 'pending'");
+    $stmt->execute();
+    $stmt->close();
+    
+    // Now count pending recipes
+    $status = 'pending';
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM recipes WHERE status = ?");
+    $stmt->bind_param("s", $status);
+    $stmt->execute();
+    $stmt->bind_result($pendingRecipes);
+    $stmt->fetch();
+    $stmt->close();
 }
 
 // Recent Activity (last 5 recipes)
@@ -323,13 +330,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                             <p>Reviews Posted</p>
                         </div>
                     </div>
-                    
-                    <div class="stat-card">
+                      <div class="stat-card">
                         <div class="stat-icon"><i class="fas fa-clock"></i></div>
                         <div class="stat-info">
                             <h2><?php echo $pendingRecipes; ?></h2>
                             <p>Pending Recipes</p>
                         </div>
+                        <?php if($pendingRecipes > 0): ?>
+                        <div class="pending-badge">
+                            <span class="status-badge status-pending"><?php echo $pendingRecipes; ?></span>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
                 

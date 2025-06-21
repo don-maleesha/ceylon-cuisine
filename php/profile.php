@@ -12,8 +12,36 @@ $email = $_SESSION['email_address'];
 $profile_picture = '../images/user-profile-icon-front-side-with-white-background.jpg';
 $uploadMessage = ''; // Initialize upload message
 
+// Check for profile picture upload message in session
+if (isset($_SESSION['upload_message'])) {
+    $uploadMessage = $_SESSION['upload_message'];
+    unset($_SESSION['upload_message']);
+}
+
+// Check for recipe update messages stored in session
+$update_message = '';
+$update_status = '';
+if (isset($_SESSION['update_message'])) {
+    $update_message = $_SESSION['update_message'];
+    $update_status = $_SESSION['update_status'] ?? 'success';
+    // Clear the session variables
+    unset($_SESSION['update_message']);
+    unset($_SESSION['update_status']);
+}
+
+// Check for recipe submission messages stored in session
+$recipe_message = '';
+$recipe_status = '';
+if (isset($_SESSION['recipe_message'])) {
+    $recipe_message = $_SESSION['recipe_message'];
+    $recipe_status = $_SESSION['recipe_status'] ?? 'success';
+    // Clear the session variables
+    unset($_SESSION['recipe_message']);
+    unset($_SESSION['recipe_status']);
+}
+
 // Handle profile picture upload
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit-picture'])) {
     if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
         $fileTmpPath = $_FILES['profile_picture']['tmp_name'];
         $fileName = $_FILES['profile_picture']['name'];
@@ -22,37 +50,63 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
         $allowedExtensions = array('jpg', 'jpeg', 'png', 'jfif');
-        $maxFileSize = 2 * 1024 * 1024;
-
-        if (!in_array($fileExtension, $allowedExtensions)) {
-            $uploadMessage = 'Only JPG, JPEG, and PNG files are allowed.';
+        $maxFileSize = 2 * 1024 * 1024;        if (!in_array($fileExtension, $allowedExtensions)) {
+            $_SESSION['upload_message'] = 'Only JPG, JPEG, and PNG files are allowed.';
+            header("Location: profile.php");
+            exit();
         } elseif ($fileSize > $maxFileSize) {
-            $uploadMessage = 'File size exceeds 2MB limit.';
+            $_SESSION['upload_message'] = 'File size exceeds 2MB limit.';
+            header("Location: profile.php");
+            exit();
         } else {
             $uploadFileDir = '../uploads/';
-            $destPath = $uploadFileDir . $fileName;
+            // Create a unique filename to prevent overwriting
+            $uniqueFileName = uniqid() . '_' . $fileName;
+            $destPath = $uploadFileDir . $uniqueFileName;
 
             if (move_uploaded_file($fileTmpPath, $destPath)) {
-
-                $relativePath = '../uploads/' . $fileName;
+                $relativePath = '../uploads/' . $uniqueFileName;
                 $sql = "UPDATE users SET profile_picture = ? WHERE email_address = ?";
                 $updateStmt = $conn->prepare($sql);
                 if ($updateStmt) {
-                    $updateStmt->bind_param("ss", $relativePath, $email);
-                    $updateStmt->execute();
-                    $updateStmt->close();
-                } else {
-                    $uploadMessage = 'Database error: ' . $conn->error;
+                    $updateStmt->bind_param("ss", $relativePath, $email);                    if ($updateStmt->execute()) {
+                        $profile_picture = $relativePath; // Update the profile picture path
+                        $_SESSION['upload_message'] = 'Profile picture uploaded successfully!';
+                        header("Location: profile.php");
+                        exit();
+                    } else {
+                        $_SESSION['upload_message'] = 'Database error: ' . $updateStmt->error;
+                        header("Location: profile.php");
+                        exit();
+                    }
+                    $updateStmt->close();                } else {
+                    $_SESSION['upload_message'] = 'Database error: ' . $conn->error;
+                    header("Location: profile.php");
+                    exit();
                 }
-                
-                $profile_picture = $relativePath; // Update the profile picture path
-                $uploadMessage = 'Profile picture uploaded successfully!';
             } else {
-                $uploadMessage = 'There was an error moving the uploaded file.';
+                $_SESSION['upload_message'] = 'Error uploading file. Please try again.';
+                header("Location: profile.php");
+                exit();
             }
         }
-    } else {
-        $uploadMessage = 'No file uploaded or upload error occurred.';
+    } else {        $error_code = $_FILES['profile_picture']['error'] ?? 'unknown';
+        switch ($error_code) {
+            case UPLOAD_ERR_INI_SIZE:
+            case UPLOAD_ERR_FORM_SIZE:
+                $_SESSION['upload_message'] = 'The file is too large.';
+                break;
+            case UPLOAD_ERR_PARTIAL:
+                $_SESSION['upload_message'] = 'The file was only partially uploaded.';
+                break;
+            case UPLOAD_ERR_NO_FILE:
+                $_SESSION['upload_message'] = 'No file was uploaded.';
+                break;
+            default:
+                $_SESSION['upload_message'] = 'An unknown error occurred during upload.';
+        }
+        header("Location: profile.php");
+        exit();
     }
 }
 
@@ -89,16 +143,20 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit-recipe'])){
     $name = htmlspecialchars($_POST['title']);
     $description = htmlspecialchars($_POST['description']);
 
-    // Proceess ingredients and instructions from textareas
+    // Process ingredients and instructions from textareas
     $ingredients = array_filter(array_map('trim', explode("\n", $_POST['ingredients'][0] ?? '')));
     $instructions = array_filter(array_map('trim', explode("\n", $_POST['instructions'][0] ?? '')));
 
     // Validate
     $errors = [];
+    if (empty($name)) $errors[] = "Recipe title cannot be empty.";
+    if (empty($description)) $errors[] = "Description cannot be empty.";
     if (empty($ingredients)) $errors[] = "Ingredients cannot be empty.";
     if (empty($instructions)) $errors[] = "Instructions cannot be empty.";
-
-    // Handle image upload
+    
+    // Store error/success message for JavaScript to display
+    $recipe_message = '';
+    $recipe_status = '';    // Handle image upload
     if(empty($errors)) {
         $file_name = $_FILES['image_url']['name'];
         $temporary_name = $_FILES['image_url']['tmp_name'];
@@ -110,9 +168,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit-recipe'])){
         $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
 
         if(!in_array($file_extension, $allowed_extensions)) {
-            $errors[] = "Invalid image format";
+            $errors[] = "Invalid image format. Only JPG, JPEG, and PNG are allowed.";
         } elseif ($_FILES['image_url']['size'] > 5 * 1024 * 1024) {
-            $errors[] = "Image size exceeds 5MB";
+            $errors[] = "Image size exceeds 5MB limit.";
         }
     }
 
@@ -120,20 +178,31 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit-recipe'])){
     if(empty($errors)) {
         if(move_uploaded_file($temporary_name, $folder)) {
             $ingredients_json = json_encode($ingredients);
-            $instructions_json = json_encode($instructions);
-
-            $sql = "INSERT INTO recipes (user_id, title, description, image_url, ingredients, instructions) VALUES (?, ?, ?, ?, ?, ?)";
+            $instructions_json = json_encode($instructions);            $sql = "INSERT INTO recipes (user_id, title, description, image_url, ingredients, instructions, status) VALUES (?, ?, ?, ?, ?, ?, 'pending')";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("isssss", $user_id, $name, $description, $unique_file_name, $ingredients_json, $instructions_json);
-            if ($stmt->execute()) {
+            $stmt->bind_param("isssss", $user_id, $name, $description, $unique_file_name, $ingredients_json, $instructions_json);            if ($stmt->execute()) {
+                // Set success message in session
+                $_SESSION['recipe_message'] = "Recipe submitted successfully! It will be visible after admin approval.";
+                $_SESSION['recipe_status'] = "success";
+                // Redirect to prevent form resubmission
                 header("Location: profile.php");
                 exit();
             } else {
-                die("Error inserting recipe: " . $stmt->error);
-            }
-        } else {
-            die("Error uploading image.");
+                $_SESSION['recipe_message'] = "Error inserting recipe: " . $stmt->error;
+                $_SESSION['recipe_status'] = "error";
+                header("Location: profile.php");
+                exit();
+            }} else {
+            $_SESSION['recipe_message'] = "Error uploading image.";
+            $_SESSION['recipe_status'] = "error";
+            header("Location: profile.php");
+            exit();
         }
+    } else {
+        $_SESSION['recipe_message'] = implode("<br>", $errors);
+        $_SESSION['recipe_status'] = "error";
+        header("Location: profile.php");
+        exit();
     }
 }
 
@@ -152,16 +221,24 @@ $user_id = $user['id'];
 $stmt->close();
 
 //display user recipes
-$sql = "SELECT * FROM recipes WHERE user_id = ?";
+$sql = "SELECT * FROM recipes WHERE user_id = ? ORDER BY created_at DESC";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
-$recipes = array();
-while ($row = $result->fetch_assoc()) {
-    $recipes[] = $row; 
-}
 
+$recipes = array();
+$pending_recipes = array();
+$rejected_recipes = array();  // Optional: if you want to track rejected separately
+
+while ($row = $result->fetch_assoc()) {
+    if ($row['status'] === 'approved') {
+        $recipes[] = $row;
+    } elseif ($row['status'] === 'pending') {  // Only include truly pending recipes
+        $pending_recipes[] = $row;
+    }
+    // Optional: else { $rejected_recipes[] = $row; }
+}
 
 //display recipe data
 $recipe_id = $_GET['id'] ?? null;
@@ -214,10 +291,11 @@ if ($recipe_id) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
     $newName = htmlspecialchars(trim($_POST['name']));
     $newEmail = htmlspecialchars(trim($_POST['email']));
-    
-    // Validate email
+      // Validate email
     if (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
-        $uploadMessage = "Invalid email format";
+        $_SESSION['upload_message'] = "Invalid email format";
+        header("Location: profile.php");
+        exit();
     } else {
         // Check if email exists (excluding current user)
         $checkEmail = $conn->prepare("SELECT email_address FROM users WHERE email_address = ? AND email_address != ?");
@@ -226,21 +304,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
         $checkEmail->store_result();
         
         if ($checkEmail->num_rows > 0) {
-            $uploadMessage = "Email already exists!";
+            $_SESSION['upload_message'] = "Email already exists!";
+            header("Location: profile.php");
+            exit();
         } else {
             // Update user info
             $updateSql = "UPDATE users SET name = ?, email_address = ? WHERE email_address = ?";
             $stmt = $conn->prepare($updateSql);
             $stmt->bind_param("sss", $newName, $newEmail, $email);
-            
-            if ($stmt->execute()) {
+              if ($stmt->execute()) {
                 // Update session variables
                 $_SESSION['name'] = $newName;
                 $_SESSION['email_address'] = $newEmail;
                 $email = $newEmail; // Update local variable for subsequent queries
-                $uploadMessage = "Profile updated successfully!";
-            } else {
-                $uploadMessage = "Error updating profile: " . $conn->error;
+                $_SESSION['upload_message'] = "Profile updated successfully!";
+                header("Location: profile.php");
+                exit();            } else {
+                $_SESSION['upload_message'] = "Error updating profile: " . $conn->error;
+                header("Location: profile.php");
+                exit();
             }
             $stmt->close();
         }
@@ -258,10 +340,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
     $ingredients = array_filter(array_map('trim', explode("\n", $_POST['ingredients'])));
     $instructions = array_filter(array_map('trim', explode("\n", $_POST['instructions'])));
     
-    // Handle image update
-    $image_url = $recipe['image_url']; // Keep existing image by default
+    // Validation
+    $update_errors = [];
+    if (empty($title)) $update_errors[] = "Recipe title cannot be empty.";
+    if (empty($description)) $update_errors[] = "Description cannot be empty.";
+    if (empty($ingredients)) $update_errors[] = "Ingredients cannot be empty.";
+    if (empty($instructions)) $update_errors[] = "Instructions cannot be empty.";
     
-    if (!empty($_FILES['new_image']['name'])) {
+    // Store error/success message
+    $update_message = '';
+    $update_status = '';
+    
+    // Query current recipe for image if we need it
+    $current_recipe_query = $conn->prepare("SELECT image_url FROM recipes WHERE id = ?");
+    $current_recipe_query->bind_param("i", $recipe_id);
+    $current_recipe_query->execute();
+    $current_recipe_result = $current_recipe_query->get_result();
+    $current_recipe = $current_recipe_result->fetch_assoc();
+    
+    // Handle image update
+    $image_url = $current_recipe['image_url']; // Keep existing image by default
+      if (!empty($_FILES['new_image']['name'])) {
         // Similar to your existing image upload logic
         $file_name = $_FILES['new_image']['name'];
         $temporary_name = $_FILES['new_image']['tmp_name'];
@@ -271,39 +370,64 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
         // Validate and move file
         $allowed_extensions = ['jpg', 'jpeg', 'png', 'jfif'];
         $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-        
-        if (in_array($file_extension, $allowed_extensions) && 
-            $_FILES['new_image']['size'] <= 5 * 1024 * 1024) {
+          if (!in_array($file_extension, $allowed_extensions)) {
+            $update_errors[] = "Invalid image format. Only JPG, JPEG, and PNG are allowed.";
+        } elseif ($_FILES['new_image']['size'] > 5 * 1024 * 1024) {
+            $update_errors[] = "Image size exceeds 5MB limit.";
+        } else {
             if (move_uploaded_file($temporary_name, $folder)) {
                 $image_url = $unique_file_name;
+            } else {
+                $update_errors[] = "Error uploading new image.";
             }
         }
     }
-    
-    // Update database
-    $ingredients_json = json_encode($ingredients);
-    $instructions_json = json_encode($instructions);
-    
-    $sql = "UPDATE recipes SET 
-            title = ?, 
-            description = ?, 
-            image_url = ?, 
-            ingredients = ?, 
-            instructions = ? 
-            WHERE id = ?";
-    
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssi", $title, $description, $image_url, 
-                     $ingredients_json, $instructions_json, $recipe_id);
-    
-    if ($stmt->execute()) {
+      // Update database
+    if (empty($update_errors)) {
+        $ingredients_json = json_encode($ingredients);
+        $instructions_json = json_encode($instructions);
+        
+        $sql = "UPDATE recipes SET 
+                title = ?, 
+                description = ?, 
+                image_url = ?, 
+                ingredients = ?, 
+                instructions = ? 
+                WHERE id = ?";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sssssi", $title, $description, $image_url, 
+                         $ingredients_json, $instructions_json, $recipe_id);
+        
+        if ($stmt->execute()) {
+            $update_message = "Recipe updated successfully!";
+            $update_status = "success";
+            // We'll set a session variable to show the message after redirect
+            $_SESSION['update_message'] = $update_message;
+            $_SESSION['update_status'] = $update_status;
+            
+            header("Location: profile.php?id=$recipe_id");
+            exit();        } else {
+            $update_message = "Error updating recipe: " . $stmt->error;
+            $update_status = "error";
+            // Store in session for after redirect
+            $_SESSION['update_message'] = $update_message;
+            $_SESSION['update_status'] = $update_status;
+            header("Location: profile.php?id=$recipe_id");
+            exit();
+        }
+    } else {
+        $update_message = implode("<br>", $update_errors);
+        $update_status = "error";
+        // Store in session for after redirect
+        $_SESSION['update_message'] = $update_message;
+        $_SESSION['update_status'] = $update_status;
         header("Location: profile.php?id=$recipe_id");
         exit();
-    } else {
-        die("Error updating recipe: " . $stmt->error);
     }
 }
 
+// Close PHP tag before HTML output
 ?>
 
 <!DOCTYPE html>
@@ -361,93 +485,114 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
     <div class="breadcrumb raleway">
         <a href="#">Home</a>&gt;<a href="#">Profile</a>
     </div>
-    <div class="profile-info">
-        <div class="profile-picture">
+    <div class="profile-info">        <div class="profile-picture">
             <img src="<?php echo $profile_picture; ?>" alt="Profile Picture">
             <span id="upload-message" data-message="<?= htmlspecialchars($uploadMessage) ?>"></span>
-            <form action="profile.php" method="POST" enctype="multipart/form-data">
+            <form action="profile.php" method="POST" enctype="multipart/form-data" id="profile-picture-form">
                 <label for="profile-picture-upload" class="change-picture-button">
                     <i class="fas fa-camera"></i>
                     <p class="raleway">Change Picture</p>
                 </label>
-                <input type="file" id="profile-picture-upload" name="profile_picture" accept="image/*" class="upload-input">
-                <button type="submit" class="upload-button raleway" name="submit-picture" aria-label="profile-picture-upload">Upload</button>
+                <input type="file" id="profile-picture-upload" name="profile_picture" accept="image/jpeg,image/png,image/jpg" class="upload-input">
+                <button type="submit" class="upload-button raleway" name="submit-picture" id="profile-picture-submit">Upload</button>
+                <small class="form-text text-muted">Max file size: 2MB. Accepted formats: JPG, JPEG, PNG</small>
             </form>
         </div>
         <div>
             <h2 class="playfair-display"><?php echo htmlspecialchars($_SESSION['name']); ?></h2>
             <p class="raleway"><?php echo htmlspecialchars($_SESSION['email_address']); ?></p>
-            <button onclick="openProfileModal()" class="raleway profile-update-btn"><i class="fas fa-edit"></i></button>
-        </div>
+            <button onclick="openProfileModal()" class="raleway profile-update-btn"><i class="fas fa-edit"></i></button>        </div>
     </div>
 </div>
 <div class="tabs">
     <button class="active raleway" onclick="showSection('newRecipe')">Add New Recipe</button>
-    <button class="raleway" onclick="showSection('myRecipe')">My Receips</button>
-    <button class="raleway" onclick="showSection('myFavourits')">My Favourites</button>
+    <button class="raleway" onclick="showSection('myRecipe')">
+        My Recipes
+    </button>
+    <button class="raleway" onclick="showSection('myFavourits')">My Favorites</button>
     <button class="raleway" onclick="showSection('stats')">Stats</button>
 </div>
-<div class="content">
-    <section id="newRecipe" class="content-section active">
+<div class="content">    <section id="newRecipe" class="content-section active">
         <div class="container">
             <h2 class="playfair-display">Share Your Delicious Recipe with the World!</h2>
             <p class="raleway">We are excited to see what you have created in your kitchen. Please fill out the form below to share your recipe with our community.</p>
-            <form action="profile.php" method="POST" enctype="multipart/form-data">
+            
+            <div class="approval-notice">
+                <i class="fas fa-info-circle"></i>
+                <p class="raleway">All recipes require admin approval before being published on the site. Your recipe will be reviewed shortly.</p>
+            </div>
+            
+            <!-- Message container for recipe submission messages -->
+            <div id="recipe-message-container" 
+                 data-message="<?= htmlspecialchars($recipe_message ?? '') ?>" 
+                 data-status="<?= htmlspecialchars($recipe_status ?? '') ?>">
+            </div>
+            
+            <form action="profile.php" method="POST" enctype="multipart/form-data" id="recipe-form">
                 <div class="form-group">
                     <label for="name" class="raleway">Recipe Name</label>
-                    <input type="text" id="name" name="title" class="form-control" required>
+                    <input type="text" id="name" name="title" class="form-control" value="<?= htmlspecialchars($name ?? '') ?>" required>
+                    <small class="form-text text-muted">Enter a descriptive name for your recipe (min. 3 characters)</small>
                 </div>
                 <div class="form-group">
                     <label for="description" class="raleway">Description</label>
-                    <textarea id="description" name="description" class="form-control" required></textarea> 
-                </div>
-                <div class="form-group">
-                    <label for="" class="raleway">Ingredients</label>
+                    <textarea id="description" name="description" class="form-control" required><?= htmlspecialchars($description ?? '') ?></textarea>
+                    <small class="form-text text-muted">Describe your recipe in detail (min. 20 characters)</small>
+                </div>                <div class="form-group">
+                    <label for="recipe-ingredients" class="raleway">Ingredients</label>
                     <div id="ingredients-container">
                         <div class="ingredient-input">
-                        <textarea name="ingredients[]" class="form-control"
-                            placeholder="Enter one step per line:
-                                        Step 1: Mix ingredients
-                                        Step 2: Bake at 350°F
-                                        Step 3: Let cool before serving"
-                            rows="2"required></textarea>
+                        <textarea id="recipe-ingredients" name="ingredients[]" class="form-control"
+                            placeholder="Enter one ingredient per line:
+1 cup flour
+2 eggs
+1/2 cup sugar"
+                            rows="4" required><?= !empty($ingredients) ? htmlspecialchars(implode("\n", $ingredients)) : '' ?></textarea>
                         </div>
                     </div>
+                    <small class="form-text text-muted">List each ingredient on a separate line</small>
                 </div>
                 <div class="form-group">
-                    <label for="" class="raleway">Instructions</label>
+                    <label for="recipe-instructions" class="raleway">Instructions</label>
                     <div id="instructions-container">
                         <div class="instruction-input">
-                        <textarea name="instructions[]" class="form-control" 
+                        <textarea id="recipe-instructions" name="instructions[]" class="form-control" 
                             placeholder="Enter one step per line:
-                                        Step 1: Mix ingredients
-                                        Step 2: Bake at 350°F
-                                        Step 3: Let cool before serving" rows="4" required></textarea>
+Step 1: Mix ingredients
+Step 2: Bake at 350°F
+Step 3: Let cool before serving" 
+                            rows="4" required><?= !empty($instructions) ? htmlspecialchars(implode("\n", $instructions)) : '' ?></textarea>
                         </div>
                     </div>
-                </div>
-                <div class="form-group upload-image">
+                    <small class="form-text text-muted">List each step on a separate line</small>
+                </div>                <div class="form-group upload-image">
                     <label for="image" class="raleway">Upload Image</label>
                     <input type="file" id="image" name="image_url" accept="image/*" class="form-control" required>
+                    <small class="form-text text-muted">Upload an image of your dish (JPG, JPEG, PNG only, max 5MB)</small>
+                    <div class="image-preview-container">
+                        <img src="#" alt="Image Preview" class="image-preview" style="display: none; max-width: 200px; margin-top: 10px;">
+                    </div>
                 </div>
-                <!-- Add inside the form -->
-                <div>
-                    <button type="submit" name="submit-recipe" class="raleway">Submit Recipe</button>
+                <div class="form-group button-row">
+                    <button type="submit" name="submit-recipe" class="raleway submit-btn">
+                        <i class="fas fa-paper-plane"></i> Submit Recipe
+                    </button>
                 </div>
             </form>
         </div>
     </section>
     <section id="myRecipe" class="content-section">
         <div class="card-container">
+            <h2 class="section-title playfair-display">Approved Recipes</h2>
             <div class="recipe-list">
                 <?php if (empty($recipes)): ?>
-                    <p class="raleway">No recipes found.</p>
+                    <p class="raleway no-recipes">You don't have any approved recipes yet. Your submitted recipes will appear here after admin approval.</p>
                 <?php else: ?>
                     <?php foreach ($recipes as $myrecipe) : ?>
                         <div class="card">
                             <div class="image-box">
                                 <img src="../uploads/<?= htmlspecialchars($myrecipe['image_url']) ?>" 
-                                    alt="<?= htmlspecialchars($recipe['title']) ?>">
+                                    alt="<?= htmlspecialchars($myrecipe['title']) ?>">
                             </div>
                             <div class="title">
                                 <h2 class="playfair-display"><?= htmlspecialchars($myrecipe['title']) ?></h2>
@@ -456,51 +601,57 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
                                 <p class="merriweather-regular"><?= htmlspecialchars($myrecipe['description']) ?></p>
                             </div>
                             <div class="rating-section">
-              <!-- <h3 class="playfair-display">Rating</h3> -->
                                 <div class="average-rating merriweather-regular">
                                     <!-- Star display for average rating -->
                                     <div class="stars">
                                         <?php
-                                        $average = (float)($recipe['average_rating'] ?? 0);
+                                        $average = (float)($myrecipe['average_rating'] ?? 0);
                                         $fullStars = floor($average);
                                         $hasHalfStar = ($average - $fullStars) >= 0.5;
                                         
-                                        for ($i = 1; $i <= 5; $i++):
-                                            if ($i <= $fullStars):
-                                        ?>
-                                            <i class="fas fa-star rated"></i>
-                                        <?php elseif ($hasHalfStar && $i == $fullStars + 1): ?>
-                                            <i class="fas fa-star-half-alt rated"></i>
-                                        <?php else: ?>
-                                            <i class="far fa-star"></i>
-                                        <?php
-                                            $hasHalfStar = false; // Only show one half-star
-                                            endif;
-                                        endfor;
+                                        for ($i = 1; $i <= 5; $i++) {
+                                            if ($i <= $fullStars) {
+                                                echo '<i class="fas fa-star"></i>';
+                                            } elseif ($i == $fullStars + 1 && $hasHalfStar) {
+                                                echo '<i class="fas fa-star-half-alt"></i>';
+                                            } else {
+                                                echo '<i class="far fa-star"></i>';
+                                            }
+                                        }
                                         ?>
                                     </div>
-                                    <!-- Optional: Display numeric value as tooltip -->
-                                    <span class="rating-value" title="<?= number_format($average, 1) ?>">
-                                        (<?= number_format($average, 1) ?>)
-                                    </span>
+                                    <span><?= number_format($average, 1) ?></span>
                                 </div>
-                                <?php if(isset($_SESSION['user_id'])): ?>
-                                    <div class="user-rating">
-                                        <p class="raleway">Your Rating:</p>
-                                        <div class="star-rating">
-                                            <?php for($i = 1; $i <= 5; $i++): ?>
-                                                <i class="fas fa-star <?= $i <= (int)($recipe['user_rating'] ?? 0) ? 'rated' : '' ?>" 
-                                                    data-rating="<?= $i ?>" 
-                                                    onclick="rateRecipe(<?= $recipe_id ?>, <?= $i ?>)"></i>
-                                            <?php endfor; ?>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
                             </div>
-                            <!-- In your recipe cards -->
-                            <a href="profile.php?id=<?= htmlspecialchars($myrecipe['id']) ?>">
-                                <button class="raleway">View Recipe</button>
-                            </a>
+                            <div class="action-buttons">
+                                <a href="profile.php?id=<?= htmlspecialchars($myrecipe['id']) ?>">
+                                    <button class="view-button">View Recipe</button>
+                                </a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>            </div>            <!-- Pending Recipes Section -->
+            <h2 class="section-title playfair-display">Awaiting Admin Approval</h2>
+            <div class="recipe-list">
+                <?php if (empty($pending_recipes)): ?>
+                    <p class="raleway no-recipes">You don't have any recipes pending approval.</p>
+                <?php else: ?>
+                    <?php foreach ($pending_recipes as $recipe): ?><div class="card pending">
+                            <div class="pending-badge">Pending</div>
+                            <div class="image-box">
+                                <img src="../uploads/<?= htmlspecialchars($recipe['image_url'] ?? 'default.jpg') ?>" 
+                                    alt="<?= htmlspecialchars($recipe['title'] ?? 'Recipe image') ?>">
+                            </div>
+                            <div class="title">
+                                <h2 class="playfair-display"><?= htmlspecialchars($recipe['title'] ?? 'Untitled Recipe') ?></h2>
+                            </div>
+                            <div class="description">
+                                <p class="merriweather-regular"><?= htmlspecialchars($recipe['description'] ?? 'No description available') ?></p>
+                            </div>
+                            <div class="action-buttons">
+                                <a href="profile.php?id=<?= htmlspecialchars($recipe['id'] ?? '') ?>">
+                                    <button class="view-button">View Recipe</button>                                </a>
+                            </div>
                         </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -563,31 +714,43 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
 <div id="updatePanel" class="update-panel">
     <span class="close-btn" onclick="closeUpdatePanel()">&times;</span>
     <h2 class="playfair-display">Update Recipe</h2>
+    
+    <!-- Message container for update form -->
+    <div id="update-message-container" 
+         data-message="<?= htmlspecialchars($update_message ?? '') ?>" 
+         data-status="<?= htmlspecialchars($update_status ?? '') ?>">
+    </div>
+    
     <form action="profile.php" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="recipe_id" value="<?= $recipe_id ?>">
         
         <div class="form-group">
             <label class="raleway">Title</label>
             <input type="text" name="title" class="form-control" 
-                   value="<?= htmlspecialchars($recipe['title']) ?>" required>
+                   value="<?= htmlspecialchars($recipe['title']) ?>" required
+                   minlength="3" maxlength="100">
+            <small class="form-text text-muted">Title should be between 3-100 characters</small>
         </div>
 
         <div class="form-group">
             <label class="raleway">Description</label>
-            <textarea name="description" class="form-control" required><?= 
-                htmlspecialchars($recipe['description']) ?></textarea>
+            <textarea name="description" class="form-control" required
+                      minlength="20"><?= htmlspecialchars($recipe['description']) ?></textarea>
+            <small class="form-text text-muted">Describe your recipe in at least 20 characters</small>
         </div>
 
         <div class="form-group">
             <label class="raleway">Ingredients (one per line)</label>
             <textarea name="ingredients" class="form-control" rows="5" required><?= 
                 implode("\n", $ingredients) ?></textarea>
+            <small class="form-text text-muted">Add at least one ingredient, one per line</small>
         </div>
 
         <div class="form-group">
             <label class="raleway">Instructions (one per line)</label>
             <textarea name="instructions" class="form-control" rows="5" required><?= 
                 implode("\n", $instructions) ?></textarea>
+            <small class="form-text text-muted">Add at least one instruction step, one per line</small>
         </div>
 
         <div class="form-group">
@@ -598,15 +761,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
 
         <div class="form-group">
             <label class="raleway">New Image (optional)</label>
-            <input type="file" name="new_image" accept="image/*" class="form-control">
-        </div>
-
-        <div class="form-group">
-            <button type="submit" name="update-recipe" class="raleway">
-                Update Recipe
+            <input type="file" name="new_image" accept="image/jpeg,image/png,image/jpg" class="form-control">
+            <small class="form-text text-muted">Max file size: 5MB. Accepted formats: JPG, JPEG, PNG</small>
+            <img class="image-preview" alt="Image preview">
+        </div>        <div class="form-group button-group">
+            <button type="submit" name="update-recipe" class="raleway submit-btn">
+                <i class="fas fa-save"></i> Update Recipe
             </button>
-            <button type="button" class="raleway" onclick="closeUpdatePanel()">
-                Cancel
+            <button type="button" class="raleway cancel-btn" onclick="closeUpdatePanel()">
+                <i class="fas fa-times"></i> Cancel
             </button>
         </div>
     </form>
@@ -685,5 +848,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
 
 <script src="../js/profile.js"></script>
 <script src="../js/ceylon-cuisine.js"></script>
+<script src="../js/form-protection.js"></script>
 </body>
 </html>

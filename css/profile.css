@@ -5,6 +5,8 @@ body {
     box-sizing: border-box;
     line-height: 1.6;
     color: #333;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   
   a {
@@ -188,11 +190,11 @@ body {
     font-weight: 600;
     font-style: normal;
   }
-  
-  .container {
+    .container {
     max-width: 1200px;
-    margin: 20 auto;
+    margin: 20px auto;
     padding: 0 20px;
+    will-change: auto;
   }
 
   .container .breadcrumb {
@@ -309,7 +311,6 @@ body {
     font-family: 'Raleway', sans-serif;
     font-size: 1em;
   }
-
   /* Profile Modal */
    .profileModal {
     display: none;
@@ -321,7 +322,11 @@ body {
     background-color: rgba(0, 0, 0, 0.8);
     z-index: 1000;
     overflow-y: auto;
-    padding: 20px
+    padding: 20px;
+   }
+
+   .profileModal.active {
+    display: block;
    }
 
    .profileModal .modal-content {
@@ -380,7 +385,7 @@ body {
   #profileModal .modal-content form .form-group button[type="submit"],
   #profileModal .modal-content form .form-group button[type="button"] {
     width: 100%; /* Already full width of their container */
-    padding: 12px;;
+    padding: 12px;
     font-size: 16px;
     border: none;
     border-radius: 5px;
@@ -411,9 +416,8 @@ body {
 
   .tabs {
     display: flex;
-    border-bottom: 1px solid #eaeaea;
-  }
-
+    border-bottom: 1px solid #eaeaea;  }
+  
   .tabs button {
     background: none;
     border: none;
@@ -526,23 +530,21 @@ body {
     justify-content: center;
     gap: 20px;
     margin-top: 20px;
-  }
-
-  .card {
+  }  .card {
     width: 25%;
     display: inline-block;
     box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
     margin: 2% 4% 2% 4%;
-    opacity: 0.9;
+    opacity: 1;
     height: auto;
     border: 1px solid #795548;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: box-shadow 0.3s ease;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    position: relative; /* Added for proper badge positioning */
   }
   
   .card:hover {
-    transform: scale(1.05);
     box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.2);
   }
   
@@ -749,8 +751,8 @@ body {
 }
 
 @keyframes modalOpen {
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .close {
@@ -913,8 +915,12 @@ body {
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
   z-index: 1000;
-  display: flex;
+  display: none; /* Changed from flex to avoid interference when not active */
   transition: opacity 0.3s ease;
+}
+
+.panel-overlay.active {
+  display: flex;
 }
 
 /* Update Panel */
@@ -996,7 +1002,7 @@ body {
   font-size: 1rem;
   transition: border-color 0.3s ease;
   background: #f9f9f9;
-  border: 1px solid #dbb657;;
+  border: 1px solid #dbb657;
 }
 
 .form-group:has(input[type="file"]) {
@@ -1015,7 +1021,7 @@ textarea.form-control {
 .panel-overlay .update-panel form .form-group button[type="submit"], 
 .panel-overlay .update-panel form .form-group button[type="button"] {
   width: 700px; /* Already full width of their container */
-  padding: 12px;;
+  padding: 12px;
   font-size: 16px;
   border: none;
   border-radius: 5px;
@@ -1053,9 +1059,8 @@ button[type="button"] {
 /* Button Row */
 .form-group.button-group {
   background: #d35400;
-  transform: translateY(-1px);
+  margin-top: -1px;
   box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-
 }
 
 .form-group.button-group button {
@@ -1163,4 +1168,467 @@ button[type="button"] {
       text-align: center;
     }
   }
-  
+
+  /* Form validation styling */
+.validation-error {
+  color: #dc3545;
+  font-size: 0.875em;
+  margin-top: 5px;
+  font-family: 'Raleway', sans-serif;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.is-invalid {
+  border-color: #dc3545 !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right calc(0.375em + 0.1875rem) center;
+  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.is-invalid:focus {
+  box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+}
+
+/* Image preview */
+.image-preview {
+  max-width: 100%;
+  max-height: 200px;
+  margin-top: 10px;
+  border-radius: 4px;
+  display: none;
+}
+
+/* Form help text styling */
+.form-text.text-muted {
+  color: #6c757d;
+  font-size: 0.875em;
+  margin-top: 4px;
+  font-family: 'Raleway', sans-serif;
+}
+
+/* Form Group spacing */
+.form-group {
+  margin-bottom: 20px;
+}
+
+/* Preview image animation */
+.image-preview {
+  transition: all 0.3s ease;
+  border: 1px solid #ddd;
+  padding: 4px;
+  background-color: #fff;
+}
+
+/* Submit button disabled state */
+button[type="submit"]:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+/* Success and error messages */
+.success-message, .error-message {
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  position: relative;
+  animation: fadeIn 0.3s ease-in;
+  font-family: 'Raleway', sans-serif;
+  display: flex;
+  align-items: center;
+}
+
+.success-message {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+.success-message i, .error-message i {
+  margin-right: 10px;
+  font-size: 1.2em;
+}
+
+.fade-out {
+  animation: fadeOut 0.5s ease-out forwards;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Button styling improvements */
+.submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #d35400;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+  background-color: #e67e22;
+}
+
+.submit-btn:disabled {
+  background-color: #e0e0e0;
+  cursor: not-allowed;
+}
+
+.submit-btn i {
+  margin-right: 8px;
+}
+
+/* Form helper text */
+.form-text {
+  font-size: 0.8em;
+  color: #6c757d;
+  margin-top: 5px;
+}
+
+.button-row {
+  margin-top: 25px;
+  text-align: center;
+}
+
+/* Cancel button styling */
+.cancel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #6c757d;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  margin-left: 10px;
+}
+
+.cancel-btn:hover {
+  background-color: #5a6268;
+}
+
+.cancel-btn i {
+  margin-right: 8px;
+}
+
+/* Improved profile picture upload styling */
+.profile-picture form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-picture .form-text {
+  text-align: center;
+  max-width: 200px;
+  margin-top: 5px;
+}
+
+.profile-picture .upload-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 200px;
+}
+
+.profile-picture .upload-button:disabled {
+  background-color: #e0e0e0;
+  cursor: not-allowed;
+}
+
+/* Error message for profile picture */
+.profile-picture .validation-error {
+  font-size: 0.8em;
+  color: #dc3545;
+  margin-top: 5px;
+  text-align: center;
+  max-width: 200px;
+}
+
+/* Styles for Approved and Pending Recipe Sections */
+.section-title {
+  margin: 30px 0 20px;
+  color: #86553f;
+  border-bottom: 3px solid #dbb657;
+  padding-bottom: 10px;
+  width: 100%;
+}
+
+.pending-title {
+  margin-top: 50px;
+}
+
+.no-recipes {
+  font-size: 1.1em;
+  color: #666;
+  padding: 20px;
+  text-align: center;
+  background: #f9f9f9;
+  border-radius: 5px;
+  margin: 20px 0;
+}
+
+/* Pending Recipe Specific Styles */
+.card.pending {
+    position: relative; /* Needed for badge positioning */
+}
+
+.card.pending .pending-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #f0ad4e; /* Orange color */
+    color: white;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 0.8em;
+    font-weight: bold;
+    z-index: 10;
+    font-family: "Raleway", sans-serif;
+}
+
+/* Ensure pending cards match approved cards exactly */
+.card.pending {
+    width: 25%;
+    display: inline-block;
+    box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    margin: 2% 4% 2% 4%;
+    height: auto;
+    border: 1px solid #795548;
+    transition: box-shadow 0.3s ease;
+}
+
+.card.pending:hover {
+    box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Fallback styles if any pending recipe data is missing */
+.no-recipes {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 30px;
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+/* Improved card styling */
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+  padding: 0 10px 10px;
+}
+
+.view-button, .edit-button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Raleway', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.view-button {
+  background-color: #dbb657;
+  color: white;
+}
+
+.edit-button {
+  background-color: #86553f;
+  color: white;
+}
+
+.view-button:hover {
+  background-color: #c9a346;
+}
+
+.edit-button:hover {
+  background-color: #734735;
+}
+
+/* Approval notice */
+.approval-notice {
+  background-color: #f8f9fa;
+  border-left: 4px solid #dbb657;
+  padding: 15px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 0 4px 4px 0;
+}
+
+.approval-notice i {
+  color: #dbb657;
+  font-size: 1.2em;
+}
+
+.approval-notice p {
+  margin: 0;
+  color: #555;
+  font-size: 0.9em;
+}
+
+/* Pending Recipes Section */
+.pending-recipes-section {
+    margin-top: 40px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.pending-recipes-title {
+    font-family: "Playfair Display", serif;
+    font-size: 1.8em;
+    color: #86553f;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #dbb657;
+}
+
+.pending-recipe-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.pending-recipe-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #eee;
+}
+
+.pending-recipe-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.pending-recipe-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.pending-recipe-content {
+    padding: 20px;
+}
+
+.pending-recipe-title {
+    font-family: "Playfair Display", serif;
+    font-size: 1.4em;
+    color: #86553f;
+    margin-bottom: 10px;
+}
+
+.pending-recipe-description {
+    font-family: "Merriweather", serif;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.pending-recipe-rating {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    font-family: "Merriweather", serif;
+}
+
+.pending-recipe-rating .stars {
+    color: #ddd;
+    margin-right: 10px;
+}
+
+.pending-recipe-rating .stars .fa-star {
+    color: #ffd700;
+}
+
+.pending-recipe-actions {
+    display: flex;
+    justify-content: center;
+}
+
+.pending-view-recipe-btn {
+    background-color: #86553f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: "Raleway", sans-serif;
+    transition: background-color 0.3s ease;
+}
+
+.pending-view-recipe-btn:hover {
+    background-color: #dbb657;
+}
+
+.pending-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ffc107;
+    color: #000;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 0.8em;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* No pending recipes message */
+.no-pending-recipes {
+    text-align: center;
+    padding: 30px;
+    font-family: "Raleway", sans-serif;
+    color: #666;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+
+
