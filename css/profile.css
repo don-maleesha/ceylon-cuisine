@@ -218,10 +218,8 @@ body {
     margin-bottom: 20px;
     font-weight: 700;
   }
-
   .container .profile-info {
     display: flex;
-    gap: 20px;
     align-items: center;
     padding: 20px;
   }
@@ -231,6 +229,22 @@ body {
     flex-direction: column;
     gap: 10px;
     align-items: center;
+    padding-right: 20px;
+  }
+  
+  .container .profile-info .profile-divider {
+    width: 2px;
+    height: 120px;
+    background-color: #dbb657;
+    margin: 0 20px;
+  }
+  
+  .container .profile-info .profile-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    padding-left: 20px;
   }
 
   .container .profile-info .profile-picture img {
@@ -1058,13 +1072,12 @@ button[type="button"] {
 
 /* Button Row */
 .form-group.button-group {
-  background: #d35400;
-  margin-top: -1px;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  margin-top: 20px;
 }
 
 .form-group.button-group button {
   flex: 1;
+  margin-bottom: 10px;
 }
 
 

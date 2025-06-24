@@ -233,9 +233,36 @@ function showModal(recipeId) {
     // Ensure My Recipes section is active
     showSection('myRecipe');
     
-    // Show modal
-    document.getElementById('recipeModal').style.display = 'block';
-    document.body.classList.add('modal-open');
+    // For direct URL access, we need to fetch the recipe data from the server
+    fetch(`get_recipe.php?id=${recipeId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                try {
+                    // Pass the raw ingredients and instructions strings to viewRecipe
+                    // The viewRecipe function will handle parsing
+                    viewRecipe(
+                        data.recipe.id,
+                        data.recipe.title, 
+                        data.recipe.description, 
+                        data.recipe.image_url,
+                        data.recipe.ingredients,
+                        data.recipe.instructions
+                    );
+                } catch (error) {
+                    console.error('Error processing recipe data:', error);
+                    alert('There was an error displaying the recipe. Please try again.');
+                }
+            } else {
+                alert('Recipe not found');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // If there's an error, at least show the modal
+            document.getElementById('recipeModal').style.display = 'block';
+            document.body.classList.add('modal-open');
+        });
 }
 
 function closeModal() {
@@ -265,10 +292,128 @@ window.addEventListener('popstate', function(event) {
 
 
 function openUpdatePanel() {
-    document.getElementById('panelOverlay').style.display = 'block';
-    setTimeout(() => {
-        document.getElementById('updatePanel').classList.add('active');
-    }, 10);
+    // Get the current recipe ID
+    let recipeId;
+    
+    // Try to get from URL first
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('id')) {
+        recipeId = urlParams.get('id');
+    } 
+    // If not in URL, try to get from modal
+    else {
+        const title = document.getElementById('modalRecipeTitle').textContent;
+        // Find the recipe card with this title
+        const recipeCards = document.querySelectorAll('.card');
+        for (const card of recipeCards) {
+            if (card.querySelector('.title h2').textContent === title) {
+                // Find the View Recipe button and extract ID from its onclick
+                const viewBtn = card.querySelector('.view-button');
+                if (viewBtn && viewBtn.getAttribute('onclick')) {
+                    const onclickAttr = viewBtn.getAttribute('onclick');
+                    const idMatch = onclickAttr.match(/viewRecipe\(\s*["']?(\d+)["']?/);
+                    if (idMatch && idMatch[1]) {
+                        recipeId = idMatch[1];
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    if (recipeId) {
+        // Fetch recipe data to populate the form
+        fetch(`get_recipe_for_edit.php?id=${recipeId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const recipe = data.recipe;
+                    
+                    // Set the recipe_id in the form
+                    const recipeIdInput = document.querySelector('#updatePanel input[name="recipe_id"]');
+                    if (recipeIdInput) {
+                        recipeIdInput.value = recipe.id;
+                    }
+                    
+                    // Populate other form fields
+                    const titleInput = document.querySelector('#updatePanel input[name="title"]');
+                    if (titleInput) {
+                        titleInput.value = recipe.title || '';
+                    }
+                    
+                    const descriptionTextarea = document.querySelector('#updatePanel textarea[name="description"]');
+                    if (descriptionTextarea) {
+                        descriptionTextarea.value = recipe.description || '';
+                    }
+                    
+                    // Handle ingredients - ensure we have a valid array
+                    const ingredientsTextarea = document.querySelector('#updatePanel textarea[name="ingredients"]');
+                    if (ingredientsTextarea) {
+                        let ingredientsList = [];
+                        try {
+                            if (typeof recipe.ingredients_list === 'string') {
+                                ingredientsList = JSON.parse(recipe.ingredients_list);
+                            } else {
+                                ingredientsList = recipe.ingredients_list || [];
+                            }
+                        } catch (e) {
+                            console.error('Error parsing ingredients:', e);
+                        }
+                        
+                        if (Array.isArray(ingredientsList)) {
+                            ingredientsTextarea.value = ingredientsList.join('\n');
+                        } else {
+                            ingredientsTextarea.value = '';
+                        }
+                    }
+                    
+                    // Handle instructions - ensure we have a valid array
+                    const instructionsTextarea = document.querySelector('#updatePanel textarea[name="instructions"]');
+                    if (instructionsTextarea) {
+                        let instructionsList = [];
+                        try {
+                            if (typeof recipe.instructions_list === 'string') {
+                                instructionsList = JSON.parse(recipe.instructions_list);
+                            } else {
+                                instructionsList = recipe.instructions_list || [];
+                            }
+                        } catch (e) {
+                            console.error('Error parsing instructions:', e);
+                        }
+                        
+                        if (Array.isArray(instructionsList)) {
+                            instructionsTextarea.value = instructionsList.join('\n');
+                        } else {
+                            instructionsTextarea.value = '';
+                        }
+                    }
+                    
+                    // Update the current image preview
+                    const currentImage = document.querySelector('#updatePanel img[alt="Current image"]');
+                    if (currentImage) {
+                        currentImage.src = `../uploads/${recipe.image_url || 'default.jpg'}`;
+                    }
+                    
+                    // Display the panel
+                    document.getElementById('panelOverlay').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('updatePanel').classList.add('active');
+                    }, 10);
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to load recipe data'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while loading recipe data');
+            });
+    } else {
+        // If we can't determine the recipe ID, just show the panel
+        document.getElementById('panelOverlay').style.display = 'block';
+        setTimeout(() => {
+            document.getElementById('updatePanel').classList.add('active');
+        }, 10);
+    }
 }
 
 function closeUpdatePanel() {
@@ -557,4 +702,164 @@ function validateRecipeCreationForm() {
     }
     
     return isValid;
+}
+
+// Function to view a specific recipe
+function viewRecipe(recipeId, title, description, imageUrl, ingredients, instructions) {
+    // Set recipe details in the modal
+    document.getElementById('modalRecipeTitle').textContent = title || 'Recipe Title';
+    document.getElementById('modalRecipeDescription').innerHTML = (description || 'No description available').replace(/\n/g, '<br>');
+    document.getElementById('modalRecipeImage').src = "../uploads/" + (imageUrl || 'default.jpg');
+    document.getElementById('modalRecipeImage').alt = title || 'Recipe image';
+    
+    // Parse ingredients
+    let ingredientsArray = [];
+    
+    try {
+        // If it's already an array, use it directly
+        if (Array.isArray(ingredients)) {
+            ingredientsArray = ingredients;
+        } 
+        // If it's a string that might be JSON
+        else if (typeof ingredients === 'string') {
+            try {
+                const parsed = JSON.parse(ingredients);
+                if (Array.isArray(parsed)) {
+                    ingredientsArray = parsed;
+                } else if (parsed !== null && parsed !== undefined) {
+                    // If parsed but not an array, handle as single item
+                    ingredientsArray = [String(parsed)];
+                }
+            } catch (e) {
+                // Try different delimiters for string splitting
+                if (ingredients.includes('|')) {
+                    ingredientsArray = ingredients.split('|').map(item => item.trim());
+                }
+                // Try semicolon delimiter
+                else if (ingredients.includes(';')) {
+                    ingredientsArray = ingredients.split(';').map(item => item.trim());
+                }
+                // If it's not valid JSON but has commas, try splitting by commas
+                else if (ingredients.includes(',')) {
+                    ingredientsArray = ingredients.split(',').map(item => item.trim());
+                }
+                // If it's not valid JSON but has newlines, try splitting by newlines
+                else if (ingredients.includes('\n')) {
+                    ingredientsArray = ingredients.split('\n').map(item => item.trim());
+                }
+                // Otherwise treat as a single item
+                else if (ingredients.trim() !== '') {
+                    ingredientsArray = [ingredients];
+                }
+            }
+        }
+        // Fallback for any other type
+        else if (ingredients) {
+            ingredientsArray = [String(ingredients)];
+        }
+    } catch (e) {
+        console.error('Error processing ingredients:', e);
+    }
+    
+    // Filter out empty items
+    ingredientsArray = ingredientsArray.filter(item => item && String(item).trim() !== '');
+    
+    // Clear and populate ingredients list
+    const ingredientsList = document.getElementById('modalRecipeIngredients');
+    ingredientsList.innerHTML = '';
+    
+    if (ingredientsArray.length === 0) {
+        const li = document.createElement('li');
+        li.textContent = 'No ingredients available';
+        li.className = 'no-data-item';
+        ingredientsList.appendChild(li);
+    } else {
+        ingredientsArray.forEach(ingredient => {
+            const li = document.createElement('li');
+            li.className = 'ingredient-item';
+            li.textContent = ingredient;
+            ingredientsList.appendChild(li);
+        });
+    }
+      // Parse instructions
+    let instructionsArray = [];
+    
+    try {
+        // If it's already an array, use it directly
+        if (Array.isArray(instructions)) {
+            instructionsArray = instructions;
+        } 
+        // If it's a string that might be JSON
+        else if (typeof instructions === 'string') {
+            try {
+                const parsed = JSON.parse(instructions);
+                if (Array.isArray(parsed)) {
+                    instructionsArray = parsed;
+                } else if (parsed !== null && parsed !== undefined) {
+                    // If parsed but not an array, handle as single item
+                    instructionsArray = [String(parsed)];
+                }
+            } catch (e) {
+                // Try different delimiters for string splitting
+                if (instructions.includes('|')) {
+                    instructionsArray = instructions.split('|').map(item => item.trim());
+                }
+                // Try semicolon delimiter
+                else if (instructions.includes(';')) {
+                    instructionsArray = instructions.split(';').map(item => item.trim());
+                }
+                // If it's not valid JSON but has commas, try splitting by commas
+                else if (instructions.includes(',')) {
+                    instructionsArray = instructions.split(',').map(item => item.trim());
+                }
+                // If it's not valid JSON but has newlines, try splitting by newlines
+                else if (instructions.includes('\n')) {
+                    instructionsArray = instructions.split('\n').map(item => item.trim());
+                }
+                // Otherwise treat as a single item
+                else if (instructions.trim() !== '') {
+                    instructionsArray = [instructions];
+                }
+            }
+        }
+        // Fallback for any other type
+        else if (instructions) {
+            instructionsArray = [String(instructions)];
+        }
+    } catch (e) {
+        console.error('Error processing instructions:', e);
+    }
+    
+    // Filter out empty items
+    instructionsArray = instructionsArray.filter(item => item && String(item).trim() !== '');
+    
+    // Clear and populate instructions list
+    const instructionsList = document.getElementById('modalRecipeInstructions');
+    instructionsList.innerHTML = '';
+    
+    if (instructionsArray.length === 0) {
+        const li = document.createElement('li');
+        li.textContent = 'No instructions available';
+        li.className = 'no-data-item';
+        instructionsList.appendChild(li);
+    } else {
+        instructionsArray.forEach((instruction, index) => {
+            const li = document.createElement('li');
+            li.className = 'instruction-step';
+            li.textContent = instruction;
+            instructionsList.appendChild(li);
+        });
+    }
+    
+    // Show the modal
+    document.getElementById('recipeModal').style.display = 'block';
+    document.body.classList.add('modal-open');
+    
+    // Log for debugging
+    console.log('Recipe modal opened with data:', {
+        id: recipeId,
+        title,
+        ingredients: ingredientsArray,
+        instructions: instructionsArray
+    });
 }

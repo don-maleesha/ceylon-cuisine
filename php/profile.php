@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once "dbconn.php";
+require_once "recipe_helpers.php"; // Include our helper functions
 
 // Check if the user is logged in
 if (!isset($_SESSION['email_address'])) {
@@ -232,6 +233,9 @@ $pending_recipes = array();
 $rejected_recipes = array();  // Optional: if you want to track rejected separately
 
 while ($row = $result->fetch_assoc()) {
+    // Standardize the recipe data
+    $row = standardize_recipe_data($row);
+    
     if ($row['status'] === 'approved') {
         $recipes[] = $row;
     } elseif ($row['status'] === 'pending') {  // Only include truly pending recipes
@@ -485,7 +489,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
     <div class="breadcrumb raleway">
         <a href="#">Home</a>&gt;<a href="#">Profile</a>
     </div>
-    <div class="profile-info">        <div class="profile-picture">
+    <div class="profile-info"><div class="profile-picture">
             <img src="<?php echo $profile_picture; ?>" alt="Profile Picture">
             <span id="upload-message" data-message="<?= htmlspecialchars($uploadMessage) ?>"></span>
             <form action="profile.php" method="POST" enctype="multipart/form-data" id="profile-picture-form">
@@ -498,7 +502,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
                 <small class="form-text text-muted">Max file size: 2MB. Accepted formats: JPG, JPEG, PNG</small>
             </form>
         </div>
-        <div>
+        <div class="profile-divider"></div>
+        <div class="profile-details">
             <h2 class="playfair-display"><?php echo htmlspecialchars($_SESSION['name']); ?></h2>
             <p class="raleway"><?php echo htmlspecialchars($_SESSION['email_address']); ?></p>
             <button onclick="openProfileModal()" class="raleway profile-update-btn"><i class="fas fa-edit"></i></button>        </div>
@@ -621,12 +626,14 @@ Step 3: Let cool before serving"
                                         ?>
                                     </div>
                                     <span><?= number_format($average, 1) ?></span>
-                                </div>
-                            </div>
-                            <div class="action-buttons">
-                                <a href="profile.php?id=<?= htmlspecialchars($myrecipe['id']) ?>">
-                                    <button class="view-button">View Recipe</button>
-                                </a>
+                                </div>                            </div>                            <div class="action-buttons">                                <button class="view-button" onclick='viewRecipe(
+                                    <?= json_encode($myrecipe['id']) ?>, 
+                                    <?= json_encode($myrecipe['title']) ?>, 
+                                    <?= json_encode($myrecipe['description']) ?>, 
+                                    <?= json_encode($myrecipe['image_url']) ?>, 
+                                    <?= json_encode($myrecipe['ingredients']) ?>, 
+                                    <?= json_encode($myrecipe['instructions']) ?>
+                                )'>View Recipe</button>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -646,11 +653,14 @@ Step 3: Let cool before serving"
                                 <h2 class="playfair-display"><?= htmlspecialchars($recipe['title'] ?? 'Untitled Recipe') ?></h2>
                             </div>
                             <div class="description">
-                                <p class="merriweather-regular"><?= htmlspecialchars($recipe['description'] ?? 'No description available') ?></p>
-                            </div>
-                            <div class="action-buttons">
-                                <a href="profile.php?id=<?= htmlspecialchars($recipe['id'] ?? '') ?>">
-                                    <button class="view-button">View Recipe</button>                                </a>
+                                <p class="merriweather-regular"><?= htmlspecialchars($recipe['description'] ?? 'No description available') ?></p>                            </div>                            <div class="action-buttons">                                <button class="view-button" onclick='viewRecipe(
+                                    <?= json_encode($recipe['id']) ?>, 
+                                    <?= json_encode($recipe['title']) ?>, 
+                                    <?= json_encode($recipe['description']) ?>, 
+                                    <?= json_encode($recipe['image_url']) ?>, 
+                                    <?= json_encode($recipe['ingredients']) ?>, 
+                                    <?= json_encode($recipe['instructions']) ?>
+                                )'>View Recipe</button>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -667,48 +677,31 @@ Step 3: Let cool before serving"
 </div>
 
 <!-- model -->
-<?php if ($recipe): ?>
+<!-- Single modal template (place this outside any loops) -->
 <div id="recipeModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
         <div class="update">
-            <h2 class="playfair-display"><?= htmlspecialchars($recipe['title']) ?> </h2>
+            <h2 class="playfair-display" id="modalRecipeTitle"></h2>
             <span><button onclick="openUpdatePanel()" class="edit-button"><i class="fas fa-edit"></i></button></span>
         </div>
-        <img src="../uploads/<?= htmlspecialchars($recipe['image_url']) ?>" 
-             alt="<?= htmlspecialchars($recipe['title']) ?>" 
-             class="recipe-image">
-        <p><?= nl2br(htmlspecialchars($recipe['description'])) ?></p>
+        <img id="modalRecipeImage" src="" alt="" class="recipe-image">
+        <p id="modalRecipeDescription"></p>
 
         <div class="columns">
             <div class="ingredients-column">
                 <h3>🍴 Ingredients</h3>
-                <ul class="ingredient-list">
-                    <?php foreach ($ingredients as $ingredient): ?>
-                        <?php if (trim($ingredient) !== ''): ?>
-                            <li class="ingredient-item"><?= htmlspecialchars(trim($ingredient)) ?></li>
-                        <?php endif; ?>
-                     <?php endforeach; ?>
+                <ul class="ingredient-list" id="modalRecipeIngredients">
                 </ul>
             </div>
             <div class="instructions-column">
                 <h3>📝 Instructions</h3>
-                <ol class="instruction-list">
-                    <?php foreach ($instructions as $index => $instruction): ?>
-                        <?php if (trim($instruction) !== ''): ?>
-                            <li class="instruction-step">
-                                <div class="step-content">
-                                    <?= htmlspecialchars(trim($instruction)) ?>
-                                </div>
-                            </li>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
+                <ol class="instruction-list" id="modalRecipeInstructions">
                 </ol>
             </div>
         </div>
     </div>
 </div>
-<?php endif; ?>
 
 <div class="panel-overlay" id="panelOverlay">
 <div id="updatePanel" class="update-panel">
