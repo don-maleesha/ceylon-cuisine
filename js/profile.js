@@ -322,97 +322,65 @@ function openUpdatePanel() {
     }
     
     if (recipeId) {
-        // Fetch recipe data to populate the form
-        fetch(`get_recipe_for_edit.php?id=${recipeId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const recipe = data.recipe;
-                    
-                    // Set the recipe_id in the form
-                    const recipeIdInput = document.querySelector('#updatePanel input[name="recipe_id"]');
-                    if (recipeIdInput) {
-                        recipeIdInput.value = recipe.id;
-                    }
-                    
-                    // Populate other form fields
-                    const titleInput = document.querySelector('#updatePanel input[name="title"]');
-                    if (titleInput) {
-                        titleInput.value = recipe.title || '';
-                    }
-                    
-                    const descriptionTextarea = document.querySelector('#updatePanel textarea[name="description"]');
-                    if (descriptionTextarea) {
-                        descriptionTextarea.value = recipe.description || '';
-                    }
-                    
-                    // Handle ingredients - ensure we have a valid array
-                    const ingredientsTextarea = document.querySelector('#updatePanel textarea[name="ingredients"]');
-                    if (ingredientsTextarea) {
-                        let ingredientsList = [];
-                        try {
-                            if (typeof recipe.ingredients_list === 'string') {
-                                ingredientsList = JSON.parse(recipe.ingredients_list);
-                            } else {
-                                ingredientsList = recipe.ingredients_list || [];
-                            }
-                        } catch (e) {
-                            console.error('Error parsing ingredients:', e);
-                        }
-                        
-                        if (Array.isArray(ingredientsList)) {
-                            ingredientsTextarea.value = ingredientsList.join('\n');
-                        } else {
-                            ingredientsTextarea.value = '';
-                        }
-                    }
-                    
-                    // Handle instructions - ensure we have a valid array
-                    const instructionsTextarea = document.querySelector('#updatePanel textarea[name="instructions"]');
-                    if (instructionsTextarea) {
-                        let instructionsList = [];
-                        try {
-                            if (typeof recipe.instructions_list === 'string') {
-                                instructionsList = JSON.parse(recipe.instructions_list);
-                            } else {
-                                instructionsList = recipe.instructions_list || [];
-                            }
-                        } catch (e) {
-                            console.error('Error parsing instructions:', e);
-                        }
-                        
-                        if (Array.isArray(instructionsList)) {
-                            instructionsTextarea.value = instructionsList.join('\n');
-                        } else {
-                            instructionsTextarea.value = '';
-                        }
-                    }
-                    
-                    // Update the current image preview
-                    const currentImage = document.querySelector('#updatePanel img[alt="Current image"]');
-                    if (currentImage) {
-                        currentImage.src = `../uploads/${recipe.image_url || 'default.jpg'}`;
-                    }
-                    
-                    // Display the panel
-                    document.getElementById('panelOverlay').style.display = 'block';
-                    setTimeout(() => {
-                        document.getElementById('updatePanel').classList.add('active');
-                    }, 10);
-                } else {
-                    alert('Error: ' + (data.message || 'Failed to load recipe data'));
+        // Get the current recipe data from the modal
+        const title = document.getElementById('modalRecipeTitle').textContent;
+        const description = document.getElementById('modalRecipeDescription').textContent;
+        const imgSrc = document.getElementById('modalRecipeImage').src;
+        const imageUrl = imgSrc.split('/').pop(); // Extract filename from path
+        
+        // Get ingredients
+        const ingredients = [];
+        document.querySelectorAll('#modalRecipeIngredients li').forEach(item => {
+            if (!item.classList.contains('no-data-item')) {
+                ingredients.push(item.textContent);
+            }
+        });
+        
+        // Get instructions
+        const instructions = [];
+        document.querySelectorAll('#modalRecipeInstructions li').forEach(item => {
+            if (!item.classList.contains('no-data-item')) {
+                instructions.push(item.textContent);
+            }
+        });
+        
+        // Populate the update form
+        document.getElementById('update_recipe_id').value = recipeId;
+        document.getElementById('update_title').value = title || '';
+        document.getElementById('update_description').value = description || '';
+        document.getElementById('update_ingredients').value = ingredients.join('\n');
+        document.getElementById('update_instructions').value = instructions.join('\n');
+        
+        // Set the current image
+        const currentImg = document.getElementById('current_recipe_image');
+        if (currentImg) {
+            currentImg.src = imgSrc;
+        }
+        
+        // Initialize image preview for new image
+        const newImageInput = document.getElementById('new_image');
+        const newImagePreview = document.querySelector('.new-image-preview');
+        if (newImageInput && newImagePreview) {
+            newImageInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        newImagePreview.src = e.target.result;
+                        newImagePreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(this.files[0]);
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while loading recipe data');
             });
-    } else {
-        // If we can't determine the recipe ID, just show the panel
+        }
+        
+        // Display the panel
         document.getElementById('panelOverlay').style.display = 'block';
         setTimeout(() => {
             document.getElementById('updatePanel').classList.add('active');
         }, 10);
+    } else {
+        // If we can't determine the recipe ID, just show an error
+        alert('Could not determine which recipe to update. Please try again.');
     }
 }
 
@@ -566,12 +534,12 @@ function initImagePreview(fileInput, previewElement) {
 // Recipe Update Form Validation
 function validateRecipeUpdateForm() {
     // Get form elements
-    const form = document.querySelector('form[name="update-recipe-form"]');
-    const title = form.querySelector('input[name="title"]');
-    const description = form.querySelector('textarea[name="description"]');
-    const ingredients = form.querySelector('textarea[name="ingredients"]');
-    const instructions = form.querySelector('textarea[name="instructions"]');
-    const newImage = form.querySelector('input[name="new_image"]');
+    const form = document.querySelector('#updatePanel form');
+    const title = document.getElementById('update_title');
+    const description = document.getElementById('update_description');
+    const ingredients = document.getElementById('update_ingredients');
+    const instructions = document.getElementById('update_instructions');
+    const newImage = document.getElementById('new_image');
     
     // Reset previous error messages
     clearValidationErrors();
@@ -706,6 +674,9 @@ function validateRecipeCreationForm() {
 
 // Function to view a specific recipe
 function viewRecipe(recipeId, title, description, imageUrl, ingredients, instructions) {
+    // Store current recipe ID for future use
+    currentRecipeId = recipeId;
+    
     // Set recipe details in the modal
     document.getElementById('modalRecipeTitle').textContent = title || 'Recipe Title';
     document.getElementById('modalRecipeDescription').innerHTML = (description || 'No description available').replace(/\n/g, '<br>');
@@ -863,3 +834,6 @@ function viewRecipe(recipeId, title, description, imageUrl, ingredients, instruc
         instructions: instructionsArray
     });
 }
+
+// Global variable to store current recipe ID
+let currentRecipeId = null;

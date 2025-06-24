@@ -19,6 +19,60 @@ if (isset($_SESSION['upload_message'])) {
     unset($_SESSION['upload_message']);
 }
 
+// Check for favorite/unfavorite action
+if (isset($_GET['action']) && ($_GET['action'] === 'favorite' || $_GET['action'] === 'unfavorite') && isset($_GET['recipe_id'])) {
+    $recipe_id = (int)$_GET['recipe_id'];
+    $user_id = $_SESSION['user_id'] ?? null;
+    
+    if (!$user_id) {
+        // Fetch user ID from email if not in session
+        $sql = "SELECT id FROM users WHERE email_address = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $_SESSION['email_address']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user_id = $result->fetch_assoc()['id'];
+        $_SESSION['user_id'] = $user_id; // Store for future use
+    }
+    
+    if ($_GET['action'] === 'favorite') {
+        // Add to favorites
+        $checkSql = "SELECT * FROM favorites WHERE user_id = ? AND recipe_id = ?";
+        $checkStmt = $conn->prepare($checkSql);
+        $checkStmt->bind_param("ii", $user_id, $recipe_id);
+        $checkStmt->execute();
+        $checkResult = $checkStmt->get_result();
+        
+        if ($checkResult->num_rows === 0) {
+            $insertSql = "INSERT INTO favorites (user_id, recipe_id) VALUES (?, ?)";
+            $insertStmt = $conn->prepare($insertSql);
+            $insertStmt->bind_param("ii", $user_id, $recipe_id);
+            $insertStmt->execute();
+            $_SESSION['favorite_message'] = "Recipe added to favorites!";
+        } else {
+            $_SESSION['favorite_message'] = "Recipe already in favorites.";
+        }
+    } else {
+        // Remove from favorites
+        $deleteSql = "DELETE FROM favorites WHERE user_id = ? AND recipe_id = ?";
+        $deleteStmt = $conn->prepare($deleteSql);
+        $deleteStmt->bind_param("ii", $user_id, $recipe_id);
+        $deleteStmt->execute();
+        $_SESSION['favorite_message'] = "Recipe removed from favorites.";
+    }
+    
+    // Redirect back to profile page
+    header("Location: profile.php");
+    exit();
+}
+
+// Check for favorite message in session
+$favorite_message = '';
+if (isset($_SESSION['favorite_message'])) {
+    $favorite_message = $_SESSION['favorite_message'];
+    unset($_SESSION['favorite_message']);
+}
+
 // Check for recipe update messages stored in session
 $update_message = '';
 $update_status = '';
@@ -237,12 +291,62 @@ while ($row = $result->fetch_assoc()) {
     $row = standardize_recipe_data($row);
     
     if ($row['status'] === 'approved') {
-        $recipes[] = $row;
-    } elseif ($row['status'] === 'pending') {  // Only include truly pending recipes
+        $recipes[] = $row;    } elseif ($row['status'] === 'pending') {  // Only include truly pending recipes
         $pending_recipes[] = $row;
     }
     // Optional: else { $rejected_recipes[] = $row; }
 }
+
+// Check if favorites table exists and create it if not
+$check_table_sql = "SHOW TABLES LIKE 'favorites'";
+$check_table_result = $conn->query($check_table_sql);
+
+if ($check_table_result->num_rows == 0) {
+    // Table doesn't exist, create it
+    $create_table_sql = "CREATE TABLE `favorites` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `user_id` int(11) NOT NULL,
+        `recipe_id` int(11) NOT NULL,
+        `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `user_recipe_unique` (`user_id`,`recipe_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
+    
+    if (!$conn->query($create_table_sql)) {
+        error_log("Error creating favorites table: " . $conn->error);
+    }
+}
+
+// Make sure we have the user_id
+if (!isset($user_id)) {
+    // Fetch user ID from email if not already set
+    $sql = "SELECT id FROM users WHERE email_address = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $_SESSION['email_address']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user_row = $result->fetch_assoc();
+    $user_id = $user_row['id'];
+    $stmt->close();
+}
+
+// Fetch user's favorite recipes
+$favorite_recipes = array();
+$sql = "SELECT r.* FROM recipes r
+        INNER JOIN favorites f ON r.id = f.recipe_id
+        WHERE f.user_id = ? AND r.status = 'approved'
+        ORDER BY f.created_at DESC";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+while ($row = $result->fetch_assoc()) {
+    // Standardize the recipe data
+    $row = standardize_recipe_data($row);
+    $favorite_recipes[] = $row;
+}
+$stmt->close();
 
 //display recipe data
 $recipe_id = $_GET['id'] ?? null;
@@ -390,13 +494,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
     if (empty($update_errors)) {
         $ingredients_json = json_encode($ingredients);
         $instructions_json = json_encode($instructions);
-        
-        $sql = "UPDATE recipes SET 
+          $sql = "UPDATE recipes SET 
                 title = ?, 
                 description = ?, 
                 image_url = ?, 
                 ingredients = ?, 
-                instructions = ? 
+                instructions = ?,
+                status = 'pending' 
                 WHERE id = ?";
         
         $stmt = $conn->prepare($sql);
@@ -404,20 +508,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
                          $ingredients_json, $instructions_json, $recipe_id);
         
         if ($stmt->execute()) {
-            $update_message = "Recipe updated successfully!";
+            $update_message = "Recipe updated successfully! It will be visible after admin approval.";
             $update_status = "success";
             // We'll set a session variable to show the message after redirect
             $_SESSION['update_message'] = $update_message;
             $_SESSION['update_status'] = $update_status;
             
-            header("Location: profile.php?id=$recipe_id");
-            exit();        } else {
+            header("Location: profile.php");
+            exit();} else {
             $update_message = "Error updating recipe: " . $stmt->error;
-            $update_status = "error";
-            // Store in session for after redirect
+            $update_status = "error";            // Store in session for after redirect
             $_SESSION['update_message'] = $update_message;
             $_SESSION['update_status'] = $update_status;
-            header("Location: profile.php?id=$recipe_id");
+            header("Location: profile.php");
             exit();
         }
     } else {
@@ -426,7 +529,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
         // Store in session for after redirect
         $_SESSION['update_message'] = $update_message;
         $_SESSION['update_status'] = $update_status;
-        header("Location: profile.php?id=$recipe_id");
+        header("Location: profile.php");
         exit();
     }
 }
@@ -667,11 +770,67 @@ Step 3: Let cool before serving"
                 <?php endif; ?>
             </div>
         </div>
-    </section>
-    <section id="myFavourits" class="content-section">
-        <div class="container">
-            <h2 class="playfair-display">Contact Us</h2>
-            <p class="raleway">Ceylon Cuisine is a platform for food lovers to explore and share their favourite recipes. You can find a wide range of recipes from different cuisines around the world. Our mission is to bring people together through food and create a community of food enthusiasts.</p>
+    </section>    <section id="myFavourits" class="content-section">
+        <div class="card-container">
+            <h2 class="section-title playfair-display">My Favorite Recipes</h2>
+            <div id="favorite-message" class="message-container" 
+                 data-message="<?= htmlspecialchars($favorite_message ?? '') ?>"></div>
+            <div class="recipe-list">
+                <?php if (empty($favorite_recipes)): ?>
+                    <p class="raleway no-recipes">You haven't added any favorites yet. Browse recipes and click the heart icon to add them to your favorites.</p>
+                <?php else: ?>
+                    <?php foreach ($favorite_recipes as $fav_recipe) : ?>
+                        <div class="card">
+                            <div class="image-box">
+                                <img src="../uploads/<?= htmlspecialchars($fav_recipe['image_url']) ?>" 
+                                    alt="<?= htmlspecialchars($fav_recipe['title']) ?>">
+                            </div>
+                            <div class="title">
+                                <h2 class="playfair-display"><?= htmlspecialchars($fav_recipe['title']) ?></h2>
+                            </div>
+                            <div class="description">
+                                <p class="merriweather-regular"><?= htmlspecialchars($fav_recipe['description']) ?></p>
+                            </div>
+                            <div class="rating-section">
+                                <div class="average-rating merriweather-regular">
+                                    <!-- Star display for average rating -->
+                                    <div class="stars">
+                                        <?php
+                                        $average = (float)($fav_recipe['average_rating'] ?? 0);
+                                        $fullStars = floor($average);
+                                        $hasHalfStar = ($average - $fullStars) >= 0.5;
+                                        
+                                        for ($i = 1; $i <= 5; $i++) {
+                                            if ($i <= $fullStars) {
+                                                echo '<i class="fas fa-star"></i>';
+                                            } elseif ($i == $fullStars + 1 && $hasHalfStar) {
+                                                echo '<i class="fas fa-star-half-alt"></i>';
+                                            } else {
+                                                echo '<i class="far fa-star"></i>';
+                                            }
+                                        }
+                                        ?>
+                                    </div>
+                                    <span><?= number_format($average, 1) ?></span>
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="view-button" onclick='viewRecipe(
+                                    <?= json_encode($fav_recipe['id']) ?>, 
+                                    <?= json_encode($fav_recipe['title']) ?>, 
+                                    <?= json_encode($fav_recipe['description']) ?>, 
+                                    <?= json_encode($fav_recipe['image_url']) ?>, 
+                                    <?= json_encode($fav_recipe['ingredients']) ?>, 
+                                    <?= json_encode($fav_recipe['instructions']) ?>
+                                )'>View Recipe</button>
+                                <a href="profile.php?action=unfavorite&recipe_id=<?= $fav_recipe['id'] ?>" class="remove-favorite-btn">
+                                    <i class="fas fa-heart-broken"></i> Remove
+                                </a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
         </div>
     </section>
 </div>
@@ -679,11 +838,11 @@ Step 3: Let cool before serving"
 <!-- model -->
 <!-- Single modal template (place this outside any loops) -->
 <div id="recipeModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <div class="update">
+    <div class="modal-content">        <span class="close" onclick="closeModal()">&times;</span>        <div class="update">
             <h2 class="playfair-display" id="modalRecipeTitle"></h2>
-            <span><button onclick="openUpdatePanel()" class="edit-button"><i class="fas fa-edit"></i></button></span>
+            <div class="modal-buttons">
+                <button onclick="openUpdatePanel()" class="edit-button"><i class="fas fa-edit"></i></button>
+            </div>
         </div>
         <img id="modalRecipeImage" src="" alt="" class="recipe-image">
         <p id="modalRecipeDescription"></p>
@@ -715,51 +874,59 @@ Step 3: Let cool before serving"
     </div>
     
     <form action="profile.php" method="POST" enctype="multipart/form-data">
-        <input type="hidden" name="recipe_id" value="<?= $recipe_id ?>">
+        <input type="hidden" name="recipe_id" id="update_recipe_id">
         
         <div class="form-group">
             <label class="raleway">Title</label>
-            <input type="text" name="title" class="form-control" 
-                   value="<?= htmlspecialchars($recipe['title']) ?>" required
+            <input type="text" name="title" id="update_title" class="form-control" required
                    minlength="3" maxlength="100">
             <small class="form-text text-muted">Title should be between 3-100 characters</small>
         </div>
 
         <div class="form-group">
             <label class="raleway">Description</label>
-            <textarea name="description" class="form-control" required
-                      minlength="20"><?= htmlspecialchars($recipe['description']) ?></textarea>
-            <small class="form-text text-muted">Describe your recipe in at least 20 characters</small>
+            <textarea name="description" id="update_description" class="form-control" required
+                      minlength="20"></textarea>
+            <small class="form-text text-muted">Describe your recipe in detail (min. 20 characters)</small>
         </div>
-
+        
         <div class="form-group">
-            <label class="raleway">Ingredients (one per line)</label>
-            <textarea name="ingredients" class="form-control" rows="5" required><?= 
-                implode("\n", $ingredients) ?></textarea>
-            <small class="form-text text-muted">Add at least one ingredient, one per line</small>
+            <label class="raleway">Ingredients</label>
+            <textarea name="ingredients" id="update_ingredients" class="form-control" required
+                      placeholder="Enter one ingredient per line:
+1 cup flour
+2 eggs
+1/2 cup sugar" rows="4"></textarea>
+            <small class="form-text text-muted">List each ingredient on a separate line</small>
         </div>
-
+        
         <div class="form-group">
-            <label class="raleway">Instructions (one per line)</label>
-            <textarea name="instructions" class="form-control" rows="5" required><?= 
-                implode("\n", $instructions) ?></textarea>
-            <small class="form-text text-muted">Add at least one instruction step, one per line</small>
+            <label class="raleway">Instructions</label>
+            <textarea name="instructions" id="update_instructions" class="form-control" required
+                      placeholder="Enter one step per line:
+Step 1: Mix ingredients
+Step 2: Bake at 350°F
+Step 3: Let cool before serving" rows="4"></textarea>
+            <small class="form-text text-muted">List each step on a separate line</small>
         </div>
-
+        
         <div class="form-group">
             <label class="raleway">Current Image</label>
-            <img src="../uploads/<?= $recipe['image_url'] ?>" 
-                 alt="Current image" style="max-width: 200px; display: block;">
+            <div class="current-image-preview">
+                <img id="current_recipe_image" src="" alt="Current Recipe Image" style="max-width: 200px;">
+            </div>
         </div>
-
-        <div class="form-group">
-            <label class="raleway">New Image (optional)</label>
-            <input type="file" name="new_image" accept="image/jpeg,image/png,image/jpg" class="form-control">
-            <small class="form-text text-muted">Max file size: 5MB. Accepted formats: JPG, JPEG, PNG</small>
-            <img class="image-preview" alt="Image preview">
-        </div>        <div class="form-group button-group">
+        
+        <div class="form-group upload-image">
+            <label for="new_image" class="raleway">Upload New Image (optional)</label>
+            <input type="file" id="new_image" name="new_image" accept="image/*" class="form-control">
+            <small class="form-text text-muted">Upload a new image of your dish (JPG, JPEG, PNG only, max 5MB)</small>
+            <div class="image-preview-container">
+                <img src="#" alt="New Image Preview" class="new-image-preview" style="display: none; max-width: 200px; margin-top: 10px;">
+            </div>
+        </div>        <div class="form-group button-row">
             <button type="submit" name="update-recipe" class="raleway submit-btn">
-                <i class="fas fa-save"></i> Update Recipe
+                <i class="fas fa-save"></i> Save Changes
             </button>
             <button type="button" class="raleway cancel-btn" onclick="closeUpdatePanel()">
                 <i class="fas fa-times"></i> Cancel
@@ -769,20 +936,21 @@ Step 3: Let cool before serving"
 </div>
 </div>
 
-<!-- Profile Update Modal -->
+<!-- Profile Modal -->
 <div id="profileModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeProfileModal()">&times;</span>
         <h2 class="playfair-display">Update Profile</h2>
+        
         <form action="profile.php" method="POST">
             <div class="form-group">
-                <label class="raleway">Name:</label>
+                <label class="raleway">Name</label>
                 <input type="text" name="name" 
                     value="<?php echo htmlspecialchars($_SESSION['name']); ?>" 
                     class="form-control" required>
             </div>
             <div class="form-group">
-                <label class="raleway">Email:</label>
+                <label class="raleway">Email</label>
                 <input type="email" name="email" 
                     value="<?php echo htmlspecialchars($_SESSION['email_address']); ?>" 
                     class="form-control" required>

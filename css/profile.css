@@ -1465,11 +1465,12 @@ button[type="submit"]:disabled {
 .action-buttons {
   display: flex;
   justify-content: center;
+  gap: 10px; /* Added gap between buttons */
   margin-top: 15px;
   padding: 0 10px 10px;
 }
 
-.view-button, .edit-button {
+.view-button, .edit-button, .remove-favorite-btn {
   padding: 8px 15px;
   border: none;
   border-radius: 4px;
@@ -1478,6 +1479,18 @@ button[type="submit"]:disabled {
   display: inline-flex;
   align-items: center;
   gap: 5px;
+}
+
+/* Styling for remove favorite button */
+.remove-favorite-btn {
+  background-color: #f44336;
+  color: white;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.remove-favorite-btn:hover {
+  background-color: #d32f2f;
 }
 
 .view-button {
