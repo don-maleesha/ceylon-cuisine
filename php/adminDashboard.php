@@ -197,6 +197,53 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
         header("Location: adminDashboard.php?tab=reviews");
         exit();
     }
+    
+    // Delete recipe
+    if (isset($_POST['delete_recipe'])) {
+        $recipeId = $_POST['recipe_id'];
+        
+        // First get the recipe image to delete the file
+        $stmt = $conn->prepare("SELECT image_url FROM recipes WHERE id = ?");
+        $stmt->bind_param("i", $recipeId);
+        $stmt->execute();
+        $stmt->bind_result($imageUrl);
+        $stmt->fetch();
+        $stmt->close();
+        
+        // Check if recipe_categories table exists and delete categories
+        $stmt = $conn->prepare("SHOW TABLES LIKE 'recipe_categories'");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $recipeCategoriesExist = $result->num_rows > 0;
+        $stmt->close();
+        
+        if ($recipeCategoriesExist) {
+            $stmt = $conn->prepare("DELETE FROM recipe_categories WHERE recipe_id = ?");
+            $stmt->bind_param("i", $recipeId);
+            $stmt->execute();
+            $stmt->close();
+        }
+        
+        // Delete all ratings for this recipe
+        $stmt = $conn->prepare("DELETE FROM ratings WHERE recipe_id = ?");
+        $stmt->bind_param("i", $recipeId);
+        $stmt->execute();
+        $stmt->close();
+        
+        // Delete the recipe
+        $stmt = $conn->prepare("DELETE FROM recipes WHERE id = ?");
+        $stmt->bind_param("i", $recipeId);
+        $stmt->execute();
+        $stmt->close();
+        
+        // Delete the image file if it exists
+        if ($imageUrl && file_exists("../uploads/" . $imageUrl)) {
+            unlink("../uploads/" . $imageUrl);
+        }
+        
+        header("Location: adminDashboard.php?tab=recipes");
+        exit();
+    }
       // Assign categories
     if (isset($_POST['assign_categories'])) {
         $recipeId = $_POST['recipe_id'];
@@ -362,7 +409,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                                     <td><?php echo htmlspecialchars($activity['name']); ?></td>
                                     <td><?php echo date('M d, Y', strtotime($activity['created_at'])); ?></td>
                                     <td>
-                                        <a href="profile.php?id=<?php echo $activity['id']; ?>" class="btn-view">View</a>
+                                        <a href="recipe_detail.php?id=<?php echo $activity['id']; ?>" class="btn-view" target="_blank">View</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -384,12 +431,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                     </div>
                     
                     <div class="filter-options">
-                        <select name="status" onchange="this.form.submit()">
-                            <option value="">All Statuses</option>
-                            <option value="approved">Approved</option>
-                            <option value="pending">Pending</option>
-                            <option value="rejected">Rejected</option>
-                        </select>
+                        <form action="adminDashboard.php" method="GET" class="filter-form">
+                            <input type="hidden" name="tab" value="recipes">
+                            <?php if (!empty($search)): ?>
+                                <input type="hidden" name="search" value="<?php echo htmlspecialchars($search); ?>">
+                            <?php endif; ?>
+                            <select name="status" onchange="this.form.submit()">
+                                <option value="">All Statuses</option>
+                                <option value="approved" <?php echo $statusFilter == 'approved' ? 'selected' : ''; ?>>Approved</option>
+                                <option value="pending" <?php echo $statusFilter == 'pending' ? 'selected' : ''; ?>>Pending</option>
+                                <option value="rejected" <?php echo $statusFilter == 'rejected' ? 'selected' : ''; ?>>Rejected</option>
+                            </select>
+                        </form>
                     </div>
                 </div>
                 
@@ -402,7 +455,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                           WHERE 1=1";
                           
                 if (!empty($search)) {
-                    $search = "%$search%";
+                    $searchTerm = "%$search%";
                     $query .= " AND (r.title LIKE ? OR r.description LIKE ?)";
                 }
                 
@@ -411,20 +464,52 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                 }
                 
                 $query .= " ORDER BY r.created_at DESC";
-                  $stmt = $conn->prepare($query);
+                
+                $stmt = $conn->prepare($query);
                 
                 if (!empty($search) && !empty($statusFilter) && $statusColumnExists) {
-                    $stmt->bind_param("sss", $search, $search, $statusFilter);
+                    $stmt->bind_param("sss", $searchTerm, $searchTerm, $statusFilter);
                 } elseif (!empty($search)) {
-                    $stmt->bind_param("ss", $search, $search);
+                    $stmt->bind_param("ss", $searchTerm, $searchTerm);
                 } elseif (!empty($statusFilter) && $statusColumnExists) {
                     $stmt->bind_param("s", $statusFilter);
                 }
                 
                 $stmt->execute();
-                $recipes = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+                $result = $stmt->get_result();
+                
+                if (!$result) {
+                    die("Database error: " . $conn->error);
+                }
+                
+                $recipes = $result->fetch_all(MYSQLI_ASSOC);
                 $stmt->close();
+                
+                // Debug: Show total count
+                $totalRecipesInList = count($recipes);
                 ?>
+                
+                <div class="recipes-summary">
+                    <p class="summary-text">
+                        <strong>Total recipes found: <?php echo $totalRecipesInList; ?></strong>
+                        <?php if (!empty($search)): ?>
+                            | Search: "<?php echo htmlspecialchars($search); ?>"
+                        <?php endif; ?>
+                        <?php if (!empty($statusFilter)): ?>
+                            | Status: <?php echo htmlspecialchars($statusFilter); ?>
+                        <?php endif; ?>
+                    </p>
+                </div>
+                
+                <?php if(empty($recipes)): ?>
+                    <div class="empty-state">
+                        <i class="fas fa-utensils"></i>
+                        <p>No recipes found.</p>
+                        <?php if (!empty($search) || !empty($statusFilter)): ?>
+                            <p class="empty-hint">Try adjusting your search criteria or <a href="adminDashboard.php?tab=recipes">view all recipes</a>.</p>
+                        <?php endif; ?>
+                    </div>
+                <?php else: ?>
                 
                 <table class="admin-table">
                     <thead>
@@ -440,7 +525,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                     <tbody>
                         <?php foreach($recipes as $recipe): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($recipe['title']); ?></td>
+                                <td class="recipe-title">
+                                    <h4><?php echo htmlspecialchars($recipe['title']); ?></h4>
+                                </td>
                                 <td><?php echo htmlspecialchars($recipe['author']); ?></td>                                <td>
                                     <?php if($statusColumnExists): ?>
                                     <span class="status-badge status-<?php echo $recipe['status']; ?>">
@@ -461,7 +548,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                                 </td>
                                 <td><?php echo date('M d, Y', strtotime($recipe['created_at'])); ?></td>
                                 <td class="action-buttons">
-                                    <a href="profile.php?id=<?php echo $recipe['id']; ?>" class="btn-view">View</a>
+                                    <a href="recipe_detail.php?id=<?php echo $recipe['id']; ?>" class="btn-view" target="_blank">View</a>
                                     
                                     <form method="POST" class="inline-form">
                                         <input type="hidden" name="recipe_id" value="<?php echo $recipe['id']; ?>">                                        <?php if(!$statusColumnExists || ($recipe['status'] ?? 'pending') == 'pending'): ?>
@@ -478,12 +565,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                                                 <i class="fas fa-star"></i> Feature
                                             </button>
                                         <?php endif; ?>
+                                        
+                                        <button type="button" class="btn-delete" 
+                                                onclick="showDeleteConfirmation(<?php echo $recipe['id']; ?>, '<?php echo htmlspecialchars($recipe['title'], ENT_QUOTES); ?>')">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
                                     </form>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                
+                <?php endif; ?>
                 
             <?php elseif($activeTab == 'users'): ?>
                 <!-- User Management -->
@@ -736,7 +830,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                                 </div>
                                 
                                 <div class="submission-actions">
-                                    <a href="profile.php?id=<?php echo $submission['id']; ?>" class="btn-view">
+                                    <a href="recipe_detail.php?id=<?php echo $submission['id']; ?>" class="btn-view" target="_blank">
                                         <i class="fas fa-eye"></i> View Full Recipe
                                     </a>
                                       <form method="POST" class="inline-form">
@@ -777,7 +871,101 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
         </div>
     </div>
     
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> Confirm Deletion</h2>
+                <span class="close" onclick="closeDeleteModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the recipe "<span id="recipeTitle"></span>"?</p>
+                <div class="warning-box">
+                    <i class="fas fa-warning"></i>
+                    <strong>Warning:</strong> This action cannot be undone. The recipe, all its ratings, and associated data will be permanently deleted.
+                </div>
+                <div class="verification-input">
+                    <label for="deleteConfirmation">Type "DELETE" to confirm:</label>
+                    <input type="text" id="deleteConfirmation" placeholder="Type DELETE here" autocomplete="off">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+                <button type="button" id="confirmDeleteBtn" class="btn-delete" disabled onclick="confirmDelete()">
+                    <i class="fas fa-trash"></i> Delete Recipe
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hidden form for recipe deletion -->
+    <form id="deleteRecipeForm" method="POST" style="display: none;">
+        <input type="hidden" name="recipe_id" id="deleteRecipeId" value="">
+        <input type="hidden" name="delete_recipe" value="1">
+    </form>
+    
     <script>
+        // Delete confirmation modal functions
+        let currentRecipeId = null;
+        
+        function showDeleteConfirmation(recipeId, recipeTitle) {
+            currentRecipeId = recipeId;
+            document.getElementById('recipeTitle').textContent = recipeTitle;
+            document.getElementById('deleteRecipeId').value = recipeId;
+            document.getElementById('deleteConfirmation').value = '';
+            document.getElementById('confirmDeleteBtn').disabled = true;
+            document.getElementById('deleteModal').style.display = 'block';
+            
+            // Focus on the input field
+            setTimeout(() => {
+                document.getElementById('deleteConfirmation').focus();
+            }, 100);
+        }
+        
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+            currentRecipeId = null;
+            document.getElementById('deleteConfirmation').value = '';
+            document.getElementById('confirmDeleteBtn').disabled = true;
+        }
+        
+        function confirmDelete() {
+            if (document.getElementById('deleteConfirmation').value === 'DELETE') {
+                document.getElementById('deleteRecipeForm').submit();
+            }
+        }
+        
+        // Enable/disable delete button based on confirmation input
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteInput = document.getElementById('deleteConfirmation');
+            const deleteBtn = document.getElementById('confirmDeleteBtn');
+            
+            deleteInput.addEventListener('input', function() {
+                if (this.value === 'DELETE') {
+                    deleteBtn.disabled = false;
+                    deleteBtn.classList.add('enabled');
+                } else {
+                    deleteBtn.disabled = true;
+                    deleteBtn.classList.remove('enabled');
+                }
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('deleteModal');
+                if (event.target === modal) {
+                    closeDeleteModal();
+                }
+            });
+            
+            // Handle Enter key in confirmation input
+            deleteInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && this.value === 'DELETE') {
+                    confirmDelete();
+                }
+            });
+        });
+        
         // Handle tab navigation
         document.addEventListener('DOMContentLoaded', function() {
             // Handle filter form submissions
