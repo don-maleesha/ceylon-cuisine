@@ -750,3 +750,136 @@ button:hover{
   font-size: 16px;
   color: #ddd;
 }
+
+/* Pagination Styles */
+.pagination-container {
+  margin: 40px 0;
+  padding: 20px;
+  text-align: center;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.pagination-btn {
+  background-color: #dbb657;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.pagination-btn:hover {
+  background-color: #c4a147;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(219, 182, 87, 0.3);
+}
+
+.pagination-btn:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.page-number {
+  padding: 10px 15px;
+  border: 2px solid #dbb657;
+  color: #dbb657;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 44px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.page-number:hover {
+  background-color: #dbb657;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(219, 182, 87, 0.3);
+}
+
+.page-number.current {
+  background-color: #dbb657;
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(219, 182, 87, 0.4);
+}
+
+.pagination-dots {
+  padding: 10px 5px;
+  color: #dbb657;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.pagination-info {
+  color: #666;
+  font-size: 14px;
+  margin-top: 15px;
+  font-weight: 400;
+}
+
+/* Responsive pagination */
+@media (max-width: 768px) {
+  .pagination {
+    gap: 8px;
+  }
+  
+  .pagination-btn {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+  
+  .page-number {
+    padding: 8px 12px;
+    min-width: 38px;
+    font-size: 13px;
+  }
+  
+  .pagination-info {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pagination {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .page-numbers {
+    order: 2;
+  }
+  
+  .pagination-btn {
+    order: 1;
+  }
+  
+  .pagination-btn.next-btn {
+    order: 3;
+  }
+}

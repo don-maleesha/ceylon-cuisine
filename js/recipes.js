@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('recipeModal');
     const urlParams = new URLSearchParams(window.location.search);
@@ -100,4 +99,34 @@ document.addEventListener('DOMContentLoaded', function() {
         html += `<span class="rating-value">(${rating.toFixed(1)})</span>`;
         return html;
     }
+
+    // Smooth scroll to top when changing pages
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add smooth scroll behavior to pagination links
+        document.querySelectorAll('.pagination a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Let the navigation happen first, then scroll
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                }, 100);
+            });
+        });
+        
+        // Auto-scroll to recipes section if coming from pagination
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('page') && urlParams.get('page') !== '1') {
+            const recipesSection = document.getElementById('myRecipe');
+            if (recipesSection) {
+                setTimeout(() => {
+                    recipesSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }, 200);
+            }
+        }
+    });
 });

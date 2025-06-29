@@ -2,6 +2,11 @@
 include 'dbconn.php';
 session_start();
 
+// Pagination setup
+$recipesPerPage = 6; // Number of recipes per page
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $recipesPerPage;
+
 // Fetch all recipes for the listing
 $search = $_GET['search'] ?? '';
 $sort = $_GET['sort'] ?? 'newest'; // Default to 'newest'
@@ -15,25 +20,45 @@ $result = $stmt->get_result();
 $statusColumnExists = $result->num_rows > 0;
 $stmt->close();
 
-// Base query
+// Base query for counting total recipes
+$countQuery = "SELECT COUNT(*) as total FROM recipes r";
+
+// Base query for fetching recipes
 $query = "SELECT r.id, r.title, r.description, r.image_url, COALESCE(r.average_rating, 0) AS average_rating FROM recipes r";
 
 // Add status condition to only show approved recipes
 if ($statusColumnExists) {
-    $query .= " WHERE status = 'approved'";
+    $whereClause = " WHERE status = 'approved'";
+    $countQuery .= $whereClause;
+    $query .= $whereClause;
     
     // Add search condition
     if (!empty($search)) {
-        $query .= " AND title LIKE ?";
+        $searchCondition = " AND title LIKE ?";
+        $countQuery .= $searchCondition;
+        $query .= $searchCondition;
         $searchTerm = "%$search%";
     }
 } else {
     // If status column doesn't exist, just use search condition
     if (!empty($search)) {
-        $query .= " WHERE title LIKE ?";
+        $searchCondition = " WHERE title LIKE ?";
+        $countQuery .= $searchCondition;
+        $query .= $searchCondition;
         $searchTerm = "%$search%";
     }
 }
+
+// Get total count of recipes
+$stmt_count = $conn->prepare($countQuery);
+if (!empty($search)) {
+    $stmt_count->bind_param("s", $searchTerm);
+}
+$stmt_count->execute();
+$result_count = $stmt_count->get_result();
+$totalRecipes = $result_count->fetch_assoc()['total'];
+$totalPages = ceil($totalRecipes / $recipesPerPage);
+$stmt_count->close();
 
 // Add sorting
 if ($sort === 'newest') {
@@ -42,17 +67,22 @@ if ($sort === 'newest') {
     $query .= " ORDER BY created_at ASC";
 }
 
+// Add pagination limit
+$query .= " LIMIT ? OFFSET ?";
+
 // Prepare and execute the query
 $stmt_all = $conn->prepare($query);
 if (!empty($search)) {
-    $stmt_all->bind_param("s", $searchTerm);
+    $stmt_all->bind_param("sii", $searchTerm, $recipesPerPage, $offset);
+} else {
+    $stmt_all->bind_param("ii", $recipesPerPage, $offset);
 }
 $stmt_all->execute();
 $result_all = $stmt_all->get_result();
 $recipes = $result_all->fetch_all(MYSQLI_ASSOC);
 
 // Existing code for fetching a single recipe (for modal)
-$recipe_id = isset($_GET['id']) ? (int)$_GET['id'] : null;;
+$recipe_id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 $ingredients = [];
 $instructions = [];
 $recipe = null;
@@ -188,15 +218,17 @@ if ($recipe_id) {
     </div>
     <div class="search-sort">
       <form action="" method="get" class="search-form">
+        <input type="hidden" name="sort" value="<?= htmlspecialchars($sort) ?>">
         <div class="search-collection">
           <i class="fas fa-search"></i>
-          <input type="text" name="search" placeholder="Search for recipes">
+          <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Search for recipes">
         </div>
         <button type="submit" name="submit" class="search-btn raleway">Search</button>
       </form>
       <form action="" method="get" class="sort-form">
-    <!-- Hidden search input to preserve search when sorting -->
+    <!-- Hidden inputs to preserve search and page when sorting -->
         <input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>">
+        <input type="hidden" name="page" value="1">
         <div class="sort-by merriweather-light">
           <label for="sort">Sort by:</label>
           <select name="sort" id="sort" onchange="this.form.submit()">
@@ -217,7 +249,7 @@ if ($recipe_id) {
           <div class="card" data-recipe="<?= $myrecipe['id'] ?>"> <!-- Individual card -->
             <div class="image-box">
               <img src="../uploads/<?= htmlspecialchars($myrecipe['image_url']) ?>" 
-                   alt="<?= htmlspecialchars($recipe['title']) ?>">
+                   alt="<?= htmlspecialchars($myrecipe['title']) ?>">
             </div>
             <div class="title">
               <h2 class="playfair-display"><?= htmlspecialchars($myrecipe['title']) ?></h2>
@@ -264,6 +296,62 @@ if ($recipe_id) {
       </div>
     <?php endif; ?>
   </div>
+  
+  <!-- Pagination Controls -->
+  <?php if ($totalPages > 1): ?>
+  <div class="pagination-container">
+    <div class="pagination">
+      <!-- Previous Page Button -->
+      <?php if ($page > 1): ?>
+        <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" class="pagination-btn prev-btn raleway">
+          <i class="fas fa-chevron-left"></i> Previous
+        </a>
+      <?php endif; ?>
+
+      <!-- Page Numbers -->
+      <div class="page-numbers">
+        <?php
+        // Show first page if we're not close to the beginning
+        if ($page > 3) {
+          echo '<a href="?' . http_build_query(array_merge($_GET, ['page' => 1])) . '" class="page-number raleway">1</a>';
+          if ($page > 4) {
+            echo '<span class="pagination-dots">...</span>';
+          }
+        }
+
+        // Show pages around current page
+        for ($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++) {
+          if ($i == $page) {
+            echo '<span class="page-number current raleway">' . $i . '</span>';
+          } else {
+            echo '<a href="?' . http_build_query(array_merge($_GET, ['page' => $i])) . '" class="page-number raleway">' . $i . '</a>';
+          }
+        }
+
+        // Show last page if we're not close to the end
+        if ($page < $totalPages - 2) {
+          if ($page < $totalPages - 3) {
+            echo '<span class="pagination-dots">...</span>';
+          }
+          echo '<a href="?' . http_build_query(array_merge($_GET, ['page' => $totalPages])) . '" class="page-number raleway">' . $totalPages . '</a>';
+        }
+        ?>
+      </div>
+
+      <!-- Next Page Button -->
+      <?php if ($page < $totalPages): ?>
+        <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" class="pagination-btn next-btn raleway">
+          Next <i class="fas fa-chevron-right"></i>
+        </a>
+      <?php endif; ?>
+    </div>
+    
+    <!-- Pagination Info -->
+    <div class="pagination-info raleway">
+      Showing <?= (($page - 1) * $recipesPerPage) + 1 ?> to <?= min($page * $recipesPerPage, $totalRecipes) ?> of <?= $totalRecipes ?> recipes
+    </div>
+  </div>
+  <?php endif; ?>
 </section>
   <footer class="footer">
     <div class="container">
