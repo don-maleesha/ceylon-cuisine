@@ -24,7 +24,11 @@ $stmt->close();
 $countQuery = "SELECT COUNT(*) as total FROM recipes r";
 
 // Base query for fetching recipes
-$query = "SELECT r.id, r.title, r.description, r.image_url, COALESCE(r.average_rating, 0) AS average_rating FROM recipes r";
+$query = "SELECT r.id, r.title, r.description, r.image_url, COALESCE(r.average_rating, 0) AS average_rating";
+if (isset($_SESSION['user_id'])) {
+    $query .= ", (SELECT COUNT(*) FROM favorites f WHERE f.recipe_id = r.id AND f.user_id = ?) AS is_favorite";
+}
+$query .= " FROM recipes r";
 
 // Add status condition to only show approved recipes
 if ($statusColumnExists) {
@@ -72,10 +76,19 @@ $query .= " LIMIT ? OFFSET ?";
 
 // Prepare and execute the query
 $stmt_all = $conn->prepare($query);
-if (!empty($search)) {
-    $stmt_all->bind_param("sii", $searchTerm, $recipesPerPage, $offset);
+if (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id'];
+    if (!empty($search)) {
+        $stmt_all->bind_param("isii", $user_id, $searchTerm, $recipesPerPage, $offset);
+    } else {
+        $stmt_all->bind_param("iii", $user_id, $recipesPerPage, $offset);
+    }
 } else {
-    $stmt_all->bind_param("ii", $recipesPerPage, $offset);
+    if (!empty($search)) {
+        $stmt_all->bind_param("sii", $searchTerm, $recipesPerPage, $offset);
+    } else {
+        $stmt_all->bind_param("ii", $recipesPerPage, $offset);
+    }
 }
 $stmt_all->execute();
 $result_all = $stmt_all->get_result();
@@ -162,6 +175,7 @@ if ($recipe_id) {
   <link rel="stylesheet" href="../css/recipes.css">
   <script src="../js/ceylon-cuisine.js"></script>
   <script src="../js/recipes.js"></script>
+  <script src="../js/favorites.js"></script>
 
 </head>
 <body>
@@ -250,6 +264,13 @@ if ($recipe_id) {
             <div class="image-box">
               <img src="../uploads/<?= htmlspecialchars($myrecipe['image_url']) ?>" 
                    alt="<?= htmlspecialchars($myrecipe['title']) ?>">
+              <?php if(isset($_SESSION['user_id'])): ?>
+                <div class="favorite-heart <?= isset($myrecipe['is_favorite']) && $myrecipe['is_favorite'] > 0 ? 'favorite-active' : '' ?>" 
+                     data-recipe-id="<?= $myrecipe['id'] ?>" 
+                     title="<?= isset($myrecipe['is_favorite']) && $myrecipe['is_favorite'] > 0 ? 'Remove from favorites' : 'Add to favorites' ?>">
+                  <i class="<?= isset($myrecipe['is_favorite']) && $myrecipe['is_favorite'] > 0 ? 'fas' : 'far' ?> fa-heart"></i>
+                </div>
+              <?php endif; ?>
             </div>
             <div class="title">
               <h2 class="playfair-display"><?= htmlspecialchars($myrecipe['title']) ?></h2>

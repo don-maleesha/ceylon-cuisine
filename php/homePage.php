@@ -1,5 +1,27 @@
 <?php
 session_start();
+include 'dbconn.php';
+
+// Fetch user's favorite recipes if logged in
+$favoriteRecipes = [];
+if (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id'];
+    
+    // Fetch user's favorite recipes (limited to 6 for homepage display)
+    $query = "SELECT r.id, r.title, r.description, r.image_url, COALESCE(r.average_rating, 0) AS average_rating 
+              FROM favorites f 
+              INNER JOIN recipes r ON f.recipe_id = r.id 
+              WHERE f.user_id = ? 
+              ORDER BY f.created_at DESC 
+              LIMIT 6";
+    
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $favoriteRecipes = $result->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+}
 ?>
 
 <!DOCTYPE html>
@@ -15,6 +37,7 @@ session_start();
       <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Raleway:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
       <link rel="stylesheet" href="../css/ceylon-cuisine.css">
       <script src="../js/ceylon-cuisine.js"></script>
+      <script src="../js/favorites.js"></script>
   </head>
   <body>
     <header>
@@ -92,6 +115,78 @@ session_start();
         <div class="name">– Amara Perera, Food Enthusiast</div>
       </div>
     </section>
+    
+    <?php if (isset($_SESSION['user_id'])): ?>
+    <section class="my-favorites-section">
+      <div class="container">
+        <h2 class="playfair-display">My Favorites</h2>
+        <p class="merriweather-regular">Your personally curated collection of beloved recipes</p>
+        
+        <?php if (empty($favoriteRecipes)): ?>
+          <div class="no-favorites-home">
+            <i class="fas fa-heart-broken"></i>
+            <p class="raleway">You haven't added any recipes to your favorites yet.</p>
+            <a href="recipes.php" class="explore-btn raleway">
+              <i class="fas fa-search"></i> Explore Recipes
+            </a>
+          </div>
+        <?php else: ?>
+          <div class="favorites-grid">
+            <?php foreach ($favoriteRecipes as $recipe): ?>
+              <div class="favorite-card" data-recipe="<?= $recipe['id'] ?>">
+                <div class="image-box">
+                  <img src="../uploads/<?= htmlspecialchars($recipe['image_url']) ?>" 
+                       alt="<?= htmlspecialchars($recipe['title']) ?>">
+                  <div class="favorite-heart favorite-active" data-recipe-id="<?= $recipe['id'] ?>" title="Remove from favorites">
+                    <i class="fas fa-heart"></i>
+                  </div>
+                </div>
+                <div class="content">
+                  <h3 class="playfair-display"><?= htmlspecialchars($recipe['title']) ?></h3>
+                  <p class="merriweather-regular"><?= htmlspecialchars(substr($recipe['description'], 0, 100)) ?>...</p>
+                  <div class="rating">
+                    <div class="stars">
+                      <?php
+                      $average = (float)($recipe['average_rating'] ?? 0);
+                      $fullStars = floor($average);
+                      $hasHalfStar = ($average - $fullStars) >= 0.5;
+                      
+                      for ($i = 1; $i <= 5; $i++):
+                          if ($i <= $fullStars):
+                      ?>
+                          <i class="fas fa-star rated"></i>
+                      <?php elseif ($hasHalfStar && $i == $fullStars + 1): ?>
+                          <i class="fas fa-star-half-alt rated"></i>
+                      <?php else: ?>
+                          <i class="far fa-star"></i>
+                      <?php
+                          $hasHalfStar = false;
+                          endif;
+                      endfor;
+                      ?>
+                    </div>
+                    <span class="rating-value">(<?= number_format($average, 1) ?>)</span>
+                  </div>
+                  <a href="recipes.php?id=<?= htmlspecialchars($recipe['id']) ?>" class="view-recipe-btn raleway">
+                    View Recipe
+                  </a>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          </div>
+          
+          <?php if (count($favoriteRecipes) >= 6): ?>
+            <div class="view-all-favorites">
+              <a href="my_favorites.php" class="view-all-btn raleway">
+                <i class="fas fa-heart"></i> View All My Favorites
+              </a>
+            </div>
+          <?php endif; ?>
+        <?php endif; ?>
+      </div>
+    </section>
+    <?php endif; ?>
+    
     <footer class="footer">
         <div class="container">
             <div class="logo">

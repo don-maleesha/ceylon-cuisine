@@ -578,6 +578,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
                     </a>
                     <ul id="dropdownMenu" class="dropdown-menu">
                         <li><a class="dropdown-item raleway" href="profile.php"><i class="fas fa-user"></i> Profile</a></li>
+                        <li><a class="dropdown-item raleway" href="my_favorites.php"><i class="fas fa-heart"></i> My Favorites</a></li>
                         <li><a class="dropdown-item raleway" href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                     </ul>
                 </div>

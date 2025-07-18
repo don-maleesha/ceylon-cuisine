@@ -883,3 +883,168 @@ button:hover{
     order: 3;
   }
 }
+
+/* Favorites functionality styles */
+.favorite-heart {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+.favorite-heart:hover {
+  background: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.favorite-heart i {
+  color: #e74c3c;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.favorite-heart.favorite-active i {
+  color: #e74c3c;
+  animation: heartBeat 0.6s ease-in-out;
+}
+
+.favorite-heart:not(.favorite-active) i {
+  color: #ccc;
+}
+
+.favorite-heart:not(.favorite-active):hover i {
+  color: #e74c3c;
+}
+
+@keyframes heartBeat {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.2);
+  }
+  50% {
+    transform: scale(1);
+  }
+  75% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Position for image box to be relative for absolute positioning of heart */
+.card .image-box {
+  position: relative;
+}
+
+/* No favorites state styling */
+.no-favorites {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+}
+
+.no-favorites i {
+  display: block;
+  margin: 0 auto 20px;
+}
+
+.no-favorites p {
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+.no-favorites a {
+  display: inline-block;
+  padding: 10px 20px;
+  background: #e74c3c;
+  color: white;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.no-favorites a:hover {
+  background: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+/* Toast notification styles */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  min-width: 250px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: 'Raleway', sans-serif;
+  font-size: 14px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.toast-success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.toast-error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive adjustments for favorites */
+@media (max-width: 768px) {
+  .favorite-heart {
+    width: 30px;
+    height: 30px;
+    top: 8px;
+    right: 8px;
+  }
+  
+  .favorite-heart i {
+    font-size: 14px;
+  }
+  
+  .no-favorites {
+    padding: 40px 15px;
+  }
+  
+  .no-favorites i {
+    font-size: 3rem !important;
+  }
+}
