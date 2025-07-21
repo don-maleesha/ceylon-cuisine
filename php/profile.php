@@ -105,7 +105,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit-picture'])) {
         $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
         $allowedExtensions = array('jpg', 'jpeg', 'png', 'jfif');
-        $maxFileSize = 2 * 1024 * 1024;        if (!in_array($fileExtension, $allowedExtensions)) {
+        $maxFileSize = 2 * 1024 * 1024;
+        
+        if (!in_array($fileExtension, $allowedExtensions)) {
             $_SESSION['upload_message'] = 'Only JPG, JPEG, and PNG files are allowed.';
             header("Location: profile.php");
             exit();
@@ -124,7 +126,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit-picture'])) {
                 $sql = "UPDATE users SET profile_picture = ? WHERE email_address = ?";
                 $updateStmt = $conn->prepare($sql);
                 if ($updateStmt) {
-                    $updateStmt->bind_param("ss", $relativePath, $email);                    if ($updateStmt->execute()) {
+                    $updateStmt->bind_param("ss", $relativePath, $email);
+                    
+                    if ($updateStmt->execute()) {
                         $profile_picture = $relativePath; // Update the profile picture path
                         $_SESSION['upload_message'] = 'Profile picture uploaded successfully!';
                         header("Location: profile.php");
@@ -134,7 +138,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit-picture'])) {
                         header("Location: profile.php");
                         exit();
                     }
-                    $updateStmt->close();                } else {
+                    $updateStmt->close();
+                } else {
                     $_SESSION['upload_message'] = 'Database error: ' . $conn->error;
                     header("Location: profile.php");
                     exit();
@@ -145,7 +150,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit-picture'])) {
                 exit();
             }
         }
-    } else {        $error_code = $_FILES['profile_picture']['error'] ?? 'unknown';
+    } else {
+        $error_code = $_FILES['profile_picture']['error'] ?? 'unknown';
         switch ($error_code) {
             case UPLOAD_ERR_INI_SIZE:
             case UPLOAD_ERR_FORM_SIZE:
@@ -180,8 +186,8 @@ if ($stmt) {
     }
 }
 
-// handle recipe submission
-if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit-recipe'])){
+// Handle recipe submission
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit-recipe'])) {
 
     $email = $_SESSION['email_address'];
     $sql = "SELECT id FROM users WHERE email_address = ?";
@@ -190,7 +196,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit-recipe'])){
     $stmt->execute();
     $result = $stmt->get_result();
 
-    if ($result->num_rows === 0 ) die("User not found in database");
+    if ($result->num_rows === 0) {
+        die("User not found in database");
+    }
     $user_id = $result->fetch_assoc()['id'];
     $stmt->close();
 
@@ -211,18 +219,20 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit-recipe'])){
     
     // Store error/success message for JavaScript to display
     $recipe_message = '';
-    $recipe_status = '';    // Handle image upload
-    if(empty($errors)) {
+    $recipe_status = '';
+    
+    // Handle image upload
+    if (empty($errors)) {
         $file_name = $_FILES['image_url']['name'];
         $temporary_name = $_FILES['image_url']['tmp_name'];
         $unique_file_name = uniqid() . '_' . $file_name;
         $folder = '../uploads/' . $unique_file_name;
 
-        //Validate image
+        // Validate image
         $allowed_extensions = ['jpg', 'jpeg', 'png', 'jfif'];
         $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
 
-        if(!in_array($file_extension, $allowed_extensions)) {
+        if (!in_array($file_extension, $allowed_extensions)) {
             $errors[] = "Invalid image format. Only JPG, JPEG, and PNG are allowed.";
         } elseif ($_FILES['image_url']['size'] > 5 * 1024 * 1024) {
             $errors[] = "Image size exceeds 5MB limit.";
@@ -230,12 +240,16 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit-recipe'])){
     }
 
     // Insert recipe into the database
-    if(empty($errors)) {
-        if(move_uploaded_file($temporary_name, $folder)) {
+    if (empty($errors)) {
+        if (move_uploaded_file($temporary_name, $folder)) {
             $ingredients_json = json_encode($ingredients);
-            $instructions_json = json_encode($instructions);            $sql = "INSERT INTO recipes (user_id, title, description, image_url, ingredients, instructions, status) VALUES (?, ?, ?, ?, ?, ?, 'pending')";
+            $instructions_json = json_encode($instructions);
+            
+            $sql = "INSERT INTO recipes (user_id, title, description, image_url, ingredients, instructions, status) VALUES (?, ?, ?, ?, ?, ?, 'pending')";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("isssss", $user_id, $name, $description, $unique_file_name, $ingredients_json, $instructions_json);            if ($stmt->execute()) {
+            $stmt->bind_param("isssss", $user_id, $name, $description, $unique_file_name, $ingredients_json, $instructions_json);
+            
+            if ($stmt->execute()) {
                 // Set success message in session
                 $_SESSION['recipe_message'] = "Recipe submitted successfully! It will be visible after admin approval.";
                 $_SESSION['recipe_status'] = "success";
@@ -247,7 +261,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit-recipe'])){
                 $_SESSION['recipe_status'] = "error";
                 header("Location: profile.php");
                 exit();
-            }} else {
+            }
+        } else {
             $_SESSION['recipe_message'] = "Error uploading image.";
             $_SESSION['recipe_status'] = "error";
             header("Location: profile.php");
@@ -275,7 +290,7 @@ $user = $result->fetch_assoc();
 $user_id = $user['id'];
 $stmt->close();
 
-//display user recipes
+// Display user recipes
 $sql = "SELECT * FROM recipes WHERE user_id = ? ORDER BY created_at DESC";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
@@ -284,17 +299,17 @@ $result = $stmt->get_result();
 
 $recipes = array();
 $pending_recipes = array();
-$rejected_recipes = array();  // Optional: if you want to track rejected separately
+$rejected_recipes = array();
 
 while ($row = $result->fetch_assoc()) {
     // Standardize the recipe data
     $row = standardize_recipe_data($row);
     
     if ($row['status'] === 'approved') {
-        $recipes[] = $row;    } elseif ($row['status'] === 'pending') {  // Only include truly pending recipes
+        $recipes[] = $row;
+    } elseif ($row['status'] === 'pending') {
         $pending_recipes[] = $row;
     }
-    // Optional: else { $rejected_recipes[] = $row; }
 }
 
 // Check if favorites table exists and create it if not
@@ -348,7 +363,7 @@ while ($row = $result->fetch_assoc()) {
 }
 $stmt->close();
 
-//display recipe data
+// Display recipe data
 $recipe_id = $_GET['id'] ?? null;
 $ingredients = [];
 $instructions = [];
@@ -395,11 +410,12 @@ if ($recipe_id) {
     }
 }
 
-//update user profile
+// Update user profile
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
     $newName = htmlspecialchars(trim($_POST['name']));
     $newEmail = htmlspecialchars(trim($_POST['email']));
-      // Validate email
+    
+    // Validate email
     if (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
         $_SESSION['upload_message'] = "Invalid email format";
         header("Location: profile.php");
@@ -420,14 +436,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
             $updateSql = "UPDATE users SET name = ?, email_address = ? WHERE email_address = ?";
             $stmt = $conn->prepare($updateSql);
             $stmt->bind_param("sss", $newName, $newEmail, $email);
-              if ($stmt->execute()) {
+            if ($stmt->execute()) {
                 // Update session variables
                 $_SESSION['name'] = $newName;
                 $_SESSION['email_address'] = $newEmail;
                 $email = $newEmail; // Update local variable for subsequent queries
                 $_SESSION['upload_message'] = "Profile updated successfully!";
                 header("Location: profile.php");
-                exit();            } else {
+                exit();
+            } else {
                 $_SESSION['upload_message'] = "Error updating profile: " . $conn->error;
                 header("Location: profile.php");
                 exit();
@@ -468,7 +485,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
     
     // Handle image update
     $image_url = $current_recipe['image_url']; // Keep existing image by default
-      if (!empty($_FILES['new_image']['name'])) {
+    
+    if (!empty($_FILES['new_image']['name'])) {
         // Similar to your existing image upload logic
         $file_name = $_FILES['new_image']['name'];
         $temporary_name = $_FILES['new_image']['tmp_name'];
@@ -478,7 +496,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
         // Validate and move file
         $allowed_extensions = ['jpg', 'jpeg', 'png', 'jfif'];
         $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-          if (!in_array($file_extension, $allowed_extensions)) {
+        
+        if (!in_array($file_extension, $allowed_extensions)) {
             $update_errors[] = "Invalid image format. Only JPG, JPEG, and PNG are allowed.";
         } elseif ($_FILES['new_image']['size'] > 5 * 1024 * 1024) {
             $update_errors[] = "Image size exceeds 5MB limit.";
@@ -490,11 +509,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
             }
         }
     }
-      // Update database
+    
+    // Update database
     if (empty($update_errors)) {
         $ingredients_json = json_encode($ingredients);
         $instructions_json = json_encode($instructions);
-          $sql = "UPDATE recipes SET 
+        
+        $sql = "UPDATE recipes SET 
                 title = ?, 
                 description = ?, 
                 image_url = ?, 
@@ -515,9 +536,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
             $_SESSION['update_status'] = $update_status;
             
             header("Location: profile.php");
-            exit();} else {
+            exit();
+        } else {
             $update_message = "Error updating recipe: " . $stmt->error;
-            $update_status = "error";            // Store in session for after redirect
+            $update_status = "error";
+            
+            // Store in session for after redirect
             $_SESSION['update_message'] = $update_message;
             $_SESSION['update_status'] = $update_status;
             header("Location: profile.php");

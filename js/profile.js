@@ -17,7 +17,8 @@ document.addEventListener("DOMContentLoaded", function () {
             alert(uploadMessage);
         }
     }
-      // Handle recipe submission messages
+
+    // Handle recipe submission messages
     const recipeMessageContainer = document.getElementById("recipe-message-container");
     if (recipeMessageContainer && recipeMessageContainer.dataset.message) {
         const message = recipeMessageContainer.dataset.message;
@@ -52,14 +53,14 @@ document.addEventListener("DOMContentLoaded", function () {
         showModal(urlParams.get('id'));
     }
     
-    // Add form names to recipe forms for validation    const recipeUpdateForm = document.querySelector('#updatePanel form');
+    // Add form names to recipe forms for validation
+    const recipeUpdateForm = document.querySelector('#updatePanel form');
     if (recipeUpdateForm) {
         recipeUpdateForm.setAttribute('name', 'update-recipe-form');
         recipeUpdateForm.addEventListener('submit', function(e) {
             if (!validateRecipeUpdateForm()) {
-                e.preventDefault(); // Prevent form submission if validation fails
+                e.preventDefault();
             } else {
-                // Show loading state
                 const submitBtn = this.querySelector('button[type="submit"]');
                 if (submitBtn) {
                     submitBtn.disabled = true;
@@ -75,14 +76,14 @@ document.addEventListener("DOMContentLoaded", function () {
             initImagePreview(fileInput, previewElement);
         }
     }
-      const recipeCreateForm = document.querySelector('#newRecipe form');
+
+    const recipeCreateForm = document.querySelector('#newRecipe form');
     if (recipeCreateForm) {
         recipeCreateForm.setAttribute('name', 'create-recipe-form');
         recipeCreateForm.addEventListener('submit', function(e) {
             if (!validateRecipeCreationForm()) {
-                e.preventDefault(); // Prevent form submission if validation fails
+                e.preventDefault();
             } else {
-                // Show loading state
                 const submitBtn = this.querySelector('button[type="submit"]');
                 if (submitBtn) {
                     submitBtn.disabled = true;
@@ -102,7 +103,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // Add real-time validation for text inputs
     document.querySelectorAll('input[type="text"], textarea').forEach(input => {
         input.addEventListener('blur', function() {
-            // Clear previous error on this element
             const previousError = this.nextElementSibling;
             if (previousError && previousError.classList.contains('validation-error')) {
                 previousError.remove();
@@ -110,7 +110,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 this.classList.remove('is-invalid');
             }
             
-            // Simple validation on blur
             if (this.required && !this.value.trim()) {
                 showError(this, 'This field is required');
             } else if (this.name === 'title' && this.value.trim().length < 3) {
@@ -124,7 +123,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // Add validation for file inputs
     document.querySelectorAll('input[type="file"]').forEach(input => {
         input.addEventListener('change', function() {
-            // Clear previous error
             const previousError = this.nextElementSibling;
             if (previousError && previousError.classList.contains('validation-error')) {
                 previousError.remove();
@@ -134,22 +132,19 @@ document.addEventListener("DOMContentLoaded", function () {
             
             if (this.files.length > 0) {
                 const file = this.files[0];
-                
-                // Check file type
                 const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                
                 if (!validTypes.includes(file.type)) {
                     showError(this, 'Please select a valid image file (JPG, JPEG, or PNG)');
                     return;
                 }
                 
-                // Check file size (5MB max)
-                const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+                const maxSize = 5 * 1024 * 1024;
                 if (file.size > maxSize) {
                     showError(this, 'Image size must be less than 5MB');
                     return;
                 }
                 
-                // Show preview if possible
                 if (this.parentNode.querySelector('.image-preview')) {
                     const preview = this.parentNode.querySelector('.image-preview');
                     preview.src = URL.createObjectURL(file);
@@ -164,44 +159,36 @@ document.addEventListener("DOMContentLoaded", function () {
     const profilePictureInput = document.getElementById('profile-picture-upload');
     
     if (profilePictureForm && profilePictureInput) {
-        // Add file selection feedback
         profilePictureInput.addEventListener('change', function() {
             const submitBtn = document.getElementById('profile-picture-submit');
             
             if (this.files && this.files[0]) {
-                // File selected - check it
                 const file = this.files[0];
-                
-                // Check file type
                 const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                
                 if (!validTypes.includes(file.type)) {
                     showError(this, 'Please select a valid image file (JPG, JPEG, or PNG)');
                     return;
                 }
                 
-                // Check file size (2MB max)
-                const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+                const maxSize = 2 * 1024 * 1024;
                 if (file.size > maxSize) {
                     showError(this, 'Image size must be less than 2MB');
                     return;
                 }
                 
-                // Valid file - enable submit button
                 submitBtn.textContent = 'Upload ' + file.name;
                 submitBtn.disabled = false;
             }
         });
         
-        // Add submit handling
         profilePictureForm.addEventListener('submit', function(e) {
-            // Check if a file is selected
             if (!profilePictureInput.files || profilePictureInput.files.length === 0) {
                 e.preventDefault();
                 showError(profilePictureInput, 'Please select an image file first');
                 return;
             }
             
-            // Show loading state
             const submitBtn = document.getElementById('profile-picture-submit');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
@@ -211,7 +198,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Tab switching function
 function showSection(sectionId) {
-    // Hide all sections and remove active class from buttons
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
     });
@@ -219,7 +205,6 @@ function showSection(sectionId) {
         button.classList.remove('active');
     });
 
-    // Show selected section and activate button
     document.getElementById(sectionId).classList.add('active');
     document.querySelector(`.tabs button[onclick="showSection('${sectionId}')"]`)
         .classList.add('active');
@@ -227,20 +212,14 @@ function showSection(sectionId) {
 
 // Modal handling functions
 function showModal(recipeId) {
-    // Update URL without reload
     history.pushState({}, '', `?id=${recipeId}`);
-    
-    // Ensure My Recipes section is active
     showSection('myRecipe');
     
-    // For direct URL access, we need to fetch the recipe data from the server
     fetch(`get_recipe.php?id=${recipeId}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 try {
-                    // Pass the raw ingredients and instructions strings to viewRecipe
-                    // The viewRecipe function will handle parsing
                     viewRecipe(
                         data.recipe.id,
                         data.recipe.title, 
@@ -259,27 +238,23 @@ function showModal(recipeId) {
         })
         .catch(error => {
             console.error('Error:', error);
-            // If there's an error, at least show the modal
             document.getElementById('recipeModal').style.display = 'block';
             document.body.classList.add('modal-open');
         });
 }
 
 function closeModal() {
-    // Hide modal and clean URL
     document.getElementById('recipeModal').style.display = 'none';
     document.body.classList.remove('modal-open');
     history.replaceState({}, '', window.location.pathname);
 }
 
-// Close modal when clicking outside
 window.onclick = function(event) {
     if (event.target.classList.contains('modal')) {
         closeModal();
     }
 }
 
-// Handle browser navigation (back/forward buttons)
 window.addEventListener('popstate', function(event) {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('id')) {
@@ -292,22 +267,17 @@ window.addEventListener('popstate', function(event) {
 
 
 function openUpdatePanel() {
-    // Get the current recipe ID
     let recipeId;
     
-    // Try to get from URL first
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('id')) {
         recipeId = urlParams.get('id');
-    } 
-    // If not in URL, try to get from modal
-    else {
+    } else {
         const title = document.getElementById('modalRecipeTitle').textContent;
-        // Find the recipe card with this title
         const recipeCards = document.querySelectorAll('.card');
+        
         for (const card of recipeCards) {
             if (card.querySelector('.title h2').textContent === title) {
-                // Find the View Recipe button and extract ID from its onclick
                 const viewBtn = card.querySelector('.view-button');
                 if (viewBtn && viewBtn.getAttribute('onclick')) {
                     const onclickAttr = viewBtn.getAttribute('onclick');
@@ -322,13 +292,11 @@ function openUpdatePanel() {
     }
     
     if (recipeId) {
-        // Get the current recipe data from the modal
         const title = document.getElementById('modalRecipeTitle').textContent;
         const description = document.getElementById('modalRecipeDescription').textContent;
         const imgSrc = document.getElementById('modalRecipeImage').src;
-        const imageUrl = imgSrc.split('/').pop(); // Extract filename from path
+        const imageUrl = imgSrc.split('/').pop();
         
-        // Get ingredients
         const ingredients = [];
         document.querySelectorAll('#modalRecipeIngredients li').forEach(item => {
             if (!item.classList.contains('no-data-item')) {
@@ -336,7 +304,6 @@ function openUpdatePanel() {
             }
         });
         
-        // Get instructions
         const instructions = [];
         document.querySelectorAll('#modalRecipeInstructions li').forEach(item => {
             if (!item.classList.contains('no-data-item')) {
@@ -344,20 +311,17 @@ function openUpdatePanel() {
             }
         });
         
-        // Populate the update form
         document.getElementById('update_recipe_id').value = recipeId;
         document.getElementById('update_title').value = title || '';
         document.getElementById('update_description').value = description || '';
         document.getElementById('update_ingredients').value = ingredients.join('\n');
         document.getElementById('update_instructions').value = instructions.join('\n');
         
-        // Set the current image
         const currentImg = document.getElementById('current_recipe_image');
         if (currentImg) {
             currentImg.src = imgSrc;
         }
         
-        // Initialize image preview for new image
         const newImageInput = document.getElementById('new_image');
         const newImagePreview = document.querySelector('.new-image-preview');
         if (newImageInput && newImagePreview) {
@@ -373,13 +337,11 @@ function openUpdatePanel() {
             });
         }
         
-        // Display the panel
         document.getElementById('panelOverlay').style.display = 'block';
         setTimeout(() => {
             document.getElementById('updatePanel').classList.add('active');
         }, 10);
     } else {
-        // If we can't determine the recipe ID, just show an error
         alert('Could not determine which recipe to update. Please try again.');
     }
 }
@@ -391,9 +353,8 @@ function closeUpdatePanel() {
     }, 300);
 }
 
-// Close panel when clicking outside
 document.getElementById('panelOverlay').addEventListener('click', (e) => {
-    if(e.target === document.getElementById('panelOverlay')) {
+    if (e.target === document.getElementById('panelOverlay')) {
         closeUpdatePanel();
     }
 });
@@ -406,7 +367,6 @@ function closeProfileModal() {
     document.getElementById('profileModal').style.display = 'none';
 }
 
-// Close modal when clicking outside
 window.onclick = function(event) {
     const modals = document.getElementsByClassName('modal');
     for (const modal of modals) {
@@ -432,11 +392,9 @@ function rateRecipe(recipeId, rating) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Update displayed ratings
             document.querySelector('.average-rating').innerHTML = 
                 `Average: ${data.average_rating} ★`;
             
-            // Update user stars
             document.querySelectorAll('.star-rating .fa-star').forEach(star => {
                 const starValue = parseInt(star.dataset.rating);
                 star.classList.toggle('rated', starValue <= rating);
@@ -451,38 +409,29 @@ function rateRecipe(recipeId, rating) {
     });
 }
 
-// Display error message under an input field
 function showError(inputElement, message) {
-    // Remove any existing error for this element
     const previousError = inputElement.nextElementSibling;
     if (previousError && previousError.classList.contains('validation-error')) {
         previousError.remove();
     }
     
-    // Create and insert error message
     const errorDiv = document.createElement('div');
     errorDiv.className = 'validation-error';
     errorDiv.textContent = message;
     
-    // Add after the input element
     inputElement.parentNode.insertBefore(errorDiv, inputElement.nextElementSibling);
     
-    // Highlight the input
     inputElement.style.borderColor = '#dc3545';
     inputElement.classList.add('is-invalid');
 }
 
-// Display success message in the form
 function showSuccessMessage(message, container) {
-    // Create success message element
     const successDiv = document.createElement('div');
     successDiv.className = 'success-message';
     successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
     
-    // Insert at the top of the container
     container.insertBefore(successDiv, container.firstChild);
     
-    // Auto-remove after 5 seconds
     setTimeout(() => {
         if (successDiv.parentNode) {
             successDiv.classList.add('fade-out');
@@ -491,17 +440,13 @@ function showSuccessMessage(message, container) {
     }, 5000);
 }
 
-// Display error message in the form
 function showErrorMessage(message, container) {
-    // Create error message element
     const errorDiv = document.createElement('div');
     errorDiv.className = 'error-message';
     errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
     
-    // Insert at the top of the container
     container.insertBefore(errorDiv, container.firstChild);
     
-    // Auto-remove after 5 seconds
     setTimeout(() => {
         if (errorDiv.parentNode) {
             errorDiv.classList.add('fade-out');

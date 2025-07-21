@@ -4,7 +4,7 @@ require_once "dbconn.php";
 
 // Check if user is logged in and is admin
 if (!isset($_SESSION['email_address']) || $_SESSION['role'] !== 'admin') {
-    header("Location: signin.php");
+    header("Location: adminDashboard.php?tab=recipes");
     exit();
 }
 
@@ -75,7 +75,8 @@ $stmt->close();
 $activeTab = $_GET['tab'] ?? 'dashboard';
 
 // Handle user actions
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Recipe approval
     if (isset($_POST['approve_recipe'])) {
         $recipeId = $_POST['recipe_id'];
         $status = 'approved';
@@ -244,7 +245,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
         header("Location: adminDashboard.php?tab=recipes");
         exit();
     }
-      // Assign categories
+    
+    // Assign categories
     if (isset($_POST['assign_categories'])) {
         $recipeId = $_POST['recipe_id'];
         $categories = $_POST['categories'];
@@ -289,7 +291,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Satisfy&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Raleway:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">    <link rel="stylesheet" href="../css/profile.css">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Raleway:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/profile.css">
     <link rel="stylesheet" href="../css/adminDashboard.css">
     <script src="../js/ceylon-cuisine.js"></script>
 </head>
@@ -316,8 +319,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                             <i id="customIcon" class="fas fa-chevron-down" aria-hidden="true"></i>
                         </a>
                         <ul id="dropdownMenu" class="dropdown-menu">
-                            <!-- <li><a class="dropdown-item raleway" href="profile.php"><i class="fas fa-user"></i> Profile</a></li> -->
-                            <li><a class="dropdown-item raleway" href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                        <li><a class="dropdown-item raleway" href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                         </ul>
                     </div>
                 <?php endif; ?>
@@ -339,7 +341,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                 </li>
                 <li class="<?php echo $activeTab == 'reviews' ? 'active' : ''; ?>">
                     <a href="adminDashboard.php?tab=reviews"><i class="fas fa-star"></i> Review Management</a>
-                </li>                <li class="<?php echo $activeTab == 'submissions' ? 'active' : ''; ?>">
+                </li>
+                <li class="<?php echo $activeTab == 'submissions' ? 'active' : ''; ?>">
                     <a href="adminDashboard.php?tab=submissions"><i class="fas fa-upload"></i> Recipe Submissions</a>
                 </li>
                 <li class="logout-item">
@@ -377,7 +380,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                             <p>Reviews Posted</p>
                         </div>
                     </div>
-                      <div class="stat-card">
+                    <div class="stat-card">
                         <div class="stat-icon"><i class="fas fa-clock"></i></div>
                         <div class="stat-info">
                             <h2><?php echo $pendingRecipes; ?></h2>
@@ -446,7 +449,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                     </div>
                 </div>
                 
-                <?php                // Recipe listing with search and filtering
+                <?php
+                // Recipe listing with search and filtering
                 $search = $_GET['search'] ?? '';
                 $statusFilter = $_GET['status'] ?? '';
                 
@@ -528,7 +532,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                                 <td class="recipe-title">
                                     <h4><?php echo htmlspecialchars($recipe['title']); ?></h4>
                                 </td>
-                                <td><?php echo htmlspecialchars($recipe['author']); ?></td>                                <td>
+                                <td><?php echo htmlspecialchars($recipe['author']); ?></td>
+                                <td>
                                     <?php if($statusColumnExists): ?>
                                     <span class="status-badge status-<?php echo $recipe['status']; ?>">
                                         <?php echo ucfirst($recipe['status'] ?? 'pending'); ?>
@@ -551,7 +556,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                                     <a href="recipe_detail.php?id=<?php echo $recipe['id']; ?>" class="btn-view" target="_blank">View</a>
                                     
                                     <form method="POST" class="inline-form">
-                                        <input type="hidden" name="recipe_id" value="<?php echo $recipe['id']; ?>">                                        <?php if(!$statusColumnExists || ($recipe['status'] ?? 'pending') == 'pending'): ?>
+                                        <input type="hidden" name="recipe_id" value="<?php echo $recipe['id']; ?>">
+                                        <?php if(!$statusColumnExists || ($recipe['status'] ?? 'pending') == 'pending'): ?>
                                             <button type="submit" name="approve_recipe" class="btn-approve">
                                                 <i class="fas fa-check"></i> Approve
                                             </button>
@@ -596,14 +602,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                 <?php
                 // User listing with search
                 $search = $_GET['search'] ?? '';
-                  $query = "SELECT * FROM users WHERE 1=1";
+                $query = "SELECT * FROM users WHERE 1=1";
                           
                 if (!empty($search)) {
                     $search = "%$search%";
                     $query .= " AND (name LIKE ? OR email_address LIKE ?)";
                 }
-                
-                // Remove ORDER BY created_at since the column doesn't exist
                 
                 $stmt = $conn->prepare($query);
                 
@@ -632,7 +636,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                             <tr>
                                 <td><?php echo htmlspecialchars($user['name']); ?></td>
                                 <td><?php echo htmlspecialchars($user['email_address']); ?></td>
-                                <td><?php echo ucfirst($user['role'] ?? 'user'); ?></td>                                <td>                                    <span class="status-badge status-<?php echo strtolower($user['status'] ?? 'active'); ?>">
+                                <td><?php echo ucfirst($user['role'] ?? 'user'); ?></td>
+                                <td>
+                                    <span class="status-badge status-<?php echo strtolower($user['status'] ?? 'active'); ?>">
                                         <?php echo ucfirst($user['status'] ?? 'active'); ?>
                                     </span>
                                 </td>
@@ -640,14 +646,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                                 <td class="action-buttons">
                                     <form method="POST" class="inline-form">
                                         <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                                        
-                                        <!-- Role update dropdown
-                                        <select name="role" onchange="this.form.submit()" class="role-select">
-                                            <option value="user" <?php echo ($user['role'] ?? 'user') == 'user' ? 'selected' : ''; ?>>User</option>
-                                            <option value="moderator" <?php echo ($user['role'] ?? 'user') == 'moderator' ? 'selected' : ''; ?>>Moderator</option>
-                                            <option value="admin" <?php echo ($user['role'] ?? 'user') == 'admin' ? 'selected' : ''; ?>>Admin</option>
-                                        </select>
-                                        <input type="hidden" name="update_role" value="1"> -->
                                         
                                         <!-- Block/Unblock button -->
                                         <input type="hidden" name="status" value="<?php echo $user['status'] ?? 'active'; ?>">
@@ -766,7 +764,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                 <!-- Recipe Submissions -->
                 <h1 class="playfair-display">Recipe Submissions</h1>
                 
-                <?php                // Get all pending recipe submissions
+                <?php
+                // Get all pending recipe submissions
                 if ($statusColumnExists) {
                     $status = 'pending';
                     $stmt = $conn->prepare("SELECT r.*, u.name as author 
@@ -779,9 +778,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                                           FROM recipes r 
                                           JOIN users u ON r.user_id = u.id 
                                           ORDER BY r.created_at DESC LIMIT 10");
-                }                if ($statusColumnExists) {
+                }
+                
+                if ($statusColumnExists) {
                     $stmt->bind_param("s", $status);
-                }                $stmt->execute();
+                }
+                
+                $stmt->execute();
                 $submissions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                 $stmt->close();
                 
@@ -794,6 +797,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                 $stmt->close();
                 
                 $categories = [];
+                
                 // Get all categories for assignment only if the table exists
                 if ($categoriesExist) {
                     $stmt = $conn->prepare("SELECT * FROM categories ORDER BY name");
@@ -833,7 +837,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {    // Recipe approval
                                     <a href="recipe_detail.php?id=<?php echo $submission['id']; ?>" class="btn-view" target="_blank">
                                         <i class="fas fa-eye"></i> View Full Recipe
                                     </a>
-                                      <form method="POST" class="inline-form">
+                                    
+                                    <form method="POST" class="inline-form">
                                         <input type="hidden" name="recipe_id" value="<?php echo $submission['id']; ?>">
                                         
                                         <?php if ($categoriesExist && !empty($categories)): ?>

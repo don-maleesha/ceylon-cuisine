@@ -2,16 +2,13 @@
 session_start();
 require_once "dbconn.php";
 
-// Set content type to JSON
 header('Content-Type: application/json');
 
-// Check if user is logged in
 if (!isset($_SESSION['email_address'])) {
     echo json_encode(['error' => 'User not logged in']);
     exit();
 }
 
-// Check if recipe_id is provided
 if (!isset($_GET['recipe_id'])) {
     echo json_encode(['error' => 'Recipe ID not provided']);
     exit();
@@ -19,7 +16,6 @@ if (!isset($_GET['recipe_id'])) {
 
 $recipe_id = (int)$_GET['recipe_id'];
 
-// Get user ID from email
 $email = $_SESSION['email_address'];
 $sql = "SELECT id FROM users WHERE email_address = ?";
 $stmt = $conn->prepare($sql);
@@ -35,12 +31,11 @@ if ($result->num_rows === 0) {
 $user_id = $result->fetch_assoc()['id'];
 $stmt->close();
 
-// Check if favorites table exists and create it if not
+// Ensure favorites table exists
 $check_table_sql = "SHOW TABLES LIKE 'favorites'";
 $check_table_result = $conn->query($check_table_sql);
 
 if ($check_table_result->num_rows == 0) {
-    // Table doesn't exist, create it
     $create_table_sql = "CREATE TABLE `favorites` (
         `id` int(11) NOT NULL AUTO_INCREMENT,
         `user_id` int(11) NOT NULL,
@@ -56,7 +51,6 @@ if ($check_table_result->num_rows == 0) {
     }
 }
 
-// Check if recipe is in favorites
 $check_favorite_sql = "SELECT * FROM favorites WHERE user_id = ? AND recipe_id = ?";
 $check_stmt = $conn->prepare($check_favorite_sql);
 $check_stmt->bind_param("ii", $user_id, $recipe_id);
@@ -66,6 +60,5 @@ $check_result = $check_stmt->get_result();
 $is_favorite = $check_result->num_rows > 0;
 $check_stmt->close();
 
-// Return the result
 echo json_encode(['is_favorite' => $is_favorite]);
 ?>

@@ -2,35 +2,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('recipeModal');
     const urlParams = new URLSearchParams(window.location.search);
     const recipeId = urlParams.get('id');
-  
-    // Show modal if ID exists in URL and modal exists
+
     if (recipeId && modal) {
         modal.style.display = 'block';
     }
-  
-    // Close modal when clicking outside
+
     window.addEventListener('click', function(event) {
         if (event.target === modal) {
             closeModal();
         }
     });
-  });
-  
-  // Global function to close modal
-  function closeModal() {
+});
+
+function closeModal() {
     const modal = document.getElementById('recipeModal');
     if (modal) {
         modal.style.display = 'none';
-        // Clean URL without reload
         history.replaceState({}, document.title, window.location.pathname);
     }
-  }
+}
 
-  document.addEventListener('DOMContentLoaded', function() {
-    // Handle star clicks in modal
+document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', function(e) {
         const star = e.target.closest('.interactive-stars .fa-star');
-        if (!star) return;
+        if (!star) {
+            return;
+        }
 
         const container = star.closest('.interactive-stars');
         const recipeId = container ? container.dataset.recipeId : null;
@@ -41,7 +38,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Update UI immediately
         const stars = container.querySelectorAll('.fa-star');
         stars.forEach((s, idx) => {
             s.classList.toggle('rated', (idx + 1) <= rating);
@@ -49,7 +45,6 @@ document.addEventListener('DOMContentLoaded', function() {
             s.classList.toggle('far', (idx + 1) > rating);
         });
 
-        // Send rating to server
         const formData = new FormData();
         formData.append('recipe_id', recipeId);
         formData.append('rating', rating);
@@ -66,7 +61,6 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data => {
             if (data.success) {
-                // Update average rating display
                 const avgRatingElement = document.querySelector('.average-rating-section .stars');
                 if (avgRatingElement) {
                     const average = parseFloat(data.average_rating);
@@ -100,33 +94,27 @@ document.addEventListener('DOMContentLoaded', function() {
         return html;
     }
 
-    // Smooth scroll to top when changing pages
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add smooth scroll behavior to pagination links
-        document.querySelectorAll('.pagination a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                // Let the navigation happen first, then scroll
-                setTimeout(() => {
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
-                }, 100);
-            });
+    document.querySelectorAll('.pagination a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            setTimeout(() => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }, 100);
         });
-        
-        // Auto-scroll to recipes section if coming from pagination
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('page') && urlParams.get('page') !== '1') {
-            const recipesSection = document.getElementById('myRecipe');
-            if (recipesSection) {
-                setTimeout(() => {
-                    recipesSection.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }, 200);
-            }
-        }
     });
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('page') && urlParams.get('page') !== '1') {
+        const recipesSection = document.getElementById('myRecipe');
+        if (recipesSection) {
+            setTimeout(() => {
+                recipesSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }, 200);
+        }
+    }
 });

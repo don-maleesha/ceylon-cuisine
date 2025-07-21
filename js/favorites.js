@@ -1,7 +1,5 @@
 // favorites.js - Handle favorites functionality
 document.addEventListener('DOMContentLoaded', function() {
-    
-    // Initialize favorites for all recipe cards
     initializeFavorites();
     
     // Handle favorite heart clicks
@@ -44,7 +42,6 @@ function checkFavoriteStatus(recipeId, heartElement) {
 }
 
 function toggleFavorite(recipeId, heartElement) {
-    // Show loading state
     heartElement.style.opacity = '0.5';
     
     fetch('favorites.php', {
@@ -62,14 +59,13 @@ function toggleFavorite(recipeId, heartElement) {
             updateHeartDisplay(heartElement, data.is_favorite);
             showToast(data.message, 'success');
             
-            // If we're on the favorites page and item was removed, remove the card
+            // Remove card from favorites page if item was unfavorited
             if (window.location.pathname.includes('my_favorites.php') && !data.is_favorite) {
                 const card = heartElement.closest('.card');
                 if (card) {
                     card.style.opacity = '0.5';
                     setTimeout(() => {
                         card.remove();
-                        // Check if no more cards and show message
                         checkForEmptyFavorites();
                     }, 300);
                 }
@@ -100,13 +96,11 @@ function updateHeartDisplay(heartElement, isFavorite) {
 }
 
 function showToast(message, type = 'success') {
-    // Remove any existing toast
     const existingToast = document.querySelector('.toast');
     if (existingToast) {
         existingToast.remove();
     }
     
-    // Create toast element
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
     toast.innerHTML = `
@@ -116,7 +110,6 @@ function showToast(message, type = 'success') {
         </div>
     `;
     
-    // Add styles
     toast.style.cssText = `
         position: fixed;
         top: 20px;
@@ -134,7 +127,6 @@ function showToast(message, type = 'success') {
         animation: slideIn 0.3s ease-out;
     `;
     
-    // Add animation styles
     const style = document.createElement('style');
     style.textContent = `
         @keyframes slideIn {
@@ -155,10 +147,9 @@ function showToast(message, type = 'success') {
     `;
     document.head.appendChild(style);
     
-    // Add to document
     document.body.appendChild(toast);
     
-    // Remove after 3 seconds
+    // Auto-remove toast after 3 seconds
     setTimeout(() => {
         toast.style.animation = 'slideIn 0.3s ease-out reverse';
         setTimeout(() => {

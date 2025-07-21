@@ -1,5 +1,5 @@
-// Simple script without validation
+// Signup form initialization script
 document.addEventListener('DOMContentLoaded', function() {
-  // This script is intentionally minimal to allow the form to submit naturally
-  console.log('Signup form script loaded - using server-side validation only');
+    // Minimal client-side script - validation handled server-side
+    console.log('Signup form script loaded - using server-side validation only');
 });
