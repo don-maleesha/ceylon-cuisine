@@ -211,6 +211,12 @@
     display: flex;
     gap: 5px;
     flex-wrap: wrap;
+    align-items: center;
+}
+
+.action-buttons .inline-form {
+    display: inline-block;
+    margin: 0;
 }
 
 .btn-view, .btn-approve, .btn-reject, .btn-delete, .btn-feature, .btn-block, .btn-unblock, .btn-categories {
@@ -223,6 +229,8 @@
     display: inline-flex;
     align-items: center;
     text-decoration: none;
+    transition: all 0.3s ease;
+    gap: 5px;
 }
 
 .btn-view {
@@ -636,6 +644,94 @@
 .modal-footer .btn-delete:hover.enabled {
     background-color: #c82333;
     transform: translateY(-1px);
+}
+
+/* Alert Messages */
+.alert {
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: opacity 0.3s ease;
+}
+
+.alert i {
+    font-size: 16px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+/* Delete Button Styles */
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'Raleway', sans-serif;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 5px;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+.btn-delete:active {
+    transform: translateY(0);
+}
+
+.btn-delete i {
+    font-size: 11px;
+}
+
+/* Enhanced Action Buttons Layout - consolidated with main buttons section above */
+
+/* Responsive improvements for action buttons */
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+    }
+    
+    .action-buttons .inline-form {
+        width: 100%;
+    }
+    
+    .btn-delete, 
+    .btn-block, 
+    .btn-unblock {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 /* Recipe Management Styles */
@@ -1078,4 +1174,185 @@
   .action-buttons {
     display: none;
   }
+}
+
+/* Custom Confirmation Modal */
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.custom-modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.custom-modal {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 90%;
+    transform: scale(0.7) translateY(-20px);
+    transition: all 0.3s ease;
+    font-family: 'Raleway', sans-serif;
+}
+
+.custom-modal-overlay.show .custom-modal {
+    transform: scale(1) translateY(0);
+}
+
+.custom-modal-header {
+    padding: 20px 25px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.custom-modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #dc3545;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.custom-modal-header i {
+    font-size: 22px;
+}
+
+.custom-modal-body {
+    padding: 20px 25px;
+    line-height: 1.6;
+}
+
+.custom-modal-body p {
+    margin: 0;
+    color: #333;
+    font-size: 16px;
+}
+
+.warning-list {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+}
+
+.warning-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0;
+    color: #856404;
+    font-weight: 500;
+}
+
+.warning-item i {
+    color: #ffc107;
+    width: 16px;
+    text-align: center;
+}
+
+.final-warning {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    padding: 12px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.final-warning i {
+    color: #dc3545;
+    font-size: 18px;
+}
+
+.custom-modal-footer {
+    padding: 15px 25px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    border-top: 1px solid #eee;
+}
+
+.btn-cancel, .btn-confirm {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 80px;
+}
+
+.btn-cancel {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-cancel:hover {
+    background-color: #5a6268;
+    transform: translateY(-1px);
+}
+
+.btn-confirm {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-confirm:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* Mobile responsiveness for modal */
+@media (max-width: 768px) {
+    .custom-modal {
+        width: 95%;
+        margin: 10px;
+    }
+    
+    .custom-modal-header,
+    .custom-modal-body,
+    .custom-modal-footer {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    
+    .custom-modal-header h3 {
+        font-size: 18px;
+    }
+    
+    .custom-modal-body p {
+        font-size: 14px;
+    }
+    
+    .custom-modal-footer {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn-cancel, .btn-confirm {
+        width: 100%;
+        padding: 12px;
+    }
 }

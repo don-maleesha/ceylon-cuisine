@@ -186,6 +186,115 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     }
     
+    // Delete user
+    if (isset($_POST['delete_user'])) {
+        $userId = $_POST['user_id'];
+        
+        // Prevent admin from deleting themselves
+        if ($userId == $_SESSION['user_id']) {
+            header("Location: adminDashboard.php?tab=users&error=cannot_delete_self");
+            exit();
+        }
+        
+        // Check if user is admin
+        $stmt = $conn->prepare("SELECT role FROM users WHERE id = ?");
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $stmt->bind_result($userRole);
+        $stmt->fetch();
+        $stmt->close();
+        
+        // Prevent deleting other admin users
+        if ($userRole === 'admin') {
+            header("Location: adminDashboard.php?tab=users&error=cannot_delete_admin");
+            exit();
+        }
+        
+        // Get user profile picture to delete if exists
+        $stmt = $conn->prepare("SELECT profile_picture FROM users WHERE id = ?");
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $stmt->bind_result($profilePicture);
+        $stmt->fetch();
+        $stmt->close();
+        
+        // Delete user's recipes (and their associated data)
+        $stmt = $conn->prepare("SELECT id, image_url FROM recipes WHERE user_id = ?");
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $userRecipes = $result->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        
+        foreach ($userRecipes as $recipe) {
+            $recipeId = $recipe['id'];
+            $imageUrl = $recipe['image_url'];
+            
+            // Delete recipe categories if table exists
+            $stmt = $conn->prepare("SHOW TABLES LIKE 'recipe_categories'");
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $recipeCategoriesExist = $result->num_rows > 0;
+            $stmt->close();
+            
+            if ($recipeCategoriesExist) {
+                $stmt = $conn->prepare("DELETE FROM recipe_categories WHERE recipe_id = ?");
+                $stmt->bind_param("i", $recipeId);
+                $stmt->execute();
+                $stmt->close();
+            }
+            
+            // Delete all ratings for this recipe
+            $stmt = $conn->prepare("DELETE FROM ratings WHERE recipe_id = ?");
+            $stmt->bind_param("i", $recipeId);
+            $stmt->execute();
+            $stmt->close();
+            
+            // Delete favorites for this recipe
+            $stmt = $conn->prepare("DELETE FROM favorites WHERE recipe_id = ?");
+            $stmt->bind_param("i", $recipeId);
+            $stmt->execute();
+            $stmt->close();
+            
+            // Delete the recipe image file if it exists
+            if ($imageUrl && file_exists("../uploads/" . $imageUrl)) {
+                unlink("../uploads/" . $imageUrl);
+            }
+        }
+        
+        // Delete all user's recipes
+        $stmt = $conn->prepare("DELETE FROM recipes WHERE user_id = ?");
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $stmt->close();
+        
+        // Delete user's ratings on other recipes
+        $stmt = $conn->prepare("DELETE FROM ratings WHERE user_id = ?");
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $stmt->close();
+        
+        // Delete user's favorites
+        $stmt = $conn->prepare("DELETE FROM favorites WHERE user_id = ?");
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $stmt->close();
+        
+        // Delete the user's profile picture if it exists and is not default
+        if ($profilePicture && $profilePicture !== 'default.png' && file_exists("../uploads/" . str_replace('../uploads/', '', $profilePicture))) {
+            unlink("../uploads/" . str_replace('../uploads/', '', $profilePicture));
+        }
+        
+        // Finally, delete the user
+        $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $stmt->close();
+        
+        header("Location: adminDashboard.php?tab=users&success=user_deleted");
+        exit();
+    }
+    
     // Delete review
     if (isset($_POST['delete_review'])) {
         $reviewId = $_POST['review_id'];
@@ -572,10 +681,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             </button>
                                         <?php endif; ?>
                                         
-                                        <button type="button" class="btn-delete" 
-                                                onclick="showDeleteConfirmation(<?php echo $recipe['id']; ?>, '<?php echo htmlspecialchars($recipe['title'], ENT_QUOTES); ?>')">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </button>
+                                        <form method="POST" class="inline-form delete-recipe-form" data-recipe-name="<?php echo htmlspecialchars($recipe['title']); ?>">
+                                            <input type="hidden" name="recipe_id" value="<?php echo $recipe['id']; ?>">
+                                            <button type="button" class="btn-delete delete-recipe-btn" title="Delete Recipe">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
                                     </form>
                                 </td>
                             </tr>
@@ -589,11 +700,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <!-- User Management -->
                 <h1 class="playfair-display">User Management</h1>
                 
+                <?php
+                // Display success/error messages
+                if (isset($_GET['success'])) {
+                    if ($_GET['success'] == 'user_deleted') {
+                        echo '<div class="alert alert-success"><i class="fas fa-check-circle"></i> User deleted successfully!</div>';
+                    }
+                }
+                if (isset($_GET['error'])) {
+                    if ($_GET['error'] == 'cannot_delete_self') {
+                        echo '<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> You cannot delete your own account!</div>';
+                    } elseif ($_GET['error'] == 'cannot_delete_admin') {
+                        echo '<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> You cannot delete other admin accounts!</div>';
+                    }
+                }
+                ?>
+                
                 <div class="admin-actions">
                     <div class="search-bar">
                         <form action="adminDashboard.php" method="GET">
                             <input type="hidden" name="tab" value="users">
-                            <input type="text" name="search" placeholder="Search users...">
+                            <input type="text" name="search" placeholder="Search users..." value="<?php echo htmlspecialchars($_GET['search'] ?? ''); ?>">
                             <button type="submit"><i class="fas fa-search"></i></button>
                         </form>
                     </div>
@@ -649,11 +776,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         
                                         <!-- Block/Unblock button -->
                                         <input type="hidden" name="status" value="<?php echo $user['status'] ?? 'active'; ?>">
-                                        <button type="submit" name="toggle_status" class="btn-<?php echo ($user['status'] ?? 'active') == 'active' ? 'block' : 'unblock'; ?>">
+                                        <button type="submit" name="toggle_status" class="btn-<?php echo ($user['status'] ?? 'active') == 'active' ? 'block' : 'unblock'; ?>" title="<?php echo ($user['status'] ?? 'active') == 'active' ? 'Block User' : 'Unblock User'; ?>">
                                             <i class="fas fa-<?php echo ($user['status'] ?? 'active') == 'active' ? 'lock' : 'unlock'; ?>"></i>
                                             <?php echo ($user['status'] ?? 'active') == 'active' ? 'Block' : 'Unblock'; ?>
                                         </button>
                                     </form>
+                                    
+                                    <?php if ($user['id'] != $_SESSION['user_id'] && $user['role'] != 'admin'): ?>
+                                    <form method="POST" class="inline-form delete-user-form" data-user-name="<?php echo htmlspecialchars($user['name']); ?>">
+                                        <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                                        <button type="button" class="btn-delete delete-user-btn" title="Delete User">
+                                            <i class="fas fa-trash"></i>
+                                            Delete
+                                        </button>
+                                    </form>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -748,9 +885,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <td><?php echo htmlspecialchars($review['comment'] ?? ''); ?></td>
                                 <td><?php echo date('M d, Y', strtotime($review['created_at'])); ?></td>
                                 <td class="action-buttons">
-                                    <form method="POST" class="inline-form">
+                                    <form method="POST" class="inline-form delete-review-form" data-review-user="<?php echo htmlspecialchars($review['user_name']); ?>" data-recipe-title="<?php echo htmlspecialchars($review['recipe_title']); ?>">
                                         <input type="hidden" name="review_id" value="<?php echo $review['id']; ?>">
-                                        <button type="submit" name="delete_review" class="btn-delete" onclick="return confirm('Are you sure you want to delete this review?')">
+                                        <button type="button" class="btn-delete delete-review-btn" title="Delete Review">
                                             <i class="fas fa-trash"></i> Delete
                                         </button>
                                     </form>
