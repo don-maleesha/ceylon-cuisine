@@ -1,7 +1,3 @@
-/* ==========================================================================
-   Global Styles
-   ========================================================================== */
-
 body {
   font-family: 'Roboto', sans-serif;
   margin: 0;
@@ -22,10 +18,6 @@ ul {
   margin: 0;
   list-style: none;
 }
-
-/* ==========================================================================
-   Header Styles
-   ========================================================================== */
 
 header {
   background-color: #86553f;
@@ -101,6 +93,47 @@ header .auth-buttons .dropdown {
   display: inline-block;
 }
 
+/* Mobile Menu Toggle Button */
+.mobile-menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 30px;
+  height: 30px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1000;
+}
+
+.mobile-menu-toggle span {
+  display: block;
+  height: 3px;
+  width: 100%;
+  background-color: #fff;
+  border-radius: 3px;
+  opacity: 1;
+  left: 0;
+  transform: rotate(0deg);
+  transition: .25s ease-in-out;
+}
+
+.mobile-menu-toggle.active span:nth-child(1) {
+  top: 18px;
+  transform: rotate(135deg);
+}
+
+.mobile-menu-toggle.active span:nth-child(2) {
+  opacity: 0;
+  left: -60px;
+}
+
+.mobile-menu-toggle.active span:nth-child(3) {
+  top: 18px;
+  transform: rotate(-135deg);
+}
+
 header .auth-buttons .dropdown a.custom-icon {
   display: flex;
   align-items: center;
@@ -167,10 +200,6 @@ header .auth-buttons .dropdown .dropdown-menu li a.dropdown-item .fa-user,
   color: #dbb657;
 }
 
-/* ==========================================================================
-   Typography Classes
-   ========================================================================== */
-
 .josefin-sans {
   font-family: "Josefin Sans", sans-serif;
   font-optical-sizing: auto;
@@ -201,10 +230,6 @@ header .auth-buttons .dropdown .dropdown-menu li a.dropdown-item .fa-user,
   font-style: normal;
 }
 
-/* ==========================================================================
-   Hero Section
-   ========================================================================== */
-
 .hero {
   display: flex;
   justify-content: space-between;
@@ -230,23 +255,15 @@ header .auth-buttons .dropdown .dropdown-menu li a.dropdown-item .fa-user,
   color: #555;
 }
 
-.raleway {
-  font-family: "Raleway", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.merriweather-regular {
-  font-family: "Merriweather", serif;
-  font-weight: 400;
-  font-style: normal;
-}
-
 .hero .text .buttons a {
   padding: 15px 30px;
   border-radius: 5px;
   font-weight: 500;
+  margin-right: 15px;
+}
+
+.hero .text .buttons a:last-child {
+  margin-right: 0;
 }
 
 .hero .text .buttons .explore-recipes {
@@ -267,10 +284,6 @@ header .auth-buttons .dropdown .dropdown-menu li a.dropdown-item .fa-user,
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   height: 55%;
 }
-
-/* ==========================================================================
-   Features Section
-   ========================================================================== */
 
 .features {
   padding: 60px 20px;
@@ -320,10 +333,6 @@ header .auth-buttons .dropdown .dropdown-menu li a.dropdown-item .fa-user,
   margin: 20px 0;
 }
 
-/* ==========================================================================
-   Testimonial Section
-   ========================================================================== */
-
 .testimonial {
   display: flex;
   align-items: center;
@@ -358,10 +367,6 @@ header .auth-buttons .dropdown .dropdown-menu li a.dropdown-item .fa-user,
 .testimonial .text .title {
   color: #666;
 }
-
-/* ==========================================================================
-   Footer Styles
-   ========================================================================== */
 
 .footer {
   background-color: #86553f;
@@ -418,30 +423,398 @@ header .auth-buttons .dropdown .dropdown-menu li a.dropdown-item .fa-user,
    ========================================================================== */
 
 @media (max-width: 768px) {
-  .hero {
-    flex-direction: column;
-    text-align: center;
+  /* Header Mobile Styles */
+  header {
+    padding: 15px 0;
   }
 
-  .hero .text,
+  header .container {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;
+    position: relative;
+  }
+
+  header .logo {
+    order: 1;
+  }
+
+  header .logo img {
+    height: 35px;
+  }
+
+  header .logo .company-name {
+    font-size: 1.5em;
+  }
+
+  /* Show mobile menu toggle button */
+  .mobile-menu-toggle {
+    display: flex;
+    order: 2;
+  }
+
+  header nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #86553f;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-100%);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 999;
+  }
+
+  header nav.mobile-nav-open {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  header nav ul {
+    flex-direction: column;
+    gap: 0;
+    text-align: center;
+    padding: 20px 0;
+    background-color: transparent;
+    border-radius: 0;
+  }
+
+  header nav ul li {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  header nav ul li:last-child {
+    border-bottom: none;
+  }
+
+  header nav ul li a {
+    display: block;
+    padding: 15px 20px;
+    transition: background-color 0.3s ease;
+  }
+
+  header nav ul li a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  header .auth-buttons {
+    order: 3;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  header .auth-buttons a {
+    padding: 8px 16px;
+    font-size: 0.9em;
+    margin-left: 0;
+  }
+
+  header .auth-buttons .dropdown .dropdown-menu {
+    right: 0;
+    left: auto;
+    transform: none;
+    max-width: 200px;
+  }
+
+  /* Hero Section Mobile */
+  .hero {
+    flex-direction: column;
+    padding: 40px 15px;
+    text-align: center;
+    gap: 30px;
+  }
+
+  .hero .text {
+    max-width: 100%;
+    order: 2;
+  }
+
+  .hero .text h1 {
+    font-size: 2.2em;
+    line-height: 1.2;
+    margin-bottom: 15px;
+  }
+
+  .hero .text p {
+    font-size: 16px;
+    margin-bottom: 25px;
+    line-height: 1.5;
+  }
+
+  .hero .text .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+  }
+
+  .hero .text .buttons a {
+    width: 200px;
+    text-align: center;
+    padding: 12px 25px;
+    font-size: 0.9em;
+    margin-right: 0;
+  }
+
   .hero img {
     max-width: 100%;
+    height: 250px;
+    order: 1;
+    object-fit: cover;
+  }
+
+  /* Features Section Mobile */
+  .features {
+    padding: 40px 15px;
+  }
+
+  .features h2 {
+    font-size: 2em;
+    margin-bottom: 15px;
+  }
+
+  .features p {
+    font-size: 0.95em;
+    margin-bottom: 30px;
+    padding: 0 10px;
   }
 
   .features .feature-list {
     flex-direction: column;
-    gap: 30px;
+    gap: 25px;
   }
 
+  .features .feature {
+    min-width: auto;
+    width: 100%;
+    padding: 20px 15px;
+  }
+
+  .features .feature img {
+    height: 180px;
+  }
+
+  .features .feature h3 {
+    font-size: 1.3em;
+    margin: 15px 0 10px 0;
+  }
+
+  .features .feature p {
+    font-size: 0.9em;
+    line-height: 1.6;
+  }
+
+  /* Testimonial Section Mobile */
   .testimonial {
     flex-direction: column;
+    padding: 40px 15px;
     text-align: center;
+    gap: 20px;
+  }
+
+  .testimonial img {
+    margin-right: 0;
+    margin-bottom: 15px;
+    width: 80px;
+    height: 80px;
+  }
+
+  .testimonial .text {
+    max-width: 100%;
+  }
+
+  .testimonial .text p {
+    font-size: 0.95em;
+    line-height: 1.6;
+    padding: 0 10px;
+  }
+
+  .testimonial .text .name {
+    font-size: 0.9em;
+    margin-top: 15px;
+  }
+
+  /* Footer Mobile Styles */
+  .footer {
+    padding: 40px 15px;
   }
 
   .footer .container {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    gap: 30px;
+  }
+
+  .footer .logo {
+    order: 1;
+  }
+
+  .footer .logo img {
+    height: 60px;
+  }
+
+  .footer .links,
+  .footer .resources,
+  .footer .company,
+  .footer .social {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .footer h3 {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+  }
+
+  .footer .links ul li a,
+  .footer .resources ul li a,
+  .footer .company ul li a,
+  .footer .social ul li a {
+    font-size: 0.9em;
+    line-height: 1.8;
+  }
+
+  .footer .social ul {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .footer .social ul li a {
+    font-size: 1.5em;
+  }
+
+  .footer .copyright {
+    margin-top: 30px;
+    font-size: 0.85em;
+  }
+
+  /* Typography Mobile Adjustments */
+  .josefin-sans {
+    font-size: 2.2em;
+  }
+
+  .playfair-display {
+    font-size: 1.8em;
+  }
+
+  .merriweather-regular {
+    font-size: 0.95em;
+  }
+
+  .raleway {
+    font-size: 0.9em;
+  }
+}
+
+/* Small mobile devices (320px - 480px) */
+@media (max-width: 480px) {
+  header .container {
+    padding: 0 10px;
+  }
+
+  header .logo .company-name {
+    font-size: 1.3em;
+  }
+
+  header nav ul {
+    padding: 15px 0;
+  }
+
+  header nav ul li a {
+    padding: 12px 15px;
+  }
+
+  header .auth-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  header .auth-buttons a {
+    padding: 8px 12px;
+    font-size: 0.85em;
+  }
+
+  .hero {
+    padding: 30px 10px;
+  }
+
+  .hero .text h1 {
+    font-size: 1.8em;
+  }
+
+  .hero .text p {
+    font-size: 15px;
+  }
+
+  .hero img {
+    height: 200px;
+  }
+
+  .features {
+    padding: 30px 10px;
+  }
+
+  .features h2 {
+    font-size: 1.8em;
+  }
+
+  .features .feature {
+    padding: 15px 10px;
+  }
+
+  .testimonial {
+    padding: 30px 10px;
+  }
+
+  .testimonial img {
+    width: 70px;
+    height: 70px;
+  }
+
+  .footer {
+    padding: 30px 10px;
+  }
+
+  .josefin-sans {
+    font-size: 1.8em;
+  }
+}
+
+/* Landscape mobile devices */
+@media (max-width: 768px) and (orientation: landscape) {
+  .hero {
+    flex-direction: row;
+    padding: 30px 15px;
+  }
+
+  .hero .text {
+    max-width: 50%;
+    order: 1;
+    text-align: left;
+  }
+
+  .hero img {
+    max-width: 45%;
+    order: 2;
+    height: 300px;
+  }
+
+  .hero .text .buttons {
+    flex-direction: row;
+    gap: 15px;
+    justify-content: flex-start;
+  }
+
+  .hero .text .buttons a {
+    width: auto;
+    padding: 10px 20px;
   }
 }
 
@@ -571,8 +944,6 @@ header .auth-buttons .dropdown .dropdown-menu li a.dropdown-item .fa-user,
 }
 
 .view-recipe-btn {
-  margin-top: 10px;
-  margin-bottom: 10px;
   background-color: #86553f;
   border: 1px solid #fff;
   border-radius: 8px;
@@ -583,7 +954,7 @@ header .auth-buttons .dropdown .dropdown-menu li a.dropdown-item .fa-user,
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 20px auto;
+  margin: 10px auto 20px auto;
   text-decoration: none;
   transition: background-color 0.5s ease;
   cursor: pointer;
@@ -726,5 +1097,205 @@ header .auth-buttons .dropdown .dropdown-menu li a.dropdown-item .fa-user,
 
   .no-favorites-home i {
     font-size: 3rem;
+  }
+}
+
+/* Additional Mobile Responsive Enhancements */
+
+/* Base responsive foundation */
+* {
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Enhanced container responsiveness */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 10px;
+  }
+}
+
+/* Enhanced navigation mobile styles */
+@media (max-width: 768px) {
+  header nav ul li a {
+    font-size: 16px;
+    padding: 16px 20px;
+  }
+}
+
+/* Enhanced hero section mobile responsiveness */
+@media (max-width: 768px) {
+  .hero .text .buttons {
+    width: 100%;
+  }
+  
+  .hero .text .buttons a {
+    min-width: 200px;
+    margin-bottom: 10px;
+  }
+}
+
+/* Enhanced features section mobile */
+@media (max-width: 768px) {
+  .features .feature h3 {
+    font-size: 20px;
+    margin: 15px 0 10px 0;
+  }
+  
+  .features .feature p {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+/* Enhanced testimonial mobile styles */
+@media (max-width: 768px) {
+  .testimonial {
+    flex-direction: column;
+    padding: 40px 15px;
+  }
+  
+  .testimonial img {
+    margin-right: 0;
+    margin-bottom: 20px;
+    width: 80px;
+    height: 80px;
+  }
+  
+  .testimonial .text {
+    max-width: 100%;
+    text-align: center;
+  }
+  
+  .testimonial .text p {
+    font-size: 15px;
+    margin-bottom: 15px;
+  }
+}
+
+/* Enhanced footer mobile styles */
+@media (max-width: 768px) {
+  .footer .container {
+    flex-direction: column;
+    text-align: center;
+    gap: 30px;
+  }
+  
+  .footer .logo,
+  .footer .links,
+  .footer .resources,
+  .footer .company,
+  .footer .social {
+    width: 100%;
+  }
+  
+  .footer .logo {
+    order: -1;
+  }
+  
+  .footer h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+  
+  .footer ul li {
+    margin-bottom: 8px;
+  }
+  
+  .footer ul li a {
+    font-size: 15px;
+    line-height: 1.8;
+  }
+}
+
+/* Enhanced small mobile styles */
+@media (max-width: 480px) {
+  .hero .text h1 {
+    font-size: 1.8em;
+    line-height: 1.3;
+  }
+  
+  .hero .text p {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  
+  .features h2 {
+    font-size: 1.8em;
+  }
+  
+  .features .feature {
+    padding: 15px;
+  }
+  
+  .testimonial .text p {
+    font-size: 14px;
+  }
+  
+  .footer {
+    padding: 30px 10px;
+  }
+  
+  .footer h3 {
+    font-size: 16px;
+  }
+  
+  .footer ul li a {
+    font-size: 14px;
+  }
+}
+
+/* Touch-friendly interactive elements */
+@media (max-width: 768px) {
+  .hero .text .buttons a,
+  .view-all-btn,
+  .explore-btn {
+    min-height: 44px;
+    padding: 12px 24px;
+    font-size: 16px;
+  }
+  
+  header .auth-buttons a {
+    min-height: 40px;
+    padding: 10px 20px;
+  }
+  
+  .mobile-menu-toggle {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Improved readability on mobile */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.3;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
   }
 }

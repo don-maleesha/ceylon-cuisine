@@ -705,3 +705,377 @@
         padding: 4px 8px;
     }
 }
+
+/* ==========================================================================
+   Mobile Responsive Styles for Admin Dashboard
+   ========================================================================== */
+
+/* Tablet and Mobile Layout */
+@media (max-width: 1024px) {
+  .admin-container {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    padding: 15px 0;
+  }
+  
+  .admin-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .admin-nav li {
+    margin-bottom: 0;
+    flex: 1;
+    min-width: 150px;
+  }
+  
+  .admin-nav li a {
+    text-align: center;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+  
+  .admin-nav li.logout-item {
+    margin-top: 0;
+    border-top: none;
+    padding-top: 0;
+  }
+  
+  .admin-content {
+    padding: 20px 15px;
+  }
+}
+
+/* Mobile specific styles */
+@media (max-width: 768px) {
+  .sidebar {
+    padding: 10px 0;
+  }
+  
+  .admin-nav {
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .admin-nav li {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .admin-nav li a {
+    padding: 12px 20px;
+    font-size: 16px;
+  }
+  
+  .admin-content {
+    padding: 15px 10px;
+  }
+  
+  /* Dashboard Stats Mobile */
+  .stat-cards {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .stat-card {
+    padding: 15px;
+    min-height: 80px;
+  }
+  
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    margin-right: 15px;
+  }
+  
+  .stat-icon i {
+    font-size: 20px;
+  }
+  
+  .stat-info h3 {
+    font-size: 24px;
+    margin-bottom: 5px;
+  }
+  
+  .stat-info p {
+    font-size: 13px;
+  }
+  
+  /* Cards and Tables Mobile */
+  .card {
+    margin-bottom: 20px;
+  }
+  
+  .card-header {
+    padding: 15px;
+  }
+  
+  .card-header h3 {
+    font-size: 18px;
+  }
+  
+  .card-body {
+    padding: 15px;
+  }
+  
+  /* Data Tables Mobile */
+  .data-table {
+    font-size: 14px;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 8px 5px;
+    vertical-align: middle;
+  }
+  
+  .data-table th {
+    font-size: 13px;
+  }
+  
+  /* Make tables horizontally scrollable on mobile */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Action buttons mobile */
+  .action-buttons {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .action-buttons button,
+  .action-buttons a {
+    font-size: 12px;
+    padding: 6px 10px;
+    min-height: 32px;
+  }
+  
+  /* Form elements mobile */
+  .form-row {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-size: 16px;
+    padding: 10px 12px;
+    min-height: 44px;
+  }
+  
+  .btn {
+    min-height: 44px;
+    padding: 10px 20px;
+    font-size: 16px;
+  }
+  
+  /* Search and filter mobile */
+  .search-filter-container {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .search-input {
+    width: 100%;
+    font-size: 16px;
+    padding: 10px 15px;
+    min-height: 44px;
+  }
+  
+  .filter-buttons {
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+  
+  .filter-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    min-height: 40px;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .admin-content {
+    padding: 10px 5px;
+  }
+  
+  .stat-cards {
+    gap: 10px;
+  }
+  
+  .stat-card {
+    padding: 12px;
+    min-height: 70px;
+  }
+  
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    margin-right: 10px;
+  }
+  
+  .stat-icon i {
+    font-size: 18px;
+  }
+  
+  .stat-info h3 {
+    font-size: 20px;
+  }
+  
+  .stat-info p {
+    font-size: 12px;
+  }
+  
+  .card-header,
+  .card-body {
+    padding: 10px;
+  }
+  
+  .card-header h3 {
+    font-size: 16px;
+  }
+  
+  .data-table {
+    font-size: 12px;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 6px 3px;
+  }
+  
+  .admin-nav li a {
+    padding: 10px 15px;
+    font-size: 14px;
+  }
+}
+
+/* Modal responsive styles */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    margin: 10px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .modal-header {
+    padding: 15px;
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+  
+  .modal-header h2 {
+    font-size: 18px;
+    margin: 0;
+  }
+  
+  .close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  .modal-body {
+    padding: 15px;
+  }
+}
+
+/* Dashboard specific mobile improvements */
+@media (max-width: 768px) {
+  .dashboard-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .dashboard-header h2 {
+    font-size: 24px;
+  }
+  
+  .quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .quick-actions .btn {
+    width: 100%;
+    text-align: center;
+  }
+  
+  /* Recent activity mobile */
+  .recent-activity {
+    padding: 15px;
+  }
+  
+  .activity-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background: #f8f9fa;
+  }
+  
+  .activity-item .activity-time {
+    font-size: 12px;
+    color: #666;
+  }
+  
+  .activity-item .activity-text {
+    font-size: 14px;
+    margin-top: 5px;
+  }
+}
+
+/* Print styles for mobile reports */
+@media print {
+  .sidebar {
+    display: none;
+  }
+  
+  .admin-content {
+    padding: 0;
+    margin: 0;
+  }
+  
+  .stat-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .data-table {
+    font-size: 12px;
+  }
+  
+  .action-buttons {
+    display: none;
+  }
+}

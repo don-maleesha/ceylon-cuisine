@@ -47,6 +47,14 @@ if (isset($_SESSION['user_id'])) {
                 <img src="../images/Ceylon.png" alt="Logo">
                 <span class="company-name josefin-sans">Ceylon Cuisine</span>
             </div>
+            
+            <!-- Mobile Menu Toggle Button -->
+            <button id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="Toggle navigation menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            
             <nav>
                 <ul>
                     <li><a href="homePage.php" class="raleway">Home</a></li>

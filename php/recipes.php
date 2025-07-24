@@ -179,7 +179,12 @@ if ($recipe_id) {
                 <img src="../images/Ceylon.png" alt="Logo">
                 <span class="company-name josefin-sans">Ceylon Cuisine</span>
             </div>
-            <nav>
+            <button class="mobile-menu-toggle" onclick="toggleMobileNav()" aria-label="Toggle mobile menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav id="mobile-nav">
                 <ul>
                     <li><a href="homePage.php" class="raleway">Home</a></li>
                     <li><a href="aboutus.php" class="raleway">About</a></li>
@@ -249,7 +254,12 @@ if ($recipe_id) {
     <section id="myRecipe" class="content-section">
         <div class="card-container">
             <?php if (empty($recipes)): ?>
-                <p class="raleway">No recipes found.</p>
+                <div class="no-recipes-found">
+                    <i class="fas fa-search" style="font-size: 4rem; color: #dbb657; margin-bottom: 20px;"></i>
+                    <h3 class="playfair-display">No recipes found</h3>
+                    <p class="raleway">Try adjusting your search terms or browse all recipes.</p>
+                    <a href="recipes.php" class="browse-all-btn raleway">Browse All Recipes</a>
+                </div>
             <?php else: ?>
                 <div class="recipe-grid">
                     <?php foreach ($recipes as $myrecipe) : ?>
