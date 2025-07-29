@@ -317,19 +317,18 @@ main {
 
 /* Slider Base Styles */
 
+/* Recipe Cards */
 .card {
-  width: 100%;
-  max-width: 350px;
+  width: 25%;
   display: inline-block;
   box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
-  margin: 2% auto;
-  opacity: 0.9;
-  height: auto;
+  margin: 2% 4% 2% 4%;
+  opacity: 1;
+  height: 480px;
   border: 1px solid #795548;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  flex: 0 0 calc(33.33% - 2rem);
-  min-width: 280px;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+  position: relative;
 }
 
 /* Recipe grid container */
@@ -363,11 +362,13 @@ main {
 
 .card .title {
   text-align: center;
+  margin-top: 200px;
 }
 
 .card .title h2 {
   font-size: 1.5em;
-  margin: 10px 0;
+  margin: 15px 0 10px 0;
+  margin-top: 20px;
 }
 
 #root {
@@ -865,6 +866,7 @@ button:hover{
   .card {
     width: 100%;
     margin: 0;
+    height: 460px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }
   
@@ -1678,8 +1680,9 @@ button:hover{
 /* Tablet styles (769px to 1024px) */
 @media (min-width: 769px) and (max-width: 1024px) {
   .card {
-    flex: 0 0 calc(50% - 1rem);
-    max-width: calc(50% - 1rem);
+    width: 45%;
+    margin: 2% 2.5%;
+    height: 470px;
   }
   
   .search-sort {
@@ -1698,8 +1701,9 @@ button:hover{
 /* Large desktop styles (1200px and above) */
 @media (min-width: 1200px) {
   .card {
-    flex: 0 0 calc(25% - 1.5rem);
-    max-width: calc(25% - 1.5rem);
+    width: 20%;
+    margin: 2% 2.5%;
+    height: 490px;
   }
   
   .card-container {

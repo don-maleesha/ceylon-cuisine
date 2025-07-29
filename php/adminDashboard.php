@@ -340,6 +340,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute();
         $stmt->close();
         
+        // Delete all favorites for this recipe
+        $stmt = $conn->prepare("DELETE FROM favorites WHERE recipe_id = ?");
+        $stmt->bind_param("i", $recipeId);
+        $stmt->execute();
+        $stmt->close();
+        
         // Delete the recipe
         $stmt = $conn->prepare("DELETE FROM recipes WHERE id = ?");
         $stmt->bind_param("i", $recipeId);
@@ -530,6 +536,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
                 
             <?php elseif($activeTab == 'recipes'): ?>
+                <?php
+                // Initialize search and status filter variables early
+                $search = $_GET['search'] ?? '';
+                $statusFilter = $_GET['status'] ?? '';
+                ?>
                 <!-- Recipe Management -->
                 <h1 class="playfair-display">Recipe Management</h1>
                 
@@ -560,8 +571,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
                 <?php
                 // Recipe listing with search and filtering
-                $search = $_GET['search'] ?? '';
-                $statusFilter = $_GET['status'] ?? '';
                 
                 $query = "SELECT r.*, u.name as author FROM recipes r 
                           JOIN users u ON r.user_id = u.id 
@@ -680,14 +689,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                 <i class="fas fa-star"></i> Feature
                                             </button>
                                         <?php endif; ?>
-                                        
-                                        <form method="POST" class="inline-form delete-recipe-form" data-recipe-name="<?php echo htmlspecialchars($recipe['title']); ?>">
-                                            <input type="hidden" name="recipe_id" value="<?php echo $recipe['id']; ?>">
-                                            <button type="button" class="btn-delete delete-recipe-btn" title="Delete Recipe">
-                                                <i class="fas fa-trash"></i> Delete
-                                            </button>
-                                        </form>
                                     </form>
+                                    
+                                    <button type="button" class="btn-delete delete-recipe-btn" 
+                                            data-recipe-id="<?php echo $recipe['id']; ?>" 
+                                            data-recipe-name="<?php echo htmlspecialchars($recipe['title']); ?>" 
+                                            title="Delete Recipe">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -1046,6 +1055,68 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <input type="hidden" name="delete_recipe" value="1">
     </form>
     
+    <!-- Delete User Confirmation Modal -->
+    <div id="deleteUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> Confirm User Deletion</h2>
+                <span class="close" onclick="closeDeleteUserModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the user "<span id="userName"></span>"?</p>
+                <div class="warning-box">
+                    <i class="fas fa-warning"></i>
+                    <strong>Warning:</strong> This action cannot be undone. The user, all their recipes, ratings, and associated data will be permanently deleted.
+                </div>
+                <div class="verification-input">
+                    <label for="deleteUserConfirmation">Type "DELETE" to confirm:</label>
+                    <input type="text" id="deleteUserConfirmation" placeholder="Type DELETE here" autocomplete="off">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeDeleteUserModal()">Cancel</button>
+                <button type="button" id="confirmDeleteUserBtn" class="btn-delete" disabled onclick="confirmDeleteUser()">
+                    <i class="fas fa-trash"></i> Delete User
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hidden form for user deletion -->
+    <form id="deleteUserForm" method="POST" style="display: none;">
+        <input type="hidden" name="user_id" id="deleteUserId" value="">
+        <input type="hidden" name="delete_user" value="1">
+    </form>
+    
+    <!-- Delete Review Confirmation Modal -->
+    <div id="deleteReviewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> Confirm Review Deletion</h2>
+                <span class="close" onclick="closeDeleteReviewModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this review by "<span id="reviewUserName"></span>" for "<span id="reviewRecipeTitle"></span>"?</p>
+                <div class="warning-box">
+                    <i class="fas fa-warning"></i>
+                    <strong>Warning:</strong> This action cannot be undone.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeDeleteReviewModal()">Cancel</button>
+                <button type="button" id="confirmDeleteReviewBtn" class="btn-delete" onclick="confirmDeleteReview()">
+                    <i class="fas fa-trash"></i> Delete Review
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hidden form for review deletion -->
+    <form id="deleteReviewForm" method="POST" style="display: none;">
+        <input type="hidden" name="review_id" id="deleteReviewId" value="">
+        <input type="hidden" name="delete_review" value="1">
+    </form>
+    
     <script>
         // Delete confirmation modal functions
         let currentRecipeId = null;
@@ -1077,6 +1148,56 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
         
+        // User deletion modal functions
+        let currentUserId = null;
+        
+        function showDeleteUserConfirmation(userId, userName) {
+            currentUserId = userId;
+            document.getElementById('userName').textContent = userName;
+            document.getElementById('deleteUserId').value = userId;
+            document.getElementById('deleteUserConfirmation').value = '';
+            document.getElementById('confirmDeleteUserBtn').disabled = true;
+            document.getElementById('deleteUserModal').style.display = 'block';
+            
+            // Focus on the input field
+            setTimeout(() => {
+                document.getElementById('deleteUserConfirmation').focus();
+            }, 100);
+        }
+        
+        function closeDeleteUserModal() {
+            document.getElementById('deleteUserModal').style.display = 'none';
+            currentUserId = null;
+            document.getElementById('deleteUserConfirmation').value = '';
+            document.getElementById('confirmDeleteUserBtn').disabled = true;
+        }
+        
+        function confirmDeleteUser() {
+            if (document.getElementById('deleteUserConfirmation').value === 'DELETE') {
+                document.getElementById('deleteUserForm').submit();
+            }
+        }
+        
+        // Review deletion modal functions
+        let currentReviewId = null;
+        
+        function showDeleteReviewConfirmation(reviewId, reviewUser, recipeTitle) {
+            currentReviewId = reviewId;
+            document.getElementById('reviewUserName').textContent = reviewUser;
+            document.getElementById('reviewRecipeTitle').textContent = recipeTitle;
+            document.getElementById('deleteReviewId').value = reviewId;
+            document.getElementById('deleteReviewModal').style.display = 'block';
+        }
+        
+        function closeDeleteReviewModal() {
+            document.getElementById('deleteReviewModal').style.display = 'none';
+            currentReviewId = null;
+        }
+        
+        function confirmDeleteReview() {
+            document.getElementById('deleteReviewForm').submit();
+        }
+        
         // Enable/disable delete button based on confirmation input
         document.addEventListener('DOMContentLoaded', function() {
             const deleteInput = document.getElementById('deleteConfirmation');
@@ -1092,24 +1213,87 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
             });
             
-            // Close modal when clicking outside
-            window.addEventListener('click', function(event) {
-                const modal = document.getElementById('deleteModal');
-                if (event.target === modal) {
-                    closeDeleteModal();
+            // User deletion confirmation input handling
+            const deleteUserInput = document.getElementById('deleteUserConfirmation');
+            const deleteUserBtn = document.getElementById('confirmDeleteUserBtn');
+            
+            deleteUserInput.addEventListener('input', function() {
+                if (this.value === 'DELETE') {
+                    deleteUserBtn.disabled = false;
+                    deleteUserBtn.classList.add('enabled');
+                } else {
+                    deleteUserBtn.disabled = true;
+                    deleteUserBtn.classList.remove('enabled');
                 }
             });
             
-            // Handle Enter key in confirmation input
+            // Close modals when clicking outside
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('deleteModal');
+                const userModal = document.getElementById('deleteUserModal');
+                const reviewModal = document.getElementById('deleteReviewModal');
+                
+                if (event.target === modal) {
+                    closeDeleteModal();
+                } else if (event.target === userModal) {
+                    closeDeleteUserModal();
+                } else if (event.target === reviewModal) {
+                    closeDeleteReviewModal();
+                }
+            });
+            
+            // Handle Enter key in confirmation inputs
             deleteInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter' && this.value === 'DELETE') {
                     confirmDelete();
+                }
+            });
+            
+            deleteUserInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && this.value === 'DELETE') {
+                    confirmDeleteUser();
                 }
             });
         });
         
         // Handle tab navigation
         document.addEventListener('DOMContentLoaded', function() {
+            // Add click event listeners to delete buttons
+            const deleteButtons = document.querySelectorAll('.delete-recipe-btn');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const recipeId = this.getAttribute('data-recipe-id');
+                    const recipeName = this.getAttribute('data-recipe-name');
+                    showDeleteConfirmation(recipeId, recipeName);
+                });
+            });
+            
+            // Add click event listeners to user delete buttons
+            const deleteUserButtons = document.querySelectorAll('.delete-user-btn');
+            deleteUserButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const form = this.closest('form');
+                    const userId = form.querySelector('input[name="user_id"]').value;
+                    const userName = form.getAttribute('data-user-name');
+                    showDeleteUserConfirmation(userId, userName);
+                });
+            });
+            
+            // Add click event listeners to review delete buttons
+            const deleteReviewButtons = document.querySelectorAll('.delete-review-btn');
+            deleteReviewButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const form = this.closest('form');
+                    const reviewId = form.querySelector('input[name="review_id"]').value;
+                    const reviewUser = form.getAttribute('data-review-user');
+                    const recipeTitle = form.getAttribute('data-recipe-title');
+                    showDeleteReviewConfirmation(reviewId, reviewUser, recipeTitle);
+                });
+            });
+            
             // Handle filter form submissions
             const filterSelects = document.querySelectorAll('.filter-options select');
             filterSelects.forEach(select => {

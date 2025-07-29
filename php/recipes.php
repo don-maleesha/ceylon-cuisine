@@ -2,6 +2,15 @@
 include 'dbconn.php';
 session_start();
 
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Debug: Check database connection
+if (!$conn) {
+    die("Database connection failed: " . mysqli_connect_error());
+}
+
 // Pagination setup
 $recipesPerPage = 6;
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
@@ -20,39 +29,40 @@ $result = $stmt->get_result();
 $statusColumnExists = $result->num_rows > 0;
 $stmt->close();
 
+// Build WHERE conditions
+$whereConditions = [];
+$searchTerm = '';
+
+if ($statusColumnExists) {
+    $whereConditions[] = "status = 'approved'";
+}
+
+if (!empty($search)) {
+    $whereConditions[] = "title LIKE ?";
+    $searchTerm = "%$search%";
+}
+
+$whereClause = '';
+if (!empty($whereConditions)) {
+    $whereClause = ' WHERE ' . implode(' AND ', $whereConditions);
+}
+
 // Base query for counting total recipes
-$countQuery = "SELECT COUNT(*) as total FROM recipes r";
+$countQuery = "SELECT COUNT(*) as total FROM recipes r" . $whereClause;
 
 // Base query for fetching recipes
 $query = "SELECT r.id, r.title, r.description, r.image_url, COALESCE(r.average_rating, 0) AS average_rating";
 if (isset($_SESSION['user_id'])) {
     $query .= ", (SELECT COUNT(*) FROM favorites f WHERE f.recipe_id = r.id AND f.user_id = ?) AS is_favorite";
 }
-$query .= " FROM recipes r";
-
-// Add status condition to only show approved recipes
-if ($statusColumnExists) {
-    $whereClause = " WHERE status = 'approved'";
-    $countQuery .= $whereClause;
-    $query .= $whereClause;
-    
-    if (!empty($search)) {
-        $searchCondition = " AND title LIKE ?";
-        $countQuery .= $searchCondition;
-        $query .= $searchCondition;
-        $searchTerm = "%$search%";
-    }
-} else {
-    if (!empty($search)) {
-        $searchCondition = " WHERE title LIKE ?";
-        $countQuery .= $searchCondition;
-        $query .= $searchCondition;
-        $searchTerm = "%$search%";
-    }
-}
+$query .= " FROM recipes r" . $whereClause;
 
 // Get total count of recipes
 $stmt_count = $conn->prepare($countQuery);
+if (!$stmt_count) {
+    die("Prepare failed for count query: " . $conn->error);
+}
+
 if (!empty($search)) {
     $stmt_count->bind_param("s", $searchTerm);
 }
@@ -62,11 +72,21 @@ $totalRecipes = $result_count->fetch_assoc()['total'];
 $totalPages = ceil($totalRecipes / $recipesPerPage);
 $stmt_count->close();
 
+// Debug output
+echo "<!-- Debug Info:
+Total Recipes: $totalRecipes
+Search Term: $search
+Sort: $sort
+Current Page: $page
+Count Query: $countQuery
+Main Query: $query
+-->";
+
 // Add sorting
 if ($sort === 'newest') {
-    $query .= " ORDER BY created_at DESC";
+    $query .= " ORDER BY r.created_at DESC";
 } elseif ($sort === 'oldest') {
-    $query .= " ORDER BY created_at ASC";
+    $query .= " ORDER BY r.created_at ASC";
 }
 
 // Add pagination limit
@@ -74,6 +94,11 @@ $query .= " LIMIT ? OFFSET ?";
 
 // Prepare and execute the query
 $stmt_all = $conn->prepare($query);
+if (!$stmt_all) {
+    die("Prepare failed for main query: " . $conn->error);
+}
+
+// Bind parameters based on user session and search
 if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
     if (!empty($search)) {
@@ -88,9 +113,16 @@ if (isset($_SESSION['user_id'])) {
         $stmt_all->bind_param("ii", $recipesPerPage, $offset);
     }
 }
-$stmt_all->execute();
+
+if (!$stmt_all->execute()) {
+    die("Execute failed: " . $stmt_all->error);
+}
+
 $result_all = $stmt_all->get_result();
 $recipes = $result_all->fetch_all(MYSQLI_ASSOC);
+
+// Debug: Show number of recipes fetched
+echo "<!-- Recipes fetched: " . count($recipes) . " -->";
 
 // Fetch single recipe for modal display
 $recipe_id = isset($_GET['id']) ? (int)$_GET['id'] : null;

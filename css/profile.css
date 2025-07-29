@@ -235,6 +235,14 @@ header .auth-buttons .dropdown .dropdown-menu li a.dropdown-item .fa-sign-out-al
   padding-right: 20px;
 }
 
+.container .profile-info .profile-picture form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
 .container .profile-info .profile-divider {
   width: 2px;
   height: 120px;
@@ -259,12 +267,6 @@ header .auth-buttons .dropdown .dropdown-menu li a.dropdown-item .fa-sign-out-al
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-form {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
 .container .profile-info .profile-picture .change-picture-button {
   display: flex;
   align-items: center;
@@ -276,15 +278,17 @@ form {
   cursor: pointer;
   transition: background-color 0.3s ease;
   font-family: 'Raleway', sans-serif;
-  font-size: 16px;
+  font-size: 14px;
+  border: none;
+  text-decoration: none;
 }
 
-.container .profile-info .profile-picture .change-picture-button .i {
+.container .profile-info .profile-picture .change-picture-button:hover {
+  background-color: #c49d4a;
+}
+
+.container .profile-info .profile-picture .change-picture-button i {
   font-size: 1em;
-}
-
-.container .profile-info .profile-picture .change-picture-button p {
-  display: none;
 }
 
 .container .profile-info .profile-picture .upload-input {
@@ -292,15 +296,33 @@ form {
 }
 
 .container .profile-info .profile-picture .upload-button {
-  padding: 10px 20px;
-  background-color: #dbb657;
+  padding: 8px 16px;
+  background-color: #86553f;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
   font-family: 'Raleway', sans-serif;
-  font-size: 0.8em;
+  font-size: 12px;
+  min-width: 120px;
+}
+
+.container .profile-info .profile-picture .upload-button:hover:not(:disabled) {
+  background-color: #6d4432;
+}
+
+.container .profile-info .profile-picture .upload-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.container .profile-info .profile-picture .form-text {
+  font-size: 11px;
+  color: #666;
+  text-align: center;
+  margin-top: 5px;
 }
 
 .container .profile-info h2 {
@@ -432,6 +454,55 @@ form {
   border: 1px solid #f5c6cb;
 }
 
+.info-message {
+  background-color: #d1ecf1;
+  border: 1px solid #bee5eb;
+  color: #0c5460;
+  border-left: 4px solid #17a2b8;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  position: relative;
+  animation: fadeIn 0.3s ease-in;
+  font-family: 'Raleway', sans-serif;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
+}
+
+.info-message i {
+  margin-right: 10px;
+  font-size: 1.2em;
+}
+
+/* Animation keyframes for messages */
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(-10px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from { 
+    opacity: 1; 
+    transform: translateY(0);
+  }
+  to { 
+    opacity: 0; 
+    transform: translateY(-10px);
+  }
+}
+
+.fade-out {
+  animation: fadeOut 0.5s ease-out forwards;
+}
+
 /* Tab Navigation */
 .tabs {
   display: flex;
@@ -552,6 +623,7 @@ form {
 /* Recipe Cards */
 .card {
   width: 25%;
+  min-width: 280px;
   display: inline-block;
   box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
@@ -599,6 +671,8 @@ form {
   align-items: center;
   text-align: center;
   font-size: medium;
+  padding: 0 15px;
+  word-break: break-word;
 }
 
 .card .description img {
@@ -611,6 +685,18 @@ form {
   margin: 10px 0;
   font-size: 0.9em;
   color: #666;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  line-height: 1.4;
+  max-height: 4.2em; /* Approximately 3 lines */
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
 }
 
 .card button {
@@ -1080,6 +1166,18 @@ button[type="button"] {
     align-items: center;
     text-align: center;
   }
+
+  .card {
+    width: 100%;
+    min-width: auto;
+    margin: 2% 0;
+  }
+
+  .card .description p {
+    max-height: 6.3em; /* More lines on mobile for better readability */
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+  }
 }
 
 /* Footer Styles */
@@ -1182,42 +1280,42 @@ button[type="submit"]:disabled {
   opacity: 0.65;
 }
 
+/* Message container */
+.message-container {
+  margin-bottom: 20px;
+}
+
 /* Success and error messages */
 .success-message, .error-message {
   padding: 15px;
-  border-radius: 5px;
+  border-radius: 8px;
   margin-bottom: 20px;
   position: relative;
   animation: fadeIn 0.3s ease-in;
   font-family: 'Raleway', sans-serif;
   display: flex;
   align-items: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
 }
 
 .success-message {
   background-color: #d4edda;
   border: 1px solid #c3e6cb;
   color: #155724;
+  border-left: 4px solid #28a745;
 }
 
 .error-message {
   background-color: #f8d7da;
   border: 1px solid #f5c6cb;
   color: #721c24;
+  border-left: 4px solid #dc3545;
 }
 
 .success-message i, .error-message i {
   margin-right: 10px;
   font-size: 1.2em;
-}
-
-.fade-out {
-  animation: fadeOut 0.5s ease-out forwards;
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
 }
 
 /* Button styling improvements */
@@ -1532,6 +1630,17 @@ button[type="submit"]:disabled {
     color: #666;
     line-height: 1.6;
     margin-bottom: 15px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+    max-height: 4.8em; /* Approximately 3 lines */
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
 }
 
 .pending-recipe-rating {

@@ -1,11 +1,53 @@
 <?php
 session_start();
-require_once "dbconn.php";
-require_once "recipe_helpers.php"; // Include our helper functions
+
+// Add error handling for includes
+try {
+    require_once "dbconn.php";
+    require_once "recipe_helpers.php"; // Include our helper functions
+} catch (Exception $e) {
+    error_log("Include error: " . $e->getMessage());
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+        strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Server configuration error']);
+        exit();
+    } else {
+        die("Server configuration error");
+    }
+}
+
+// Check database connection
+if (!isset($conn) || $conn->connect_error) {
+    error_log("Database connection error: " . ($conn->connect_error ?? 'Connection not established'));
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+        strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Database connection error']);
+        exit();
+    } else {
+        die("Database connection error");
+    }
+}
 
 // Check if the user is logged in
 if (!isset($_SESSION['email_address'])) {
-    die("User not logged in.");
+    error_log("User not logged in - Session data: " . print_r($_SESSION, true));
+    // Better AJAX detection for login check
+    $isAjaxRequest = (
+        (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+         strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') ||
+        (isset($_SERVER['HTTP_ACCEPT']) && 
+         strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)
+    );
+    
+    if ($isAjaxRequest) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'User not logged in. Please log in again.']);
+        exit();
+    } else {
+        die("User not logged in.");
+    }
 }
 
 // Fetch user information from the session
@@ -96,7 +138,21 @@ if (isset($_SESSION['recipe_message'])) {
 }
 
 // Handle profile picture upload
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit-picture'])) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST['submit-picture']) || isset($_FILES['profile_picture']))) {
+    // Check if this is an AJAX request expecting JSON
+    $isAjaxRequest = (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
+    
+    // Start output buffering for AJAX requests to catch any unwanted output
+    if ($isAjaxRequest) {
+        ob_start();
+    }
+    
+    // Debug: Log the upload attempt
+    error_log("Profile picture upload attempt for user: " . $email);
+    error_log("POST data: " . print_r($_POST, true));
+    error_log("FILES data: " . print_r($_FILES, true));
+    error_log("Is AJAX request: " . ($isAjaxRequest ? 'YES' : 'NO'));
+    
     if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
         $fileTmpPath = $_FILES['profile_picture']['tmp_name'];
         $fileName = $_FILES['profile_picture']['name'];
@@ -104,69 +160,178 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit-picture'])) {
         $fileType = $_FILES['profile_picture']['type'];
         $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
+        error_log("File details - Name: $fileName, Size: $fileSize, Type: $fileType, Extension: $fileExtension");
+
         $allowedExtensions = array('jpg', 'jpeg', 'png', 'jfif');
-        $maxFileSize = 2 * 1024 * 1024;
+        $maxFileSize = 2 * 1024 * 1024; // 2MB
         
         if (!in_array($fileExtension, $allowedExtensions)) {
-            $_SESSION['upload_message'] = 'Only JPG, JPEG, and PNG files are allowed.';
-            header("Location: profile.php");
-            exit();
+            error_log("File extension not allowed: $fileExtension");
+            if ($isAjaxRequest) {
+                ob_clean(); // Clear any previous output
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Only JPG, JPEG, PNG, and JFIF files are allowed.']);
+                exit();
+            } else {
+                $_SESSION['upload_message'] = 'Only JPG, JPEG, PNG, and JFIF files are allowed.';
+                header("Location: profile.php");
+                exit();
+            }
         } elseif ($fileSize > $maxFileSize) {
-            $_SESSION['upload_message'] = 'File size exceeds 2MB limit.';
-            header("Location: profile.php");
-            exit();
+            error_log("File size too large: $fileSize bytes");
+            if ($isAjaxRequest) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'File size exceeds 2MB limit.']);
+                exit();
+            } else {
+                $_SESSION['upload_message'] = 'File size exceeds 2MB limit.';
+                header("Location: profile.php");
+                exit();
+            }
         } else {
             $uploadFileDir = '../uploads/';
+            
+            // Check if uploads directory exists and is writable
+            if (!is_dir($uploadFileDir)) {
+                error_log("Uploads directory does not exist, attempting to create: $uploadFileDir");
+                if (!mkdir($uploadFileDir, 0755, true)) {
+                    error_log("Failed to create uploads directory");
+                    if ($isAjaxRequest) {
+                        header('Content-Type: application/json');
+                        echo json_encode(['success' => false, 'message' => 'Unable to create uploads directory.']);
+                        exit();
+                    } else {
+                        $_SESSION['upload_message'] = 'Unable to create uploads directory.';
+                        header("Location: profile.php");
+                        exit();
+                    }
+                }
+            }
+            
+            if (!is_writable($uploadFileDir)) {
+                error_log("Uploads directory is not writable: $uploadFileDir");
+                if ($isAjaxRequest) {
+                    header('Content-Type: application/json');
+                    echo json_encode(['success' => false, 'message' => 'Uploads directory is not writable.']);
+                    exit();
+                } else {
+                    $_SESSION['upload_message'] = 'Uploads directory is not writable.';
+                    header("Location: profile.php");
+                    exit();
+                }
+            }
+            
             // Create a unique filename to prevent overwriting
             $uniqueFileName = uniqid() . '_' . $fileName;
             $destPath = $uploadFileDir . $uniqueFileName;
+            
+            error_log("Attempting to move file from $fileTmpPath to $destPath");
 
             if (move_uploaded_file($fileTmpPath, $destPath)) {
-                $relativePath = '../uploads/' . $uniqueFileName;
+                error_log("File moved successfully to: $destPath");
                 $sql = "UPDATE users SET profile_picture = ? WHERE email_address = ?";
                 $updateStmt = $conn->prepare($sql);
-                if ($updateStmt) {
-                    $updateStmt->bind_param("ss", $relativePath, $email);
+                $relativePath = 'uploads/' . $uniqueFileName; // Store relative path without ../
+                $updateStmt->bind_param("ss", $relativePath, $email);
+                
+                if ($updateStmt->execute()) {
+                    error_log("Database updated successfully for user: $email");
+                    $profile_picture = '../' . $relativePath; // Update the local variable with full path for display
                     
-                    if ($updateStmt->execute()) {
-                        $profile_picture = $relativePath; // Update the profile picture path
+                    if ($isAjaxRequest) {
+                        ob_clean(); // Clear any previous output
+                        header('Content-Type: application/json');
+                        echo json_encode([
+                            'success' => true,
+                            'message' => 'Profile picture uploaded successfully!',
+                            'profile_picture' => '../' . $relativePath // Include ../ for frontend display
+                        ]);
+                        exit();
+                    } else {
                         $_SESSION['upload_message'] = 'Profile picture uploaded successfully!';
                         header("Location: profile.php");
+                        exit();
+                    }
+                } else {
+                    error_log("Database update failed: " . $updateStmt->error);
+                    if ($isAjaxRequest) {
+                        ob_clean(); // Clear any previous output
+                        header('Content-Type: application/json');
+                        echo json_encode([
+                            'success' => false,
+                            'message' => 'Database error: ' . $updateStmt->error
+                        ]);
                         exit();
                     } else {
                         $_SESSION['upload_message'] = 'Database error: ' . $updateStmt->error;
                         header("Location: profile.php");
                         exit();
                     }
-                    $updateStmt->close();
+                }
+                $updateStmt->close();
+            } else {
+                error_log("Failed to move uploaded file from $fileTmpPath to $destPath");
+                if ($isAjaxRequest) {
+                    ob_clean(); // Clear any previous output
+                    header('Content-Type: application/json');
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Error uploading file. Please check file permissions.'
+                    ]);
+                    exit();
                 } else {
-                    $_SESSION['upload_message'] = 'Database error: ' . $conn->error;
+                    $_SESSION['upload_message'] = 'Error uploading file. Please check file permissions and try again.';
                     header("Location: profile.php");
                     exit();
                 }
-            } else {
-                $_SESSION['upload_message'] = 'Error uploading file. Please try again.';
-                header("Location: profile.php");
-                exit();
             }
         }
     } else {
         $error_code = $_FILES['profile_picture']['error'] ?? 'unknown';
+        error_log("File upload error code: $error_code");
+        
+        $error_message = '';
         switch ($error_code) {
             case UPLOAD_ERR_INI_SIZE:
             case UPLOAD_ERR_FORM_SIZE:
-                $_SESSION['upload_message'] = 'The file is too large.';
+                $error_message = 'The file is too large.';
                 break;
             case UPLOAD_ERR_PARTIAL:
-                $_SESSION['upload_message'] = 'The file was only partially uploaded.';
+                $error_message = 'The file was only partially uploaded.';
                 break;
             case UPLOAD_ERR_NO_FILE:
-                $_SESSION['upload_message'] = 'No file was uploaded.';
+                $error_message = 'No file was uploaded.';
+                break;
+            case UPLOAD_ERR_NO_TMP_DIR:
+                $error_message = 'Missing temporary folder.';
+                break;
+            case UPLOAD_ERR_CANT_WRITE:
+                $error_message = 'Failed to write file to disk.';
+                break;
+            case UPLOAD_ERR_EXTENSION:
+                $error_message = 'File upload stopped by extension.';
                 break;
             default:
-                $_SESSION['upload_message'] = 'An unknown error occurred during upload.';
+                $error_message = 'An unknown error occurred during upload (Error code: ' . $error_code . ').';
         }
-        header("Location: profile.php");
+        
+        if ($isAjaxRequest) {
+            ob_clean(); // Clear any previous output
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => $error_message]);
+            exit();
+        } else {
+            $_SESSION['upload_message'] = $error_message;
+            header("Location: profile.php");
+            exit();
+        }
+    }
+    
+    // If we reach here and it's an AJAX request, something went wrong
+    if ($isAjaxRequest) {
+        ob_clean(); // Clear any previous output
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Unexpected error during upload']);
         exit();
     }
 }
@@ -182,93 +347,216 @@ if ($stmt) {
     $stmt->close();
 
     if (!empty($profile_picture_db)) {
-        $profile_picture = $profile_picture_db;
+        // Check if the path already starts with ../ or if it's a relative path
+        if (strpos($profile_picture_db, '../') === 0) {
+            $profile_picture = $profile_picture_db;
+        } else {
+            // Add ../ prefix for display
+            $profile_picture = '../' . $profile_picture_db;
+        }
     }
 }
 
 // Handle recipe submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit-recipe'])) {
+    error_log("=== RECIPE SUBMISSION STARTED ===");
+    error_log("=== RECIPE SUBMISSION DEBUG ===");
+    error_log("POST data: " . print_r($_POST, true));
+    error_log("FILES data: " . print_r($_FILES, true));
+    error_log("Session user: " . ($_SESSION['email_address'] ?? 'Not logged in'));
+    error_log("Current working directory: " . getcwd());
+    error_log("Script filename: " . $_SERVER['SCRIPT_FILENAME']);
 
     $email = $_SESSION['email_address'];
     $sql = "SELECT id FROM users WHERE email_address = ?";
     $stmt = $conn->prepare($sql);
+    
+    if (!$stmt) {
+        error_log("Failed to prepare user query: " . $conn->error);
+        $_SESSION['recipe_message'] = "Database error. Please try again.";
+        $_SESSION['recipe_status'] = "error";
+        header("Location: profile.php");
+        exit();
+    }
+    
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows === 0) {
+        error_log("User not found in database for email: $email");
         die("User not found in database");
     }
     $user_id = $result->fetch_assoc()['id'];
     $stmt->close();
+    
+    error_log("User ID found: $user_id");
 
     // Sanitize inputs
-    $name = htmlspecialchars($_POST['title']);
-    $description = htmlspecialchars($_POST['description']);
+    $name = htmlspecialchars($_POST['title'] ?? '');
+    $description = htmlspecialchars($_POST['description'] ?? '');
+
+    error_log("Sanitized inputs - Name: '$name', Description length: " . strlen($description));
 
     // Process ingredients and instructions from textareas
-    $ingredients = array_filter(array_map('trim', explode("\n", $_POST['ingredients'][0] ?? '')));
-    $instructions = array_filter(array_map('trim', explode("\n", $_POST['instructions'][0] ?? '')));
+    // Handle both array and string inputs for consistency
+    $ingredients_input = $_POST['ingredients'] ?? '';
+    $instructions_input = $_POST['instructions'] ?? '';
+    
+    error_log("Raw ingredients input: " . print_r($ingredients_input, true));
+    error_log("Raw instructions input: " . print_r($instructions_input, true));
+    
+    // If it's an array, take the first element
+    if (is_array($ingredients_input)) {
+        $ingredients_input = $ingredients_input[0] ?? '';
+    }
+    if (is_array($instructions_input)) {
+        $instructions_input = $instructions_input[0] ?? '';
+    }
+    
+    error_log("Processed ingredients input: '$ingredients_input'");
+    error_log("Processed instructions input: '$instructions_input'");
+    
+    $ingredients = array_filter(array_map('trim', explode("\n", $ingredients_input)));
+    $instructions = array_filter(array_map('trim', explode("\n", $instructions_input)));
+
+    error_log("Final ingredients array: " . print_r($ingredients, true));
+    error_log("Final instructions array: " . print_r($instructions, true));
 
     // Validate
     $errors = [];
-    if (empty($name)) $errors[] = "Recipe title cannot be empty.";
-    if (empty($description)) $errors[] = "Description cannot be empty.";
-    if (empty($ingredients)) $errors[] = "Ingredients cannot be empty.";
-    if (empty($instructions)) $errors[] = "Instructions cannot be empty.";
+    if (empty($name) || strlen(trim($name)) < 3) {
+        $errors[] = "Recipe title must be at least 3 characters long.";
+        error_log("Validation error: Empty or short title - '$name'");
+    }
+    if (empty($description) || strlen(trim($description)) < 20) {
+        $errors[] = "Description must be at least 20 characters long.";
+        error_log("Validation error: Empty or short description - length: " . strlen($description));
+    }
+    if (empty($ingredients)) {
+        $errors[] = "Ingredients cannot be empty. Please add at least one ingredient.";
+        error_log("Validation error: Empty ingredients array");
+    }
+    if (empty($instructions)) {
+        $errors[] = "Instructions cannot be empty. Please add at least one instruction.";
+        error_log("Validation error: Empty instructions array");
+    }
     
-    // Store error/success message for JavaScript to display
-    $recipe_message = '';
-    $recipe_status = '';
+    error_log("Validation completed. Errors found: " . count($errors));
     
     // Handle image upload
+    $temporary_name = '';
+    $folder = '';
+    $unique_file_name = '';
+    
     if (empty($errors)) {
-        $file_name = $_FILES['image_url']['name'];
-        $temporary_name = $_FILES['image_url']['tmp_name'];
-        $unique_file_name = uniqid() . '_' . $file_name;
-        $folder = '../uploads/' . $unique_file_name;
+        if (empty($_FILES['image_url']['name'])) {
+            $errors[] = "Please select an image.";
+            error_log("Validation error: No image file selected");
+        } else {
+            $file_name = $_FILES['image_url']['name'];
+            $temporary_name = $_FILES['image_url']['tmp_name'];
+            $unique_file_name = uniqid() . '_' . $file_name;
+            $folder = '../uploads/' . $unique_file_name;
 
-        // Validate image
-        $allowed_extensions = ['jpg', 'jpeg', 'png', 'jfif'];
-        $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+            error_log("Image upload attempt - File: $file_name, Temp: $temporary_name, Target: $folder");
 
-        if (!in_array($file_extension, $allowed_extensions)) {
-            $errors[] = "Invalid image format. Only JPG, JPEG, and PNG are allowed.";
-        } elseif ($_FILES['image_url']['size'] > 5 * 1024 * 1024) {
-            $errors[] = "Image size exceeds 5MB limit.";
+            // Validate image
+            $allowed_extensions = ['jpg', 'jpeg', 'png', 'jfif'];
+            $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+
+            if (!in_array($file_extension, $allowed_extensions)) {
+                $errors[] = "Invalid image format. Only JPG, JPEG, PNG, and JFIF are allowed.";
+                error_log("Validation error: Invalid file extension - $file_extension");
+            } elseif ($_FILES['image_url']['size'] > 5 * 1024 * 1024) {
+                $errors[] = "Image size exceeds 5MB limit.";
+                error_log("Validation error: File too large - " . $_FILES['image_url']['size'] . " bytes");
+            }
         }
     }
 
     // Insert recipe into the database
     if (empty($errors)) {
+        error_log("Starting database insertion process...");
+        
+        // Ensure uploads directory exists and is writable
+        $upload_dir = '../uploads/';
+        if (!is_dir($upload_dir)) {
+            error_log("Uploads directory does not exist, creating: $upload_dir");
+            if (!mkdir($upload_dir, 0755, true)) {
+                error_log("Failed to create uploads directory");
+                $_SESSION['recipe_message'] = "Server configuration error. Please contact administrator.";
+                $_SESSION['recipe_status'] = "error";
+                header("Location: profile.php");
+                exit();
+            }
+        }
+        
+        if (!is_writable($upload_dir)) {
+            error_log("Uploads directory is not writable: $upload_dir");
+            $_SESSION['recipe_message'] = "Server configuration error. Please contact administrator.";
+            $_SESSION['recipe_status'] = "error";
+            header("Location: profile.php");
+            exit();
+        }
+        
+        error_log("Attempting to upload file from '$temporary_name' to '$folder'");
+        
         if (move_uploaded_file($temporary_name, $folder)) {
+            error_log("File uploaded successfully to: $folder");
+            
             $ingredients_json = json_encode($ingredients);
             $instructions_json = json_encode($instructions);
             
+            error_log("JSON encoding - Ingredients: $ingredients_json");
+            error_log("JSON encoding - Instructions: $instructions_json");
+            
             $sql = "INSERT INTO recipes (user_id, title, description, image_url, ingredients, instructions, status) VALUES (?, ?, ?, ?, ?, ?, 'pending')";
             $stmt = $conn->prepare($sql);
+            
+            if (!$stmt) {
+                error_log("Database prepare failed: " . $conn->error);
+                $_SESSION['recipe_message'] = "Database error occurred. Please try again.";
+                $_SESSION['recipe_status'] = "error";
+                header("Location: profile.php");
+                exit();
+            }
+            
             $stmt->bind_param("isssss", $user_id, $name, $description, $unique_file_name, $ingredients_json, $instructions_json);
             
+            error_log("Attempting to execute insert query with data:");
+            error_log("User ID: $user_id, Name: $name, Description: $description, Image: $unique_file_name");
+            
             if ($stmt->execute()) {
+                $recipe_id = $stmt->insert_id;
+                error_log("Recipe inserted successfully with ID: $recipe_id");
+                $stmt->close();
+                
                 // Set success message in session
                 $_SESSION['recipe_message'] = "Recipe submitted successfully! It will be visible after admin approval.";
                 $_SESSION['recipe_status'] = "success";
+                error_log("Recipe submission successful - redirecting to profile.php");
+                
                 // Redirect to prevent form resubmission
                 header("Location: profile.php");
                 exit();
             } else {
+                error_log("Database insert failed: " . $stmt->error);
+                $stmt->close();
                 $_SESSION['recipe_message'] = "Error inserting recipe: " . $stmt->error;
                 $_SESSION['recipe_status'] = "error";
                 header("Location: profile.php");
                 exit();
             }
         } else {
-            $_SESSION['recipe_message'] = "Error uploading image.";
+            error_log("File upload failed - could not move from '$temporary_name' to '$folder'");
+            $_SESSION['recipe_message'] = "Error uploading image. Please check file permissions.";
             $_SESSION['recipe_status'] = "error";
             header("Location: profile.php");
             exit();
         }
     } else {
+        error_log("Validation errors found: " . implode(", ", $errors));
         $_SESSION['recipe_message'] = implode("<br>", $errors);
         $_SESSION['recipe_status'] = "error";
         header("Location: profile.php");
@@ -455,39 +743,105 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
     }
 }
 
-// Handle recipe update
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
-    $recipe_id = $_POST['recipe_id'];
-    $title = htmlspecialchars($_POST['title']);
-    $description = htmlspecialchars($_POST['description']);
+// Handle recipe update - Check for traditional form submission
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {  
+    error_log("Recipe update request detected via traditional form submission");
+    error_log("POST data: " . print_r($_POST, true));
+    error_log("FILES data: " . print_r($_FILES, true));
     
-    // Process ingredients and instructions
-    $ingredients = array_filter(array_map('trim', explode("\n", $_POST['ingredients'])));
-    $instructions = array_filter(array_map('trim', explode("\n", $_POST['instructions'])));
+    // Add early error detection
+    try {
+        // Ensure we have user_id - always fetch fresh from database to be safe
+        $sql = "SELECT id FROM users WHERE email_address = ?";
+        $stmt = $conn->prepare($sql);
+        
+        if (!$stmt) {
+            throw new Exception("Database prepare failed: " . $conn->error);
+        }
+        
+        $stmt->bind_param("s", $_SESSION['email_address']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            $user_id = $user['id'];
+            $_SESSION['user_id'] = $user_id; // Store in session for future use
+        } else {
+            $stmt->close();
+            throw new Exception("User not found. Please log in again.");
+        } 
+        $stmt->close();
+        
+        // Continue with recipe processing
+        $recipe_id = (int)($_POST['recipe_id'] ?? 0);
+        $title = htmlspecialchars(trim($_POST['title'] ?? ''));
+        $description = htmlspecialchars(trim($_POST['description'] ?? ''));
+        
+        error_log("Recipe ID: $recipe_id, User ID: $user_id");
+        
+        // Process ingredients and instructions
+        $ingredients_input = $_POST['ingredients'] ?? '';
+        $instructions_input = $_POST['instructions'] ?? '';
+        
+        // Handle both array and string inputs for consistency
+        if (is_array($ingredients_input)) {
+            $ingredients_input = $ingredients_input[0] ?? '';
+        }
+        if (is_array($instructions_input)) {
+            $instructions_input = $instructions_input[0] ?? '';
+        }
+        
+        $ingredients = array_filter(array_map('trim', explode("\n", $ingredients_input)));
+        $instructions = array_filter(array_map('trim', explode("\n", $instructions_input)));
+        
+        // Validation
+        $update_errors = [];
+        if ($recipe_id <= 0) $update_errors[] = "Invalid recipe ID.";
+        if (empty($title)) $update_errors[] = "Recipe title cannot be empty.";
+        if (empty($description)) $update_errors[] = "Description cannot be empty.";
+        if (empty($ingredients)) $update_errors[] = "Ingredients cannot be empty.";
+        if (empty($instructions)) $update_errors[] = "Instructions cannot be empty.";
+        
+        error_log("Validation check - Recipe ID: $recipe_id, Title length: " . strlen($title) . ", Description length: " . strlen($description) . ", Ingredients count: " . count($ingredients) . ", Instructions count: " . count($instructions));
+        
+        // Query current recipe for image (only for this user)
+        $current_recipe_query = $conn->prepare("SELECT image_url FROM recipes WHERE id = ? AND user_id = ?");
+        $current_recipe_query->bind_param("ii", $recipe_id, $user_id);
+        $current_recipe_query->execute();
+        $current_recipe_result = $current_recipe_query->get_result();
+        
+        if ($current_recipe_result->num_rows === 0) {
+            $update_errors[] = "Recipe not found or you don't have permission to edit this recipe.";
+            $current_recipe = null;
+        } else {
+            $current_recipe = $current_recipe_result->fetch_assoc();
+        }
+        $current_recipe_query->close();
+        
+    } catch (Exception $e) {
+        error_log("Recipe update error: " . $e->getMessage());
+        $_SESSION['update_message'] = $e->getMessage();
+        $_SESSION['update_status'] = "error";
+        header("Location: profile.php");
+        exit();
+    }
     
-    // Validation
-    $update_errors = [];
-    if (empty($title)) $update_errors[] = "Recipe title cannot be empty.";
-    if (empty($description)) $update_errors[] = "Description cannot be empty.";
-    if (empty($ingredients)) $update_errors[] = "Ingredients cannot be empty.";
-    if (empty($instructions)) $update_errors[] = "Instructions cannot be empty.";
+    // If there are validation errors, return them early
+    if (!empty($update_errors)) {
+        $_SESSION['update_message'] = implode("<br>", $update_errors);
+        $_SESSION['update_status'] = "error";
+        header("Location: profile.php");
+        exit();
+    }
     
-    // Store error/success message
-    $update_message = '';
-    $update_status = '';
-    
-    // Query current recipe for image if we need it
-    $current_recipe_query = $conn->prepare("SELECT image_url FROM recipes WHERE id = ?");
-    $current_recipe_query->bind_param("i", $recipe_id);
-    $current_recipe_query->execute();
-    $current_recipe_result = $current_recipe_query->get_result();
-    $current_recipe = $current_recipe_result->fetch_assoc();
-    
+    // Continue with the rest of the processing only if no exception occurred and no validation errors
     // Handle image update
-    $image_url = $current_recipe['image_url']; // Keep existing image by default
+    $image_url = $current_recipe['image_url'] ?? ''; // Keep existing image by default
+    $new_image_uploaded = false;
     
-    if (!empty($_FILES['new_image']['name'])) {
-        // Similar to your existing image upload logic
+    // Only process image upload if we have a new image
+    if (!empty($_FILES['new_image']['name']) && $_FILES['new_image']['error'] === UPLOAD_ERR_OK && empty($update_errors)) {
         $file_name = $_FILES['new_image']['name'];
         $temporary_name = $_FILES['new_image']['tmp_name'];
         $unique_file_name = uniqid() . '_' . $file_name;
@@ -504,61 +858,118 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
         } else {
             if (move_uploaded_file($temporary_name, $folder)) {
                 $image_url = $unique_file_name;
+                $new_image_uploaded = true;
             } else {
                 $update_errors[] = "Error uploading new image.";
+                $_SESSION['update_message'] = "Error uploading new image.";
+                $_SESSION['update_status'] = "error";
+                header("Location: profile.php");
+                exit();
             }
         }
     }
     
     // Update database
-    if (empty($update_errors)) {
-        $ingredients_json = json_encode($ingredients);
-        $instructions_json = json_encode($instructions);
+    $ingredients_json = json_encode($ingredients);
+    $instructions_json = json_encode($instructions);
+    
+    // Check if JSON encoding was successful
+    if ($ingredients_json === false) {
+        $error_msg = "Error processing ingredients data.";
+        error_log("JSON encode failed for ingredients: " . json_last_error_msg());
+        $_SESSION['update_message'] = $error_msg;
+        $_SESSION['update_status'] = "error";
+        header("Location: profile.php");
+        exit();
+    }
+    
+    if ($instructions_json === false) {
+        $error_msg = "Error processing instructions data.";
+        error_log("JSON encode failed for instructions: " . json_last_error_msg());
+        $_SESSION['update_message'] = $error_msg;
+        $_SESSION['update_status'] = "error";
+        header("Location: profile.php");
+        exit();
+    }
+    
+    error_log("About to update recipe with: Title=$title, RecipeID=$recipe_id, UserID=$user_id");
+    error_log("Image URL: $image_url");
+    error_log("New image uploaded: " . ($new_image_uploaded ? 'Yes' : 'No'));
+    error_log("Ingredients JSON: $ingredients_json");
+    error_log("Instructions JSON: $instructions_json");
+
+    // Build SQL query conditionally based on whether image was uploaded
+    $sql = "UPDATE recipes SET 
+            title = ?, 
+            description = ?, 
+            " . ($new_image_uploaded ? "image_url = ?, " : "") . "
+            ingredients = ?, 
+            instructions = ?,
+            status = 'pending' 
+            WHERE id = ? AND user_id = ?";
+
+    // Build parameter types and values conditionally
+    $types = "ss" . ($new_image_uploaded ? "s" : "") . "ssii";
+    $params = [
+        $title, 
+        $description
+    ];
+
+    if ($new_image_uploaded) {
+        $params[] = $image_url;
+    }
+
+    $params = array_merge($params, [
+        $ingredients_json, 
+        $instructions_json, 
+        $recipe_id, 
+        $user_id
+    ]);
+
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        $error_msg = "Database prepare error: " . $conn->error;
+        error_log($error_msg);
+        $_SESSION['update_message'] = $error_msg;
+        $_SESSION['update_status'] = "error";
+        header("Location: profile.php");
+        exit();
+    }
+
+    $stmt->bind_param($types, ...$params);
+
+if ($stmt->execute()) {
+    // Check if any rows were actually updated
+    if ($stmt->affected_rows > 0) {
+        $update_message = "Recipe updated successfully! It will be visible after admin approval.";
+        $update_status = "success";
+        $stmt->close();
         
-        $sql = "UPDATE recipes SET 
-                title = ?, 
-                description = ?, 
-                image_url = ?, 
-                ingredients = ?, 
-                instructions = ?,
-                status = 'pending' 
-                WHERE id = ?";
-        
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssi", $title, $description, $image_url, 
-                         $ingredients_json, $instructions_json, $recipe_id);
-        
-        if ($stmt->execute()) {
-            $update_message = "Recipe updated successfully! It will be visible after admin approval.";
-            $update_status = "success";
-            // We'll set a session variable to show the message after redirect
-            $_SESSION['update_message'] = $update_message;
-            $_SESSION['update_status'] = $update_status;
-            
-            header("Location: profile.php");
-            exit();
-        } else {
-            $update_message = "Error updating recipe: " . $stmt->error;
-            $update_status = "error";
-            
-            // Store in session for after redirect
-            $_SESSION['update_message'] = $update_message;
-            $_SESSION['update_status'] = $update_status;
-            header("Location: profile.php");
-            exit();
-        }
+        $_SESSION['update_message'] = $update_message;
+        $_SESSION['update_status'] = $update_status;
+        header("Location: profile.php");
+        exit();
     } else {
-        $update_message = implode("<br>", $update_errors);
-        $update_status = "error";
-        // Store in session for after redirect
+        $update_message = "No changes were made to the recipe.";
+        $update_status = "info";
+        $stmt->close();
+        
         $_SESSION['update_message'] = $update_message;
         $_SESSION['update_status'] = $update_status;
         header("Location: profile.php");
         exit();
     }
+} else {
+    $update_message = "Error updating recipe: " . $stmt->error;
+    $update_status = "error";
+    $stmt->close();
+    
+    $_SESSION['update_message'] = $update_message;
+    $_SESSION['update_status'] = $update_status;
+    header("Location: profile.php");
+    exit();
 }
-
-// Close PHP tag before HTML output
+} // Close the recipe update section
 ?>
 
 <!DOCTYPE html>
@@ -602,7 +1013,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
                     </a>
                     <ul id="dropdownMenu" class="dropdown-menu">
                         <li><a class="dropdown-item raleway" href="profile.php"><i class="fas fa-user"></i> Profile</a></li>
-                        <li><a class="dropdown-item raleway" href="my_favorites.php"><i class="fas fa-heart"></i> My Favorites</a></li>
                         <li><a class="dropdown-item raleway" href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                     </ul>
                 </div>
@@ -617,17 +1027,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
     <div class="breadcrumb raleway">
         <a href="#">Home</a>&gt;<a href="#">Profile</a>
     </div>
-    <div class="profile-info"><div class="profile-picture">
+    <!-- Message container for profile picture upload messages -->
+    <div id="profile-message-container" class="message-container" 
+         data-message="<?= htmlspecialchars($uploadMessage) ?>" 
+         data-status="<?= empty($uploadMessage) ? '' : (strpos(strtolower($uploadMessage), 'success') !== false ? 'success' : 'error') ?>">
+    </div>
+    
+    <div class="profile-info">
+        <div class="profile-picture">
             <img src="<?php echo $profile_picture; ?>" alt="Profile Picture">
-            <span id="upload-message" data-message="<?= htmlspecialchars($uploadMessage) ?>"></span>
             <form action="profile.php" method="POST" enctype="multipart/form-data" id="profile-picture-form">
                 <label for="profile-picture-upload" class="change-picture-button">
                     <i class="fas fa-camera"></i>
-                    <p class="raleway">Change Picture</p>
+                    <span class="raleway">Change Picture</span>
                 </label>
-                <input type="file" id="profile-picture-upload" name="profile_picture" accept="image/jpeg,image/png,image/jpg" class="upload-input">
-                <button type="submit" class="upload-button raleway" name="submit-picture" id="profile-picture-submit">Upload</button>
-                <small class="form-text text-muted">Max file size: 2MB. Accepted formats: JPG, JPEG, PNG</small>
+                <input type="file" id="profile-picture-upload" name="profile_picture" accept="image/jpeg,image/png,image/jpg,image/jfif" class="upload-input">
+                <button type="submit" class="upload-button raleway" name="submit-picture" id="profile-picture-submit" disabled>Select Image</button>
+                <small class="form-text text-muted">Max file size: 2MB. Accepted formats: JPG, JPEG, PNG, JFIF</small>
             </form>
         </div>
         <div class="profile-divider"></div>
@@ -662,6 +1078,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update-recipe'])) {
             </div>
             
             <form action="profile.php" method="POST" enctype="multipart/form-data" id="recipe-form">
+                <!-- Hidden field to ensure submit-recipe parameter is always sent -->
+                <input type="hidden" name="submit-recipe" value="1">
                 <div class="form-group">
                     <label for="name" class="raleway">Recipe Name</label>
                     <input type="text" id="name" name="title" class="form-control" value="<?= htmlspecialchars($name ?? '') ?>" required>
@@ -707,7 +1125,8 @@ Step 3: Let cool before serving"
                     </div>
                 </div>
                 <div class="form-group button-row">
-                    <button type="submit" name="submit-recipe" class="raleway submit-btn">
+                    <button type="submit" name="submit-recipe" class="raleway submit-btn" 
+                            style="pointer-events: auto !important; cursor: pointer !important; z-index: 1000 !important;">
                         <i class="fas fa-paper-plane"></i> Submit Recipe
                     </button>
                 </div>
@@ -795,7 +1214,8 @@ Step 3: Let cool before serving"
                 <?php endif; ?>
             </div>
         </div>
-    </section>    <section id="myFavourits" class="content-section">
+    </section>
+    <section id="myFavourits" class="content-section">
         <div class="card-container">
             <h2 class="section-title playfair-display">My Favorite Recipes</h2>
             <div id="favorite-message" class="message-container" 
@@ -841,7 +1261,7 @@ Step 3: Let cool before serving"
                             </div>
                             <div class="action-buttons">
                                 <button class="view-button" onclick='viewRecipe(
-                                    <?= json_encode($fav_recipe['id']) ?>, 
+                                    <?= json_encode(value: $fav_recipe['id']) ?>, 
                                     <?= json_encode($fav_recipe['title']) ?>, 
                                     <?= json_encode($fav_recipe['description']) ?>, 
                                     <?= json_encode($fav_recipe['image_url']) ?>, 
@@ -899,24 +1319,25 @@ Step 3: Let cool before serving"
     </div>
     
     <form action="profile.php" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="update-recipe" value="1">
         <input type="hidden" name="recipe_id" id="update_recipe_id">
         
         <div class="form-group">
-            <label class="raleway">Title</label>
+            <label for="update_title" class="raleway">Title</label>
             <input type="text" name="title" id="update_title" class="form-control" required
                    minlength="3" maxlength="100">
             <small class="form-text text-muted">Title should be between 3-100 characters</small>
         </div>
 
         <div class="form-group">
-            <label class="raleway">Description</label>
+            <label for="update_description" class="raleway">Description</label>
             <textarea name="description" id="update_description" class="form-control" required
                       minlength="20"></textarea>
             <small class="form-text text-muted">Describe your recipe in detail (min. 20 characters)</small>
         </div>
         
         <div class="form-group">
-            <label class="raleway">Ingredients</label>
+            <label for="update_ingredients" class="raleway">Ingredients</label>
             <textarea name="ingredients" id="update_ingredients" class="form-control" required
                       placeholder="Enter one ingredient per line:
 1 cup flour
@@ -926,7 +1347,7 @@ Step 3: Let cool before serving"
         </div>
         
         <div class="form-group">
-            <label class="raleway">Instructions</label>
+            <label for="update_instructions" class="raleway">Instructions</label>
             <textarea name="instructions" id="update_instructions" class="form-control" required
                       placeholder="Enter one step per line:
 Step 1: Mix ingredients
@@ -938,7 +1359,7 @@ Step 3: Let cool before serving" rows="4"></textarea>
         <div class="form-group">
             <label class="raleway">Current Image</label>
             <div class="current-image-preview">
-                <img id="current_recipe_image" src="" alt="Current Recipe Image" style="max-width: 200px;">
+                <img id="current_recipe_image" src="" alt="Current Recipe" style="max-width: 200px;">
             </div>
         </div>
         
@@ -947,9 +1368,11 @@ Step 3: Let cool before serving" rows="4"></textarea>
             <input type="file" id="new_image" name="new_image" accept="image/*" class="form-control">
             <small class="form-text text-muted">Upload a new image of your dish (JPG, JPEG, PNG only, max 5MB)</small>
             <div class="image-preview-container">
-                <img src="#" alt="New Image Preview" class="new-image-preview" style="display: none; max-width: 200px; margin-top: 10px;">
+                <img src="#" alt="New Preview" class="new-image-preview" style="display: none; max-width: 200px; margin-top: 10px;">
             </div>
-        </div>        <div class="form-group button-row">
+        </div>
+        
+        <div class="form-group button-row">
             <button type="submit" name="update-recipe" class="raleway submit-btn">
                 <i class="fas fa-save"></i> Save Changes
             </button>
