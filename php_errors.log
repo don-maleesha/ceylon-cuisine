@@ -1,0 +1,30 @@
+[29-Jul-2025 10:46:17 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: htmlspecialchars(): Argument #1 ($string) must be of type string, array given in E:\xampp new\htdocs\web _Projects\ceylon-cuisine\test_submit.php:38
+Stack trace:
+#0 E:\xampp new\htdocs\web _Projects\ceylon-cuisine\test_submit.php(38): htmlspecialchars(Array)
+#1 {main}
+  thrown in E:\xampp new\htdocs\web _Projects\ceylon-cuisine\test_submit.php on line 38
+[29-Jul-2025 10:55:26 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: htmlspecialchars(): Argument #1 ($string) must be of type string, array given in E:\xampp new\htdocs\web _Projects\ceylon-cuisine\test_submit.php:38
+Stack trace:
+#0 E:\xampp new\htdocs\web _Projects\ceylon-cuisine\test_submit.php(38): htmlspecialchars(Array)
+#1 {main}
+  thrown in E:\xampp new\htdocs\web _Projects\ceylon-cuisine\test_submit.php on line 38
+[29-Jul-2025 10:55:32 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: htmlspecialchars(): Argument #1 ($string) must be of type string, array given in E:\xampp new\htdocs\web _Projects\ceylon-cuisine\test_submit.php:38
+Stack trace:
+#0 E:\xampp new\htdocs\web _Projects\ceylon-cuisine\test_submit.php(38): htmlspecialchars(Array)
+#1 {main}
+  thrown in E:\xampp new\htdocs\web _Projects\ceylon-cuisine\test_submit.php on line 38
+[29-Jul-2025 11:03:21 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: htmlspecialchars(): Argument #1 ($string) must be of type string, array given in E:\xampp new\htdocs\web _Projects\ceylon-cuisine\test_submit.php:38
+Stack trace:
+#0 E:\xampp new\htdocs\web _Projects\ceylon-cuisine\test_submit.php(38): htmlspecialchars(Array)
+#1 {main}
+  thrown in E:\xampp new\htdocs\web _Projects\ceylon-cuisine\test_submit.php on line 38
+[29-Jul-2025 11:08:17 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: htmlspecialchars(): Argument #1 ($string) must be of type string, array given in E:\xampp new\htdocs\web _Projects\ceylon-cuisine\test_submit.php:38
+Stack trace:
+#0 E:\xampp new\htdocs\web _Projects\ceylon-cuisine\test_submit.php(38): htmlspecialchars(Array)
+#1 {main}
+  thrown in E:\xampp new\htdocs\web _Projects\ceylon-cuisine\test_submit.php on line 38
+[29-Jul-2025 11:14:20 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: htmlspecialchars(): Argument #1 ($string) must be of type string, array given in E:\xampp new\htdocs\web _Projects\ceylon-cuisine\test_submit.php:38
+Stack trace:
+#0 E:\xampp new\htdocs\web _Projects\ceylon-cuisine\test_submit.php(38): htmlspecialchars(Array)
+#1 {main}
+  thrown in E:\xampp new\htdocs\web _Projects\ceylon-cuisine\test_submit.php on line 38

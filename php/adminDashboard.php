@@ -158,6 +158,84 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     }
     
+    // Update recipe
+    if (isset($_POST['update_recipe'])) {
+        $recipeId = $_POST['recipe_id'];
+        $title = trim($_POST['title']);
+        $description = trim($_POST['description']);
+        $ingredients = $_POST['ingredients'];
+        $instructions = $_POST['instructions'];
+        
+        // Validate input
+        $errors = [];
+        if (empty($title)) $errors[] = "Recipe title cannot be empty.";
+        if (empty($description)) $errors[] = "Recipe description cannot be empty.";
+        if (empty($ingredients)) $errors[] = "Ingredients cannot be empty.";
+        if (empty($instructions)) $errors[] = "Instructions cannot be empty.";
+        
+        if (empty($errors)) {
+            // Convert arrays to JSON
+            $ingredientsJson = json_encode($ingredients);
+            $instructionsJson = json_encode($instructions);
+            
+            // Check if we need to handle image update
+            $imageUpdate = "";
+            $imageParams = "";
+            $newImageUrl = null;
+            
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                // Handle new image upload
+                $uploadDir = '../uploads/';
+                $fileExtension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+                $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+                
+                if (in_array($fileExtension, $allowedExtensions)) {
+                    $newImageUrl = uniqid() . '_' . $_FILES['image']['name'];
+                    $uploadPath = $uploadDir . $newImageUrl;
+                    
+                    if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadPath)) {
+                        // Get old image to delete it
+                        $stmt = $conn->prepare("SELECT image_url FROM recipes WHERE id = ?");
+                        $stmt->bind_param("i", $recipeId);
+                        $stmt->execute();
+                        $stmt->bind_result($oldImageUrl);
+                        $stmt->fetch();
+                        $stmt->close();
+                        
+                        // Delete old image if it exists
+                        if ($oldImageUrl && file_exists($uploadDir . $oldImageUrl)) {
+                            unlink($uploadDir . $oldImageUrl);
+                        }
+                        
+                        $imageUpdate = ", image_url = ?";
+                        $imageParams = "s";
+                    }
+                }
+            }
+            
+            // Prepare update query
+            $query = "UPDATE recipes SET title = ?, description = ?, ingredients = ?, instructions = ?, updated_at = CURRENT_TIMESTAMP" . $imageUpdate . " WHERE id = ?";
+            $stmt = $conn->prepare($query);
+            
+            if ($newImageUrl) {
+                $stmt->bind_param("ssssi", $title, $description, $ingredientsJson, $instructionsJson, $newImageUrl, $recipeId);
+            } else {
+                $stmt->bind_param("ssssi", $title, $description, $ingredientsJson, $instructionsJson, $recipeId);
+            }
+            
+            if ($stmt->execute()) {
+                header("Location: adminDashboard.php?tab=recipes&success=recipe_updated");
+            } else {
+                header("Location: adminDashboard.php?tab=recipes&error=update_failed");
+            }
+            $stmt->close();
+        } else {
+            $errorMsg = implode(", ", $errors);
+            header("Location: adminDashboard.php?tab=recipes&error=" . urlencode($errorMsg));
+        }
+        exit();
+    }
+    
     // User role update
     if (isset($_POST['update_role'])) {
         $userId = $_POST['user_id'];
@@ -544,6 +622,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <!-- Recipe Management -->
                 <h1 class="playfair-display">Recipe Management</h1>
                 
+                <?php
+                // Display success/error messages
+                if (isset($_GET['success'])) {
+                    if ($_GET['success'] == 'recipe_updated') {
+                        echo '<div class="alert alert-success"><i class="fas fa-check-circle"></i> Recipe updated successfully!</div>';
+                    }
+                }
+                if (isset($_GET['error'])) {
+                    if ($_GET['error'] == 'update_failed') {
+                        echo '<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> Failed to update recipe. Please try again.</div>';
+                    } else {
+                        echo '<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ' . htmlspecialchars($_GET['error']) . '</div>';
+                    }
+                }
+                ?>
+                
                 <div class="admin-actions">
                     <div class="search-bar">
                         <form action="adminDashboard.php" method="GET">
@@ -672,6 +766,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <td><?php echo date('M d, Y', strtotime($recipe['created_at'])); ?></td>
                                 <td class="action-buttons">
                                     <a href="recipe_detail.php?id=<?php echo $recipe['id']; ?>" class="btn-view" target="_blank">View</a>
+                                    
+                                    <button type="button" class="btn-edit edit-recipe-btn" 
+                                            data-recipe-id="<?php echo $recipe['id']; ?>" 
+                                            title="Edit Recipe">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
                                     
                                     <form method="POST" class="inline-form">
                                         <input type="hidden" name="recipe_id" value="<?php echo $recipe['id']; ?>">
@@ -1022,6 +1122,68 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
     
+    <!-- Edit Recipe Modal -->
+    <div id="editRecipeModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2><i class="fas fa-edit"></i> Edit Recipe</h2>
+                <span class="close" onclick="closeEditRecipeModal()">&times;</span>
+            </div>
+            <form id="editRecipeForm" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="update_recipe" value="1">
+                <input type="hidden" name="recipe_id" id="editRecipeId" value="">
+                
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="editTitle">Recipe Title:</label>
+                        <input type="text" id="editTitle" name="title" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editDescription">Description:</label>
+                        <textarea id="editDescription" name="description" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editImage">Recipe Image (optional):</label>
+                        <input type="file" id="editImage" name="image" accept="image/*">
+                        <div class="current-image" id="currentImageContainer">
+                            <label>Current Image:</label>
+                            <img id="currentImage" src="" alt="Current recipe image" style="max-width: 200px; height: auto;">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Ingredients:</label>
+                        <div id="editIngredientsContainer">
+                            <!-- Dynamic ingredient inputs will be added here -->
+                        </div>
+                        <button type="button" id="addEditIngredient" class="btn-add">
+                            <i class="fas fa-plus"></i> Add Ingredient
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Instructions:</label>
+                        <div id="editInstructionsContainer">
+                            <!-- Dynamic instruction inputs will be added here -->
+                        </div>
+                        <button type="button" id="addEditInstruction" class="btn-add">
+                            <i class="fas fa-plus"></i> Add Instruction
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeEditRecipeModal()">Cancel</button>
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i> Update Recipe
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
     <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="modal">
         <div class="modal-content">
@@ -1118,6 +1280,101 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </form>
     
     <script>
+        // Edit recipe modal functions
+        let editRecipeIngredientCount = 0;
+        let editRecipeInstructionCount = 0;
+        
+        function showEditRecipeModal(recipeId) {
+            // Reset counters
+            editRecipeIngredientCount = 0;
+            editRecipeInstructionCount = 0;
+            
+            // Clear previous data
+            document.getElementById('editRecipeId').value = recipeId;
+            document.getElementById('editIngredientsContainer').innerHTML = '';
+            document.getElementById('editInstructionsContainer').innerHTML = '';
+            
+            // Fetch recipe data via AJAX
+            fetch('get_recipe_data.php?id=' + recipeId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Populate form fields
+                        document.getElementById('editTitle').value = data.recipe.title;
+                        document.getElementById('editDescription').value = data.recipe.description;
+                        
+                        // Show current image
+                        if (data.recipe.image_url) {
+                            document.getElementById('currentImage').src = '../uploads/' + data.recipe.image_url;
+                            document.getElementById('currentImageContainer').style.display = 'block';
+                        } else {
+                            document.getElementById('currentImageContainer').style.display = 'none';
+                        }
+                        
+                        // Parse and populate ingredients
+                        const ingredients = JSON.parse(data.recipe.ingredients);
+                        Object.values(ingredients).forEach(ingredient => {
+                            addEditIngredientField(ingredient);
+                        });
+                        
+                        // Parse and populate instructions
+                        const instructions = JSON.parse(data.recipe.instructions);
+                        Object.values(instructions).forEach(instruction => {
+                            addEditInstructionField(instruction);
+                        });
+                        
+                        // Show modal
+                        document.getElementById('editRecipeModal').style.display = 'block';
+                    } else {
+                        alert('Error loading recipe data: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading recipe data. Please try again.');
+                });
+        }
+        
+        function closeEditRecipeModal() {
+            document.getElementById('editRecipeModal').style.display = 'none';
+        }
+        
+        function addEditIngredientField(value = '') {
+            const container = document.getElementById('editIngredientsContainer');
+            const div = document.createElement('div');
+            div.className = 'ingredient-input-group';
+            div.innerHTML = `
+                <input type="text" name="ingredients[${editRecipeIngredientCount}]" value="${value}" placeholder="Enter ingredient" required>
+                <button type="button" class="btn-remove" onclick="removeEditIngredient(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            container.appendChild(div);
+            editRecipeIngredientCount++;
+        }
+        
+        function addEditInstructionField(value = '') {
+            const container = document.getElementById('editInstructionsContainer');
+            const div = document.createElement('div');
+            div.className = 'instruction-input-group';
+            div.innerHTML = `
+                <textarea name="instructions[${editRecipeInstructionCount}]" placeholder="Enter instruction step" required>${value}</textarea>
+                <button type="button" class="btn-remove" onclick="removeEditInstruction(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            container.appendChild(div);
+            editRecipeInstructionCount++;
+        }
+        
+        function removeEditIngredient(button) {
+            button.parentElement.remove();
+        }
+        
+        function removeEditInstruction(button) {
+            button.parentElement.remove();
+        }
+        
         // Delete confirmation modal functions
         let currentRecipeId = null;
         
@@ -1258,6 +1515,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         // Handle tab navigation
         document.addEventListener('DOMContentLoaded', function() {
+            // Add click event listeners to edit buttons
+            const editButtons = document.querySelectorAll('.edit-recipe-btn');
+            editButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const recipeId = this.getAttribute('data-recipe-id');
+                    showEditRecipeModal(recipeId);
+                });
+            });
+            
+            // Add ingredient and instruction buttons for edit modal
+            document.getElementById('addEditIngredient').addEventListener('click', function() {
+                addEditIngredientField();
+            });
+            
+            document.getElementById('addEditInstruction').addEventListener('click', function() {
+                addEditInstructionField();
+            });
+            
             // Add click event listeners to delete buttons
             const deleteButtons = document.querySelectorAll('.delete-recipe-btn');
             deleteButtons.forEach(button => {
